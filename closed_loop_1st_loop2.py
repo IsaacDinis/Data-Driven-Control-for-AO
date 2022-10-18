@@ -85,8 +85,11 @@ if __name__ == "__main__":
     supervisor.atmos.enable_atmos(True) 
 
     # Load controller coefficients
-    K_tt = np.genfromtxt('../../controllers/Kdd_tt_KL2V_8.csv',delimiter=',')
-    K_DM = np.genfromtxt('../../controllers/Kdd_1st_DM_KL2V_8.csv',delimiter=',')
+    # K_tt = np.genfromtxt('../../controllers/Kdd_tt_KL2V_8.csv',delimiter=',')
+    # K_DM = np.genfromtxt('../../controllers/Kdd_1st_DM_KL2V_8.csv',delimiter=',')
+    K_tt = np.genfromtxt('Kdd_tt_KL2V_8.csv',delimiter=',')
+    K_DM = np.genfromtxt('Kdd_1st_DM_KL2V_8.csv',delimiter=',')
+
     # K = K.reshape((int(K.shape[0]/2),2,1307),order='F')
     K_tt = K_tt.reshape((int(K_tt.shape[0]/2),2,2),order='F')
     K_DM = K_DM.reshape((int(K_DM.shape[0]/2),2,n_modes_dd),order='F')
@@ -94,11 +97,12 @@ if __name__ == "__main__":
     b = np.array([0.20,0])
     b_tt = np.array([0.50,0])
     # Load command and influence matrix
-    command_mat = np.genfromtxt('../../control_matrices/command_mat_KL2V.csv',delimiter=",")
-    inf_mat = np.genfromtxt('../../control_matrices/inf_mat_KL2V.csv',delimiter=",")
+    # command_mat = np.genfromtxt('../../control_matrices/command_mat_KL2V.csv',delimiter=",")
+    # inf_mat = np.genfromtxt('../../control_matrices/inf_mat_KL2V.csv',delimiter=",")
+    command_mat = np.genfromtxt('command_mat_KL2V.csv',delimiter=",")
+    inf_mat = np.genfromtxt('inf_mat_KL2V.csv',delimiter=",")
 
-
-    bool_int = False
+    bool_int = True
     bool_int_tt = True
     #------------------------------------
     # control tilt mode
@@ -110,7 +114,7 @@ if __name__ == "__main__":
     strehl_se = np.zeros(n_iter)
     slopes_rms = np.zeros(n_iter)
     strehl_le = np.zeros(n_iter)
-
+    strehl_phase = np.zeros(int(n_iter/100))
 
     state_mat_int = np.zeros((2,2,n_modes))
     state_mat_dd = np.zeros((K_DM.shape[0],2,n_modes_dd))
@@ -180,14 +184,17 @@ if __name__ == "__main__":
         strehl = supervisor.target.get_strehl(0)
         strehl_se[i] = strehl[0];
         strehl_le[i] = strehl[1];
+
         slopes_rms[i] = np.std(slopes); 
+
         if i%100==0:
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
             wfs_phase = supervisor.wfs.get_wfs_phase(0)
-            np.savetxt("../../residuals/phase_dd/phase_dd_"+str(phase_count)+".csv", wfs_phase, delimiter=",")
+            np.savetxt("phase_int/phase_int"+str(phase_count)+".csv", wfs_phase, delimiter=",")
+            strehl_phase[phase_count] = strehl_se[i]
             phase_count += 1
         supervisor.next()
-
+    np.savetxt("phase_int/strehl_int.csv", strehl_phase, delimiter=",")
     # psf = supervisor.target.get_tar_image(0,expo_type = "le")
     
     # wfs_phase = supervisor.wfs.get_wfs_phase(0)
