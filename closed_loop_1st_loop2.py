@@ -184,13 +184,16 @@ if __name__ == "__main__":
         strehl = supervisor.target.get_strehl(0)
         strehl_se[i] = strehl[0];
         strehl_le[i] = strehl[1];
+        print(strehl[2].size)
 
         slopes_rms[i] = np.std(slopes); 
 
         if i%100==0:
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
             wfs_phase = supervisor.wfs.get_wfs_phase(0)
-            np.savetxt("phase_int/phase_int"+str(phase_count)+".csv", wfs_phase, delimiter=",")
+            tar_phase = supervisor.target.get_tar_phase(0)
+            np.savetxt("phase_int/phase_int_"+str(phase_count)+".csv", wfs_phase, delimiter=",")
+            np.savetxt("phase_int/tar_int_"+str(phase_count)+".csv", tar_phase, delimiter=",")
             strehl_phase[phase_count] = strehl_se[i]
             phase_count += 1
         supervisor.next()

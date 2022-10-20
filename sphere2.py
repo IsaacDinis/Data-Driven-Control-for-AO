@@ -42,7 +42,7 @@ p_targets = [p_target]
 
 p_target.set_xpos(0.)
 p_target.set_ypos(0.)
-p_target.set_Lambda(1.65) # H Band
+p_target.set_Lambda(1) # H Band
 p_target.set_mag(1.)
 
 # wfs
@@ -56,7 +56,7 @@ p_wfs0.set_pixsize(0.3)
 p_wfs0.set_fracsub(0.8)
 p_wfs0.set_xpos(0.)
 p_wfs0.set_ypos(0.)
-p_wfs0.set_Lambda(0.7)        # SAXO SH bandwidth : [475, 900] nm
+p_wfs0.set_Lambda(0.8)        # SAXO SH bandwidth : [475, 900] nm
 p_wfs0.set_gsmag(1.)
 p_wfs0.set_optthroughput(0.1) # still unknown
 p_wfs0.set_zerop(1e11)        # zero point for guide star magnitude
