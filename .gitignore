@@ -1,3 +1,5 @@
 .idea/
 phase_dd/*.csv
 phase_int/*.csv
+phase_diff_limit/*.csv
+phase_turb/*.csv

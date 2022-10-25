@@ -33,7 +33,7 @@ p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
 p_atmos.set_windspeed([8]) # wind speed of layer(s) in m/s
-p_atmos.set_winddir([45])  # wind direction in degrees
+p_atmos.set_winddir([0])  # wind direction in degrees
 p_atmos.set_L0([25])       # in meters
 
 # target

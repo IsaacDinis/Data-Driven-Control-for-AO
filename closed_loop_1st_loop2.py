@@ -73,7 +73,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000*1
+        n_iter = 1000*10
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
@@ -175,7 +175,8 @@ if __name__ == "__main__":
         # if np.amax(np.absolute(voltage)) > 2:
         #     print("Warning saturation")
         #     print(np.amax(np.absolute(voltage)))
-        # supervisor.rtc.set_perturbation_voltage(0, "", voltage)
+
+        supervisor.rtc.set_perturbation_voltage(0, "", voltage)
         res_array[i,:] = modes
         # supervisor.target.comp_strehl(0)
         
@@ -188,17 +189,18 @@ if __name__ == "__main__":
 
         slopes_rms[i] = np.std(slopes); 
 
-        if i%100==0:
+        if i%100==0 and i > 200:
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
             wfs_phase = supervisor.wfs.get_wfs_phase(0)
             tar_phase = supervisor.target.get_tar_phase(0)
             # np.savetxt("phase_dd/phase_dd_"+str(phase_count)+".csv", wfs_phase, delimiter=",")
-            # np.savetxt("phase_dd/tar_dd_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+            np.savetxt("phase_dd/phase_tar_dd_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+            # np.savetxt("phase_turb/phase_turb_tar_"+str(phase_count)+".csv", tar_phase, delimiter=",")
             strehl_phase[phase_count] = strehl_se[i]
             phase_count += 1
         supervisor.next()
-    # np.savetxt("phase_diff_limit/phase_diff_limit_wfs.csv", supervisor.wfs.get_wfs_phase(0), delimiter=",")
-    np.savetxt("phase_diff_limit/phase_turb_tar.csv", supervisor.target.get_tar_phase(0), delimiter=",")
+    # np.savetxt("phase_diff_limit/phase_diff_limit_tar.csv", supervisor.target.get_tar_phase(0), delimiter=",")
+    
     # np.savetxt("phase_dd/strehl_dd.csv", strehl_phase, delimiter=",")
 
     # psf = supervisor.target.get_tar_image(0,expo_type = "le")

@@ -61,10 +61,10 @@ def intensity_coro(phase,strehl,mask,step=1,pad=0,phase_factor=1,strehl_factor=1
 
     return np.fft.fftshift(np.abs(np.fft.fft2(e_field))**2)
 
-def compute_psf(phase, mask, step=1, pad=50):
+def compute_psf(phase, mask, step=1, pad=0):
     # phase *= phase_factor
     phase -= np.mean(phase[mask > 0])
-
+    print(np.exp(-np.std(phase[mask>0])**2))
     e_field = np.exp(phase*1j)*mask
 
 
@@ -75,9 +75,10 @@ def compute_psf(phase, mask, step=1, pad=50):
     plt.colorbar()
     plt.show()
 
-    psf = np.fft.fftshift(np.abs(np.fft.fft2(e_field))**2)
 
+    psf = np.fft.fftshift(np.abs(np.fft.fft2(e_field))**2)
     return psf
+
 
 def plot_int_dd_comp(img_int,img_dd,D,pupil_diam,lamb,step,pad):
     fs = pupil_diam/(step*D)
@@ -169,18 +170,36 @@ def contrast():
     # b.title.set_text("dd")
     plt.show()
 
-
+def average_var():
+    mask = pupil_mask(400,0.14)
+    var = 0
+    count = 0
+    for i in range(3,100):
+        count += 1
+        phase = np.genfromtxt('phase_turb/phase_turb_tar_'+str(i)+'.csv', delimiter=",")
+        phase *= 2*np.pi/(0.7)
+        phase -= np.mean(phase[mask > 0])
+        var += np.std(phase[mask > 0]) ** 2
+        # phase_dd = phase_psd(phase_dd, mask_wfs, step, 50)
+    var/= count
+    print(var)
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
     # display_wf()
+    # average_var()
 
     mask = pupil_mask(400,0.14)
-    phase_turb = np.genfromtxt('phase_diff_limit/phase_turb_tar.csv', delimiter=",")
+
+    # phase_turb = np.genfromtxt('phase_diff_limit/phase_turb_tar.csv', delimiter=",")
+    phase_turb = np.genfromtxt('phase_diff_limit/phase_turb_tar.csv', delimiter=",")*2*np.pi/(0.7)
+    phase_diff_limit = np.genfromtxt('phase_diff_limit/phase_diff_limit_tar.csv', delimiter=",")*2*np.pi/(0.7)
     psf_turb = compute_psf(phase_turb, mask)
-    plt.imshow(phase_turb)#,norm=colors.LogNorm())
-    plt.colorbar()
-    # plt.plot(psf_turb[:,200])
+    psf_diff_limit = compute_psf(phase_diff_limit, mask)
+    print(np.max(psf_turb)/np.max(psf_diff_limit))
+    # plt.imshow(psf_turb)#,norm=colors.LogNorm())
+    # plt.colorbar()
+    plt.plot(psf_turb[:,int(psf_turb.shape[0]/2)])
     # plt.yscale("log")
     plt.show()
 
