@@ -73,7 +73,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000*10
+        n_iter = 1000*100
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
@@ -84,31 +84,27 @@ if __name__ == "__main__":
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(True) 
 
-    # Load controller coefficients
-    # K_tt = np.genfromtxt('../../controllers/Kdd_tt_KL2V_8.csv',delimiter=',')
-    # K_DM = np.genfromtxt('../../controllers/Kdd_1st_DM_KL2V_8.csv',delimiter=',')
-    K_tt = np.genfromtxt('Kdd_tt_KL2V_8.csv',delimiter=',')
-    K_DM = np.genfromtxt('Kdd_1st_DM_KL2V_8.csv',delimiter=',')
 
-    # K = K.reshape((int(K.shape[0]/2),2,1307),order='F')
-    K_tt = K_tt.reshape((int(K_tt.shape[0]/2),2,2),order='F')
+    K_DM = np.genfromtxt('Kdd_1st_DM_KL2V_34.csv',delimiter=',')
+
     K_DM = K_DM.reshape((int(K_DM.shape[0]/2),2,n_modes_dd),order='F')
+
     a = np.array([1.,-1]) 
-    b = np.array([0.20,0])
+    b = np.array([0.50,0])
     b_tt = np.array([0.50,0])
+
     # Load command and influence matrix
-    # command_mat = np.genfromtxt('../../control_matrices/command_mat_KL2V.csv',delimiter=",")
-    # inf_mat = np.genfromtxt('../../control_matrices/inf_mat_KL2V.csv',delimiter=",")
     command_mat = np.genfromtxt('command_mat_KL2V.csv',delimiter=",")
     inf_mat = np.genfromtxt('inf_mat_KL2V.csv',delimiter=",")
 
-    bool_int = False
+    bool_int = True
     bool_int_tt = True
+
     #------------------------------------
     # control tilt mode
     #------------------------------------
     saved_mode = 0
-    # res_array = np.empty((n_iter,n_modes+2))
+
     res_array = np.empty((n_iter,command_mat.shape[0]))
     u = np.zeros(n_iter)
     strehl_se = np.zeros(n_iter)
@@ -118,25 +114,20 @@ if __name__ == "__main__":
 
     state_mat_int = np.zeros((2,2,n_modes))
     state_mat_dd = np.zeros((K_DM.shape[0],2,n_modes_dd))
-    # state_mat = np.zeros((2,2,n_modes))
+
 
     state_mat_tt_int = np.zeros((2,2,2))
     state_mat_tt_dd = np.zeros((K_tt.shape[0],2,2))
     phase_count = 0
+
     for i in range(n_iter):
-        # if i == 1500:
-        #     supervisor.target.reset_strehl(0)
+
         voltage = np.zeros(inf_mat.shape[0])  
 
         slopes = supervisor.rtc.get_slopes(0)
 
         modes = np.dot(command_mat,slopes)
-        # state_mat[1:,:,0] = state_mat[0:-1,:,0]
-        # state_mat[0,0,0] = modes[0+1]
-        # state_mat[0,1,0] = 0
-        # command = np.dot(K[:,0,0],state_mat[:,0,0]) - np.dot(K[:,1,0],state_mat[:,1,0])
-        # state_mat[0,1,0] = command
-        
+
         
         state_mat_int[1:,:,:] = state_mat_int[0:-1,:,:]
         state_mat_int[0,0,:] = modes[0:n_modes]
@@ -151,8 +142,7 @@ if __name__ == "__main__":
             command_dd = np.sum(np.multiply(K_DM[:,0,:],state_mat_dd[:,0,:]) - np.multiply(K_DM[:,1,:],state_mat_dd[:,1,:]),0)
             state_mat_dd[0,1,:] = command_dd
             command_int[0:880] = command_dd[0:880]
-            # print(command_dd[0])
-            # res_array[i,mode] = modes[mode]
+
         voltage = -inf_mat[:,0:n_modes] @ command_int
 
         state_mat_tt_int[1:,:,:] = state_mat_tt_int[0:-1,:,:]
@@ -161,27 +151,12 @@ if __name__ == "__main__":
         command_int_tt = np.dot(b,state_mat_tt_int[:,0,:]) - np.dot(a,state_mat_tt_int[:,1,:])
         state_mat_tt_int[0,1,:] = command_int_tt
 
-        if not bool_int_tt:
-            state_mat_tt_dd[1:,:,:] = state_mat_tt_dd[0:-1,:,:]
-            state_mat_tt_dd[0,0,:] = modes[-2:]
-            state_mat_tt_dd[0,1,:] = 0
-            command_tt_dd = np.sum(np.multiply(K_tt[:,0,:],state_mat_tt_dd[:,0,:]) - np.multiply(K_tt[:,1,:],state_mat_tt_dd[:,1,:]),0)
-            state_mat_tt_dd[0,1,:] = command_tt_dd
-            command_int_tt = command_tt_dd
 
         voltage -= inf_mat[:,-2:] @ command_int_tt
 
-        # print('input = {:.5f} command = {:.5f} \n'.format(modes[1], command))
-        # if np.amax(np.absolute(voltage)) > 2:
-        #     print("Warning saturation")
-        #     print(np.amax(np.absolute(voltage)))
-
         supervisor.rtc.set_perturbation_voltage(0, "", voltage)
         res_array[i,:] = modes
-        # supervisor.target.comp_strehl(0)
-        
-        # res_array[i] = np.sum(modes[2:10]**2)
-        # res_array[i] = np.sum(modes**2)
+
         strehl = supervisor.target.get_strehl(0)
         strehl_se[i] = strehl[0];
         strehl_le[i] = strehl[1];
@@ -194,7 +169,7 @@ if __name__ == "__main__":
             wfs_phase = supervisor.wfs.get_wfs_phase(0)
             tar_phase = supervisor.target.get_tar_phase(0)
             # np.savetxt("phase_dd/phase_dd_"+str(phase_count)+".csv", wfs_phase, delimiter=",")
-            np.savetxt("phase_dd/phase_tar_dd_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+            np.savetxt("phase_int_34/phase_tar_int_"+str(phase_count)+".csv", tar_phase, delimiter=",")
             # np.savetxt("phase_turb/phase_turb_tar_"+str(phase_count)+".csv", tar_phase, delimiter=",")
             strehl_phase[phase_count] = strehl_se[i]
             phase_count += 1
@@ -222,6 +197,7 @@ if __name__ == "__main__":
     # np.savetxt("../../residuals/psf/psf_ol_r0_08.csv", psf, delimiter=",")
     # np.savetxt("../../residuals/psf/wfs_image_int_8.csv", wfs_image, delimiter=",")
     # np.savetxt("../../residuals/psf/wfs_phase_int_8.csv", wfs_phase, delimiter=",")
+    
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import basename

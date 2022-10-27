@@ -3,3 +3,7 @@ phase_dd/*.csv
 phase_int/*.csv
 phase_diff_limit/*.csv
 phase_turb/*.csv
+phase_dd_34/*.csv
+phase_int_34/*.csv
+*.png
+*.pdf
