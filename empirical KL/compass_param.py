@@ -73,8 +73,8 @@ p_wfs0.set_fssize(1.0829)     # 1.5*lambda/dSubap
 
 # dm (waiting for the custom HODM)
 p_dm0 = conf.Param_dm()
-p_dm1 = conf.Param_dm()
-p_dms = [p_dm0, p_dm1]
+
+p_dms = [p_dm0]
 
 p_dm0.set_type("pzt")
 nact = 41
@@ -86,11 +86,6 @@ p_dm0.set_unitpervolt(1.)
 p_dm0.set_push4imat(0.001)
 #p_dm0.set_margin_out(0.3)
 
-# tip-tilt
-p_dm1.set_type("tt")
-p_dm1.set_alt(0.)
-p_dm1.set_unitpervolt(1.)
-p_dm1.set_push4imat(0.005)
 
 # centroiders
 p_centroider0 = conf.Param_centroider()
@@ -108,7 +103,7 @@ p_controllers = [p_controller0]
 
 p_controller0.set_type("generic") # ls (classic easy simple) or generic
 p_controller0.set_nwfs([0])
-p_controller0.set_ndm([0, 1])
+p_controller0.set_ndm([0])
 p_controller0.set_maxcond(880)   # what determines the number of modes to be filtered
 p_controller0.set_delay(1)
 p_controller0.set_gain(0.3)

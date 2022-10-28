@@ -73,7 +73,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000*100
+        n_iter = 1000*1
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
@@ -117,7 +117,6 @@ if __name__ == "__main__":
 
 
     state_mat_tt_int = np.zeros((2,2,2))
-    state_mat_tt_dd = np.zeros((K_tt.shape[0],2,2))
     phase_count = 0
 
     for i in range(n_iter):
@@ -169,7 +168,7 @@ if __name__ == "__main__":
             wfs_phase = supervisor.wfs.get_wfs_phase(0)
             tar_phase = supervisor.target.get_tar_phase(0)
             # np.savetxt("phase_dd/phase_dd_"+str(phase_count)+".csv", wfs_phase, delimiter=",")
-            np.savetxt("phase_int_34/phase_tar_int_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+            # np.savetxt("phase_int_34/phase_tar_int_"+str(phase_count)+".csv", tar_phase, delimiter=",")
             # np.savetxt("phase_turb/phase_turb_tar_"+str(phase_count)+".csv", tar_phase, delimiter=",")
             strehl_phase[phase_count] = strehl_se[i]
             phase_count += 1
