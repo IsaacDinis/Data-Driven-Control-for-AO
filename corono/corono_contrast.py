@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
-import hcipy
+
 def compute_strehl(phase_turb,psf_diff_limit,mask):
     psf_turb = compute_psf(phase_turb,mask)
     strehl = np.max(psf_turb)/np.max(psf_diff_limit)
