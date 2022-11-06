@@ -73,12 +73,12 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000*1
+        n_iter = 10000
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
     else:
-        n_modes = 100
+        n_modes = 500
     n_modes_dd = 880
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
@@ -131,6 +131,7 @@ if __name__ == "__main__":
         state_mat_int[0,0,:] = modes[0:n_modes]
         state_mat_int[0,1,:] = 0
         command_int = np.dot(b,state_mat_int[:,0,:]) - np.dot(a,state_mat_int[:,1,:])
+        command_int -= np.mean(command_int)  
         state_mat_int[0,1,:] = command_int
 
         if not bool_int:
@@ -140,7 +141,7 @@ if __name__ == "__main__":
             command_dd = np.sum(np.multiply(K_DM[:,0,:],state_mat_dd[:,0,:]) - np.multiply(K_DM[:,1,:],state_mat_dd[:,1,:]),0)
             state_mat_dd[0,1,:] = command_dd
             command_int[0:880] = command_dd[0:880]
-
+          
         voltage = -inf_mat[:,0:n_modes] @ command_int
 
 

@@ -74,69 +74,39 @@ if __name__ == "__main__":
     else:
         n_iter = 10000
 
-    if arguments["--modes"]:
-        n_modes = (int(arguments["--modes"]))
-    else:
-        n_modes = 1200
-
     supervisor = Supervisor(config)
+
+    n_act_eff = config.p_dms[0].get_xpos().shape[0]
+    pupil_size = config.p_geom.pupdiam
+
+    dist_matrix = np.zeros((pupil_size**2,n_iter))
+    dist_matrix_act = np.zeros((n_act_eff,n_iter))
+
+    inf_mat = np.load('inf_mat.npy')
+    P2A = np.linalg.pinv(inf_mat)
+
+
+
     supervisor.rtc.open_loop(0) # disable implemented controller
 
     supervisor.atmos.enable_atmos(True)
 
-    command_mat = np.genfromtxt('../../control_matrices/command_mat_KL2V.csv',delimiter=",")
-    inf_mat = np.genfromtxt('../../control_matrices/inf_mat_KL2V.csv',delimiter=",")
-    
-    state_mat_int = np.zeros((2,2,n_modes))
-    state_mat_tt_int = np.zeros((2,2,2))
 
-    a = np.array([1.,-1]) 
-    b = np.array([0.50,0])
-
-    command_prev = np.zeros(n_modes)
-    command_prev_tt = np.zeros(2)
     #------------------------------------
     # apply disturbance
     #------------------------------------
-    dist_matrix = np.empty((n_iter,n_modes+2))
-
     for i in range(n_iter):
-        slopes = supervisor.rtc.get_slopes(0) # prendre slopes
-        modes = np.dot(command_mat,slopes)
-
-        state_mat_int[1:,:,:] = state_mat_int[0:-1,:,:]
-        state_mat_int[0,0,:] = modes[0:n_modes]
-        state_mat_int[0,1,:] = 0
-        command_int = np.dot(b,state_mat_int[:,0,:]) - np.dot(a,state_mat_int[:,1,:])
-        state_mat_int[0,1,:] = command_int 
-
-        voltage = -inf_mat[:,0:n_modes] @ command_int
-
-        state_mat_tt_int[1:,:,:] = state_mat_tt_int[0:-1,:,:]
-        state_mat_tt_int[0,0,:] = modes[-2:]
-        state_mat_tt_int[0,1,:] = 0
-        command_int_tt = np.dot(b,state_mat_tt_int[:,0,:]) - np.dot(a,state_mat_tt_int[:,1,:])
-        state_mat_tt_int[0,1,:] = command_int_tt
-
-        
-        voltage -= inf_mat[:,-2:] @ command_int_tt
-
-        # dist_matrix[i,:] = np.block([modes[0:n_modes]+command_prev,modes[-2:]+command_prev_tt])
-        dist_matrix[i,:] = np.block([modes[0:n_modes],modes[-2:]])
-        command_prev_tt = state_mat_tt_int[1,1,:] 
-        command_prev = state_mat_int[1,1,:] 
-
-        # supervisor.rtc.set_perturbation_voltage(0, "", voltage)
-
-        if i%100==0:
-            strehl = supervisor.target.get_strehl(0)
-            print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
-
+        # for j in range(200):
         supervisor.next()
+        phase = supervisor.target.get_tar_phase(0).reshape(pupil_size**2)
+        phase -= np.mean(phase)
+        dist_matrix[:,i] = phase
+        dist_matrix_act[:,i] = P2A @ phase
+        
 
+    # np.save('dist_matrix.npy',dist_matrix)
+    np.save('dist_matrix_act.npy',dist_matrix_act)
 
-    np.savetxt('../../disturbances/dist_matrix_'+ str(n_modes) +'_modes_KL2V_34.csv', dist_matrix, delimiter=",")
-    
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import basename

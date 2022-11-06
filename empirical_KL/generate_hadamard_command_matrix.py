@@ -79,6 +79,8 @@ if __name__ == "__main__":
     n_act = config.p_dms[0].get_nact()
     n_act_square = n_act**2
     
+    n_act_eff = config.p_dms[0].get_xpos().shape[0]
+    
     n_slopes = supervisor.rtc.get_slopes(0).shape[0]
  
     ampli = 0.1
@@ -107,7 +109,7 @@ if __name__ == "__main__":
 
     D = C @ np.linalg.inv(hadamard_matrix)
     # D = D[:,:n_act_square]
-    D = D[:,:1284]
+    D = D[:,:n_act_eff]
     S2A = np.linalg.pinv(D)
 
     # command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]

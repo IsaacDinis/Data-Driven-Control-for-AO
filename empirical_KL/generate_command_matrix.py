@@ -77,7 +77,7 @@ if __name__ == "__main__":
     nactu = inf_mat.shape[0]
     nmodes = inf_mat.shape[1]
     # nmodes = 100
-    ampli = 50
+    ampli = 0.1
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
     imat = np.zeros((slopes.shape[0], nmodes))

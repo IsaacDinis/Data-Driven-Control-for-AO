@@ -81,12 +81,16 @@ if __name__ == "__main__":
     # # M = np.multiply(M,1/np.sqrt(D))
 
     M = np.load('M.npy')
+
+    # M = M[:,1:]
+
     n_act = config.p_dms[0].get_nact()
     n_act_square = n_act**2
+    n_act_eff = config.p_dms[0].get_xpos().shape[0]
+    n_modes = M.shape[1]
 
-    n_modes = M.shape[0]
     # nmodes = 100
-    amp = 1
+    amp = 0.1
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
     imat = np.zeros((slopes.shape[0], n_modes))
@@ -97,7 +101,7 @@ if __name__ == "__main__":
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
     for mode in range(n_modes):
-        v[:1276] = M[:,mode]
+        v[:n_act_eff] = M[:,mode]
         supervisor.rtc.set_perturbation_voltage(0, "", v*amp) 
         supervisor.next()
         supervisor.next()

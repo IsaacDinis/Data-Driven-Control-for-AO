@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     n_act = config.p_dms[0].get_nact()
     n_act_square = n_act**2
-    n_act_eff = 1276
+    n_act_eff = config.p_dms[0].get_xpos().shape[0]
 
     p_diam = config.p_geom.get_pupdiam()
     n_pix = p_diam**2
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
 
-    bool_hadamard = False
+    bool_hadamard = True
 
     if bool_hadamard:
         for i in range(hadamard_size):

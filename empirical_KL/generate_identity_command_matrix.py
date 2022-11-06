@@ -76,17 +76,17 @@ if __name__ == "__main__":
     # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,0])
     supervisor.atmos.enable_atmos(False)
 
-    n_act = config.p_dms[0].get_nact()
-    n_act_square = n_act**2
-    
+
+    n_act_eff = config.p_dms[0].get_xpos().shape[0]
+
     n_slopes = supervisor.rtc.get_slopes(0).shape[0]
  
     amp = 0.1
 
 
 
-    C = np.zeros((n_slopes,n_act_square))
-    v = np.zeros(n_act_square)
+    C = np.zeros((n_slopes,n_act_eff))
+    v = np.zeros(n_act_eff)
     # # ampli = 0.01
     # slopes = supervisor.rtc.get_slopes(0)
     # imat = np.zeros((slopes.shape[0], nmodes))
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
-    for i in range(n_act_square):
+    for i in range(n_act_eff):
         v[i] = amp
         supervisor.rtc.set_perturbation_voltage(0, "", v)
         supervisor.next()
