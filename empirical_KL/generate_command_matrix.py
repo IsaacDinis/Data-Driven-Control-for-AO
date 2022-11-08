@@ -110,8 +110,11 @@ if __name__ == "__main__":
 
     command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]
 
-    np.savetxt('command_mat_KL2V.csv', command_mat, delimiter=",")
-    np.savetxt('inf_mat_KL2V.csv', inf_mat, delimiter=",")
+    # np.savetxt('command_mat_KL2V.csv', command_mat, delimiter=",")
+    # np.savetxt('inf_mat_KL2V.csv', inf_mat, delimiter=",")
+
+    np.save('command_mat_KL2V.npy', command_mat)
+    np.save('inf_mat_KL2V.npy', inf_mat)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

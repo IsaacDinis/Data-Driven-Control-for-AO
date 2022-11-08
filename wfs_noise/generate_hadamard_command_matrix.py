@@ -52,6 +52,7 @@ Options:
 from shesha.config import ParamConfig
 from docopt import docopt
 import numpy as np
+from scipy.linalg import hadamard
 
 if __name__ == "__main__":
     arguments = docopt(__doc__)
@@ -71,61 +72,51 @@ if __name__ == "__main__":
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     
-    # A2S = np.load('A2S.npy')
-    # Sigma = A2S.T @ A2S
-    # D,M = np.linalg.eig(Sigma[:1284,:1284])
 
-    # sort_perm = np.argsort(-D)
-    # D = D[sort_perm]
-    # M = M[:, sort_perm]
-    # # M = np.multiply(M,1/np.sqrt(D))
-
-    M = np.load('B.npy')
-
-    # M = M[:,1:]
+    # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,0])
+    supervisor.atmos.enable_atmos(False)
 
     n_act = config.p_dms[0].get_nact()
     n_act_square = n_act**2
+    
     n_act_eff = config.p_dms[0].get_xpos().shape[0]
-    n_modes = M.shape[1]
+    
+    n_slopes = supervisor.rtc.get_slopes(0).shape[0]
+ 
+    ampli = 0.1
 
-    # nmodes = 100
-    amp = 0.1
-    # ampli = 0.01
-    slopes = supervisor.rtc.get_slopes(0)
-    imat = np.zeros((slopes.shape[0], n_modes))
-    # imat = np.zeros((slopes.shape[0], nmodes+2))
-    supervisor.atmos.enable_atmos(False)
-    v = np.zeros(n_act_square)
+    hadamard_size = 2**n_act_square.bit_length()
+    hadamard_matrix = hadamard(hadamard_size)
+
+    C = np.zeros((n_slopes,hadamard_size))
+
+    # # ampli = 0.01
+    # slopes = supervisor.rtc.get_slopes(0)
+    # imat = np.zeros((slopes.shape[0], nmodes))
+    # # imat = np.zeros((slopes.shape[0], nmodes+2))
+    
+
+
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
-    for mode in range(n_modes):
-        v[:n_act_eff] = M[:,mode]
-        supervisor.rtc.set_perturbation_voltage(0, "", v*amp) 
+    for i in range(hadamard_size):
+        supervisor.rtc.set_perturbation_voltage(0, "", hadamard_matrix[:n_act_square,i]*ampli)
         supervisor.next()
         supervisor.next()
-        slopes = supervisor.rtc.get_slopes(0)/amp
-        imat[:,mode] = slopes.copy()
+        slopes = supervisor.rtc.get_slopes(0)/ampli
+        C[:,i] = slopes
 
-    # #tip
-    # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,-2]*ampli) 
-    # supervisor.next()
-    # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # imat[:,-2] = slopes.copy()
+    D = C @ np.linalg.inv(hadamard_matrix)
+    # D = D[:,:n_act_square]
+    D = D[:,:n_act_eff]
+    S2A = np.linalg.pinv(D)
 
-    # #tilt
-    # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,-1]*ampli) 
-    # supervisor.next()
-    # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # imat[:,-1] = slopes.copy()
+    # command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]
 
-    command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]
-
-    np.savetxt('command_mat_KL2V.csv', command_mat, delimiter=",")
-    np.savetxt('inf_mat_KL2V.csv', M, delimiter=",")
+    np.save('S2A.npy', S2A)
+    np.save('A2S.npy', D)
+    # np.savetxt('../../control_matrices/inf_mat_KL2V.csv', inf_mat, delimiter=",")
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

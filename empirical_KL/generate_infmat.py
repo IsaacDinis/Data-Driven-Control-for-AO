@@ -83,7 +83,6 @@ if __name__ == "__main__":
     p_diam = config.p_geom.get_pupdiam()
     n_pix = p_diam**2
 
-    amp = 0.1
 
     hadamard_size = 2**n_act_square.bit_length()
     hadamard_matrix = hadamard(hadamard_size)

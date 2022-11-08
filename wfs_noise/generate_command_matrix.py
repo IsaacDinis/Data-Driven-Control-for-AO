@@ -71,41 +71,27 @@ if __name__ == "__main__":
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     
-    # A2S = np.load('A2S.npy')
-    # Sigma = A2S.T @ A2S
-    # D,M = np.linalg.eig(Sigma[:1284,:1284])
+    inf_mat, _ = supervisor.basis.compute_modes_to_volts_basis("KL2V") # or "KL2V" [nvolts ,nmodes]
+    supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,0])
 
-    # sort_perm = np.argsort(-D)
-    # D = D[sort_perm]
-    # M = M[:, sort_perm]
-    # # M = np.multiply(M,1/np.sqrt(D))
-
-    M = np.load('B.npy')
-
-    # M = M[:,1:]
-
-    n_act = config.p_dms[0].get_nact()
-    n_act_square = n_act**2
-    n_act_eff = config.p_dms[0].get_xpos().shape[0]
-    n_modes = M.shape[1]
-
+    nactu = inf_mat.shape[0]
+    nmodes = inf_mat.shape[1]
     # nmodes = 100
-    amp = 0.1
+    ampli = 0.1
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
-    imat = np.zeros((slopes.shape[0], n_modes))
+    imat = np.zeros((slopes.shape[0], nmodes))
     # imat = np.zeros((slopes.shape[0], nmodes+2))
     supervisor.atmos.enable_atmos(False)
-    v = np.zeros(n_act_square)
+
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
-    for mode in range(n_modes):
-        v[:n_act_eff] = M[:,mode]
-        supervisor.rtc.set_perturbation_voltage(0, "", v*amp) 
+    for mode in range(nmodes):
+        supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,mode]*ampli) 
         supervisor.next()
         supervisor.next()
-        slopes = supervisor.rtc.get_slopes(0)/amp
+        slopes = supervisor.rtc.get_slopes(0)/ampli
         imat[:,mode] = slopes.copy()
 
     # #tip
@@ -125,7 +111,7 @@ if __name__ == "__main__":
     command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]
 
     np.savetxt('command_mat_KL2V.csv', command_mat, delimiter=",")
-    np.savetxt('inf_mat_KL2V.csv', M, delimiter=",")
+    np.savetxt('inf_mat_KL2V.csv', inf_mat, delimiter=",")
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

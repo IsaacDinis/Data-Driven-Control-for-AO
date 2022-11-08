@@ -72,7 +72,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 10000
+        n_iter = 1000
 
     supervisor = Supervisor(config)
 
@@ -96,6 +96,7 @@ if __name__ == "__main__":
     # apply disturbance
     #------------------------------------
     for i in range(n_iter):
+        # config.p_atmos.set_winddir([np.random.randint(0,359)]) 
         # for j in range(200):
         supervisor.next()
         phase = supervisor.target.get_tar_phase(0).reshape(pupil_size**2)

@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-
+from scipy.ndimage.filters import gaussian_filter
 def plot_DM_shape(n_act,n_act_eff):
     x_pos,y_pos = compute_xy_pos()
     DM_shape = np.zeros((n_act, n_act))
@@ -40,7 +40,7 @@ def compute_xy_pos():
 
 def compute_modal_basis(inf_mat,n_lambda):
     Gamma = inf_mat.T @ inf_mat
-    D, M = np.linalg.eigh(Gamma)
+    D, M, dumm = np.linalg.svd(Gamma)
 
     sort_perm = np.argsort(-D)
     D = D[sort_perm]
@@ -73,7 +73,10 @@ def statistical_diag(M,dist_mat):
     dist_std = np.std(dist_mat,axis=1)
     dist_mat /= dist_std[:,None]
 
+    # dist_mat = gaussian_filter(dist_mat, sigma=30)
     dist_cov = np.cov(dist_mat)
+
+    # dist_cov = gaussian_filter(dist_cov, sigma=7)
 
     C = np.linalg.inv(M) @ dist_cov @ np.linalg.inv(M.T)
     Sigma, A = np.linalg.eigh(C)
@@ -96,10 +99,14 @@ if __name__ == '__main__':
     # M = compute_modal_basis(dist_mat.T,200)
     # np.save('M.npy', M)
     M = compute_modal_basis(inf_mat, n_act_eff)
-    np.save('M.npy', M[:,1:])
-    B = statistical_diag(M, dist_mat)
-    np.save('B.npy', B)
+    np.save('M.npy', M[:,:])
+    # B = statistical_diag(M, dist_mat)
+    # np.save('B.npy', B)
     # plot_PCA(PCA, 4, pupil_diam)
     plot_modes(M, 3, n_act, n_act_eff)
-    plot_modes(B, 3, n_act, n_act_eff)
+    # plot_modes(B, 3, n_act, n_act_eff)
+
+
+    basis = np.load('inf_mat_KL2V.npy')
+    plot_modes(basis, 3, n_act, n_act_eff)
     plt.show()
