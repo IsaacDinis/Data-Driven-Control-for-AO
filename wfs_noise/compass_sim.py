@@ -55,6 +55,7 @@ Options:
 from shesha.config import ParamConfig
 from docopt import docopt
 import numpy as np
+from scipy.io import savemat, loadmat
 
 if __name__ == "__main__":
     arguments = docopt(__doc__)
@@ -73,125 +74,97 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000
+        n_iter = 9000
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
     else:
         n_modes = 500
-    n_modes_dd = 880
+    n_modes_dd = 1
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(True) 
 
 
-    K_DM = np.genfromtxt('Kdd_1st_DM_KL2V_34.csv',delimiter=',')
-
-    K_DM = K_DM.reshape((int(K_DM.shape[0]/2),2,n_modes_dd),order='F')
 
     a = np.array([1.,-1]) 
-    b = np.array([0.50,0])
+    b = np.array([0.5,0])
 
-
+    K_dd = loadmat('Kdd.mat')['Kdd_matrix']
+    K_dd = K_dd.reshape((int(K_dd.shape[0]/2),2,n_modes_dd),order='F')
+    dist = loadmat('data/single_mode_dist.mat')["data"]
     # Load command and influence matrix
-    command_mat = np.genfromtxt('command_mat_KL2V.csv',delimiter=",")
-    inf_mat = np.genfromtxt('inf_mat_KL2V.csv',delimiter=",")
+    S2M = np.load('S2M.npy')
+    M2V = np.load('M2V.npy')
 
-    bool_int = True
-
+    bool_int = False
+    bool_dist = False
+    bool_lol = True
     #------------------------------------
     # control tilt mode
     #------------------------------------
     saved_mode = 0
 
-    res_array = np.empty((n_iter,command_mat.shape[0]))
+    res_array = np.empty((n_iter,S2M.shape[0]))
+    single_mode_res = np.empty(n_iter)
+
     u = np.zeros(n_iter)
-    strehl_se = np.zeros(n_iter)
-    slopes_rms = np.zeros(n_iter)
-    strehl_le = np.zeros(n_iter)
-    strehl_phase = np.zeros(int(n_iter/100))
 
     state_mat_int = np.zeros((2,2,n_modes))
-    state_mat_dd = np.zeros((K_DM.shape[0],2,n_modes_dd))
-
-
+    state_mat_dd = np.zeros((K_dd.shape[0],2,n_modes_dd))
 
     phase_count = 0
 
     for i in range(n_iter):
 
-        voltage = np.zeros(inf_mat.shape[0])  
+        voltage = np.zeros(M2V.shape[0])  
 
         slopes = supervisor.rtc.get_slopes(0)
 
-        modes = np.dot(command_mat,slopes)
-
+        modes = np.dot(S2M,slopes)
         
         state_mat_int[1:,:,:] = state_mat_int[0:-1,:,:]
         state_mat_int[0,0,:] = modes[0:n_modes]
         state_mat_int[0,1,:] = 0
         command_int = np.dot(b,state_mat_int[:,0,:]) - np.dot(a,state_mat_int[:,1,:])
-        command_int -= np.mean(command_int)  
+        # command_int -= np.mean(command_int)  
         state_mat_int[0,1,:] = command_int
 
         if not bool_int:
             state_mat_dd[1:,:,:] = state_mat_dd[0:-1,:,:]
             state_mat_dd[0,0,:] = modes[:n_modes_dd]
             state_mat_dd[0,1,:] = 0
-            command_dd = np.sum(np.multiply(K_DM[:,0,:],state_mat_dd[:,0,:]) - np.multiply(K_DM[:,1,:],state_mat_dd[:,1,:]),0)
+            command_dd = np.sum(np.multiply(K_dd[:,0,:],state_mat_dd[:,0,:]) - np.multiply(K_dd[:,1,:],state_mat_dd[:,1,:]),0)
             state_mat_dd[0,1,:] = command_dd
-            command_int[0:880] = command_dd[0:880]
-          
-        voltage = -inf_mat[:,0:n_modes] @ command_int
+            command_int[0] = command_dd[0]
+        if i > 2:
+            command_int[0] = dist[0,i-1]
+        u[i] = command_int[0] 
+        voltage = -M2V[:,0:n_modes] @ command_int
+        if not bool_dist:
+            supervisor.rtc.set_perturbation_voltage(0, "", voltage)
+
+        single_mode_res[i] = modes[0]
 
 
-
-
-        supervisor.rtc.set_perturbation_voltage(0, "", voltage)
-        
-        res_array[i,:] = modes
-
-        strehl = supervisor.target.get_strehl(0)
-        strehl_se[i] = strehl[0];
-        strehl_le[i] = strehl[1];
-        
-
-        slopes_rms[i] = np.std(slopes); 
-
-        if i%100==0 and i > 200:
+        if i%100==0:
+            strehl = supervisor.target.get_strehl(0)
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
-            wfs_phase = supervisor.wfs.get_wfs_phase(0)
-            tar_phase = supervisor.target.get_tar_phase(0)
-            # np.savetxt("phase_dd/phase_dd_"+str(phase_count)+".csv", wfs_phase, delimiter=",")
-            # np.savetxt("phase_int_34/phase_tar_int_"+str(phase_count)+".csv", tar_phase, delimiter=",")
-            # np.savetxt("phase_turb/phase_turb_tar_"+str(phase_count)+".csv", tar_phase, delimiter=",")
-            strehl_phase[phase_count] = strehl_se[i]
-            phase_count += 1
+
         supervisor.next()
-    # np.savetxt("phase_diff_limit/phase_diff_limit_tar.csv", supervisor.target.get_tar_phase(0), delimiter=",")
-    
-    # np.savetxt("phase_dd/strehl_dd.csv", strehl_phase, delimiter=",")
+    if bool_dist:
+        savemat('data/single_mode_dist.mat',{"data": single_mode_res[1:]})
 
-    # psf = supervisor.target.get_tar_image(0,expo_type = "le")
-    
-    # wfs_phase = supervisor.wfs.get_wfs_phase(0)
+    elif bool_int:
+        savemat('data/single_mode_res_int.mat',{"data": single_mode_res[1:]})
+        savemat('data/single_mode_command_int.mat',{"data": u[1:]})
+    elif bool_lol:
+        savemat('data/single_mode_res_lol.mat',{"data": single_mode_res[1:]})
+        savemat('data/single_mode_command_lol.mat',{"data": u[1:]})
+    else:
+        savemat('data/single_mode_res_dd.mat',{"data": single_mode_res[1:]})
+        savemat('data/single_mode_command_dd.mat',{"data": u[1:]})
 
-    # if bool_int:
-    #     np.savetxt("../../residuals/wind34_int/strehl_int.csv", np.column_stack((u,strehl_se,strehl_le)), delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/residual_int.csv", res_array, delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/psf_int.csv", psf, delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/wfs_phase_int.csv", wfs_phase, delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/slopes_rms_int.csv", slopes_rms, delimiter=",")
-    # else:
-    #     np.savetxt("../../residuals/wind34_int/strehl.csv", np.column_stack((u,strehl_se,strehl_le)), delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/residual.csv", res_array, delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/psf.csv", psf, delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/wfs_phase.csv", wfs_phase, delimiter=",")
-    #     np.savetxt("../../residuals/wind34_int/slopes_rms.csv", slopes_rms, delimiter=",")
-    # np.savetxt("../../residuals/psf/psf_ol_r0_08.csv", psf, delimiter=",")
-    # np.savetxt("../../residuals/psf/wfs_image_int_8.csv", wfs_image, delimiter=",")
-    # np.savetxt("../../residuals/psf/wfs_phase_int_8.csv", wfs_phase, delimiter=",")
-    
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import basename

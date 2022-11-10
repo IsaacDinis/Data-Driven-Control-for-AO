@@ -15,7 +15,7 @@ p_loop.set_ittime(1./1000.)     # assuming loop at 1.38 kHz
 
 # geom
 p_geom = conf.Param_geom()
-p_geom.set_pupdiam(160)
+p_geom.set_pupdiam(400)
 p_geom.set_zenithangle(0.)
 
 # tel
@@ -33,7 +33,7 @@ p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
 p_atmos.set_windspeed([8]) # wind speed of layer(s) in m/s
-p_atmos.set_winddir([90])  # wind direction in degrees
+p_atmos.set_winddir([45])  # wind direction in degrees
 p_atmos.set_L0([25])       # in meters
 
 # target
@@ -43,7 +43,7 @@ p_targets = [p_target]
 p_target.set_xpos(0.)
 p_target.set_ypos(0.)
 p_target.set_Lambda(1.65) # H Band
-p_target.set_mag(1.)
+p_target.set_mag(10.)
 
 # wfs
 p_wfs0 = conf.Param_wfs()
@@ -57,17 +57,17 @@ p_wfs0.set_fracsub(0.8)
 p_wfs0.set_xpos(0.)
 p_wfs0.set_ypos(0.)
 p_wfs0.set_Lambda(0.7)        # SAXO SH bandwidth : [475, 900] nm
-p_wfs0.set_gsmag(1.)
+p_wfs0.set_gsmag(10.)
 p_wfs0.set_optthroughput(0.1) # still unknown
 p_wfs0.set_zerop(1e11)        # zero point for guide star magnitude
 p_wfs0.set_noise(-1)         # -1 = No noise
 p_wfs0.set_atmos_seen(1)
-    # p_wfs0.set_fstop("round")
+p_wfs0.set_fstop("round")
 #p_wfs0.set_fssize(0.79412)   # 1.1*lambda/dSubap
 #p_wfs0.set_fssize(0.8663)    # 1.2*lambda/dSubap
 #p_wfs0.set_fssize(0.9385)    # 1.3*lambda/dSubap
 #p_wfs0.set_fssize(1.0107)    # 1.4*lambda/dSubap
-   # p_wfs0.set_fssize(1.0829)     # 1.5*lambda/dSubap
+p_wfs0.set_fssize(1.0829)     # 1.5*lambda/dSubap
 #p_wfs0.set_fssize(1.227275)  # 1.7*lambda/dSubap
 #p_wfs0.set_fssize(1.44385)   # 2*lambda/dSubap
 

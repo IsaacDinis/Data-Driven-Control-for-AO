@@ -71,47 +71,48 @@ if __name__ == "__main__":
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     
-    inf_mat, _ = supervisor.basis.compute_modes_to_volts_basis("KL2V") # or "KL2V" [nvolts ,nmodes]
-    supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,0])
+    M2V, _ = supervisor.basis.compute_modes_to_volts_basis("KL2V") # or "KL2V" [nvolts ,nmodes]
+    norm = np.linalg.norm(M2V, axis = 0)
+    M2V /= norm
 
-    nactu = inf_mat.shape[0]
-    nmodes = inf_mat.shape[1]
+    nactu = M2V.shape[0]
+    nmodes = M2V.shape[1]
     # nmodes = 100
     ampli = 0.1
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
-    imat = np.zeros((slopes.shape[0], nmodes))
-    # imat = np.zeros((slopes.shape[0], nmodes+2))
+    M2S = np.zeros((slopes.shape[0], nmodes))
+    # M2S = np.zeros((slopes.shape[0], nmodes+2))
     supervisor.atmos.enable_atmos(False)
 
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
     for mode in range(nmodes):
-        supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,mode]*ampli) 
+        supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,mode]*ampli) 
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
-        imat[:,mode] = slopes.copy()
+        M2S[:,mode] = slopes.copy()
 
     # #tip
-    # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,-2]*ampli) 
+    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-2]*ampli) 
     # supervisor.next()
     # supervisor.next()
     # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # imat[:,-2] = slopes.copy()
+    # M2S[:,-2] = slopes.copy()
 
     # #tilt
-    # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,-1]*ampli) 
+    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-1]*ampli) 
     # supervisor.next()
     # supervisor.next()
     # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # imat[:,-1] = slopes.copy()
+    # M2S[:,-1] = slopes.copy()
 
-    command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]
+    S2M = np.linalg.pinv(M2S) # [nmodes , nslopes]
 
-    np.savetxt('command_mat_KL2V.csv', command_mat, delimiter=",")
-    np.savetxt('inf_mat_KL2V.csv', inf_mat, delimiter=",")
+    np.save('S2M.npy', S2M)
+    np.save('M2V.npy', M2V)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
