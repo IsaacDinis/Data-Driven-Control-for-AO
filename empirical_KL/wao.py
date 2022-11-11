@@ -1,3 +1,6 @@
+ipython -i ~/compass/shesha/shesha/widgets/widget_ao.py compass_param.py 
+
+
 n_act_square = wao.config.p_dms[0].get_nact()
 v = np.zeros(n_act_square**2)
 

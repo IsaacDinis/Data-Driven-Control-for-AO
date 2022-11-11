@@ -15,8 +15,8 @@ layout = "layoutDeFab_PYR"
 p_loop = conf.Param_loop()
 
 p_loop.set_niter(5000)          # number of loop iterations
-p_loop.set_ittime(1./3000.)     # =1/2000 - assuming loop at 2kHz
-p_loop.set_devices([0, 1, 2, 3])  # ????
+p_loop.set_ittime(1./1000.)     # =1/2000 - assuming loop at 2kHz
+
 # geom
 p_geom = conf.Param_geom()
 
@@ -24,16 +24,17 @@ p_geom.set_zenithangle(0.)
 
 # tel
 p_tel = conf.Param_tel()
-
-p_tel.set_diam(8.0)         # Subaru diameter
-#p_tel.set_cobs(0.12)        # TBC (central obstruction)
+p_tel.set_diam(8.0)            # VLT diameter
+p_tel.set_cobs(0.14)           # central obstruction
 p_tel.set_type_ap("VLT")       # VLT pupil
+p_tel.set_spiders_type("four")
+p_tel.set_t_spiders(0.00625)
 
 # atmos
 # here we simulate the first stage of correction of ao188
 p_atmos = conf.Param_atmos()
 
-p_atmos.set_r0(0.14) # Fried parameters @ 500 nm
+p_atmos.set_r0(0.15) # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1) # Number of layers
 p_atmos.set_frac([1.0])
 p_atmos.set_alt([0.0])
@@ -47,7 +48,7 @@ p_targets = [p_target]
 p_target.set_xpos(0.)
 p_target.set_ypos(0.)
 p_target.set_Lambda(1.65)
-p_target.set_mag(10.)
+p_target.set_mag(1.)
 
 # wfs
 p_wfs0 = conf.Param_wfs(roket=True)
@@ -74,27 +75,26 @@ p_wfs0.set_atmos_seen(1) # If False, the WFS don’t see the atmosphere layers
 
 # dm
 p_dm0 = conf.Param_dm()
-p_dm1 = conf.Param_dm()
-p_dms = [p_dm0, p_dm1]
+p_dms = [p_dm0]
 p_dm0.set_type("pzt")
 # nact = p_wfs0.nxsub + 1
-#nact = 24
+nact = 21
+p_dm0.set_nact(nact)
 #p_dm0.set_nact(nact)
 p_dm0.set_alt(0.) # Layers altitudes
-p_dm0.set_thresh(-200) # Threshold on response for selection of valid actuators. Expressed in fraction of the maximal response
-p_dm0.set_coupling(0.2)
-p_dm0.set_unitpervolt(1.0)
+p_dm0.set_thresh(0.25) # Threshold on response for selection of valid actuators. Expressed in fraction of the maximal response
+p_dm0.set_coupling(0.3)
+p_dm0.set_unitpervolt(1.)
 p_dm0.set_push4imat(1.0e-3) # Nominal voltage for imat = integration matrix = response matrix
-p_dm0.set_margin_out(2) # pour adapter la taille de la pupille du DM a celle du WFS
-p_dm0.set_margin_in(10) # pour adapter la taille de la pupille du DM a celle du WFS
-#p_dm0.set_file_influ_fits('SAXO_HODM.fits')
-#p_dm0.set_file_influ_fits('Boston32x32.fits')
-p_dm0.set_file_influ_fits('Boston24x24.fits')
+# p_dm0.set_margin_out(2) # pour adapter la taille de la pupille du DM a celle du WFS
+# p_dm0.set_margin_in(10) # pour adapter la taille de la pupille du DM a celle du WFS
 
-p_dm1.set_type("tt")
-p_dm1.set_alt(0.)
-p_dm1.set_unitpervolt(1.) # Influence function sensitivity
-p_dm1.set_push4imat(0.01)
+
+# p_dm0.set_file_influ_fits('SAXO_HODM.fits')
+# p_dm0.set_file_influ_fits('Boston32x32.fits')
+# p_dm0.set_file_influ_fits('Boston24x24.fits')
+
+
 
 # centroiders
 p_centroider0 = conf.Param_centroider()
@@ -111,11 +111,8 @@ p_controllers = [p_controller0]
 
 p_controller0.set_type("generic") # ls (classic easy simple) or generic
 p_controller0.set_nwfs([0])
-p_controller0.set_ndm([0, 1])
-p_controller0.set_maxcond(5.) # what determines the number of modes to be filtered
+p_controller0.set_ndm([0])
+p_controller0.set_maxcond(880)   # what determines the number of modes to be filtered
 p_controller0.set_delay(1)
-p_controller0.set_gain(0.4)
-p_controller0.set_calpix_name("compass2_calPix")
-p_controller0.set_loopdata_name("compass2_loopData")
+p_controller0.set_gain(0.3)
 #p_controller0.set_nstates(6)
-

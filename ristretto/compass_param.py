@@ -15,7 +15,7 @@ p_loop.set_ittime(1./1000.)     # assuming loop at 1.38 kHz
 
 # geom
 p_geom = conf.Param_geom()
-p_geom.set_pupdiam(160)
+p_geom.set_pupdiam(400)
 p_geom.set_zenithangle(0.)
 
 # tel
@@ -33,7 +33,7 @@ p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
 p_atmos.set_windspeed([8]) # wind speed of layer(s) in m/s
-p_atmos.set_winddir([45])  # wind direction in degrees
+p_atmos.set_winddir([90])  # wind direction in degrees
 p_atmos.set_L0([25])       # in meters
 
 # target
@@ -84,6 +84,8 @@ p_dm0.set_thresh(0.25)
 p_dm0.set_coupling(0.3)
 p_dm0.set_unitpervolt(1.)
 p_dm0.set_push4imat(0.001)
+# p_dm0.set_margin_out(2) # pour adapter la taille de la pupille du DM a celle du WFS
+# p_dm0.set_margin_in(10) # pour adapter la taille de la pupille du DM a celle du WFS
 #p_dm0.set_margin_out(0.3)
 
 
