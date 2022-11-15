@@ -79,7 +79,7 @@ if __name__ == "__main__":
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
     else:
-        n_modes = 300
+        n_modes = 880
     n_modes_dd = 1
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller

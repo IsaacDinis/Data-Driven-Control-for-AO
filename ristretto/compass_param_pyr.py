@@ -56,8 +56,9 @@ p_wfss = [p_wfs0]
 
 p_wfs0.set_type("pyrhr")
 p_wfs0.set_nxsub(50) # TBC Number of pixels along the pupil diameter, NB. need more subaperture than nactu.
-p_wfs0.set_fssize(1.5) # Size of the field stop
-p_wfs0.set_fracsub(0.0001) # was 0.8 before Vincent 
+# p_wfs0.set_fssize(1.0829) # Size of the field stop
+# p_wfs0.set_fssize(1.5) # Size of the field stop
+p_wfs0.set_fracsub(0.8) # was 0.8 before Vincent 
 p_wfs0.set_xpos(0.)
 p_wfs0.set_ypos(0.)
 p_wfs0.set_Lambda(0.7) # pyramid wavelength 
@@ -65,7 +66,7 @@ p_wfs0.set_gsmag(5.) # Guide star magnitude
 p_wfs0.set_optthroughput(0.5) # Optiical throughput coefficient
 p_wfs0.set_zerop(1.e11)
 p_wfs0.set_noise(-1)
-p_wfs0.set_fstop("round")
+# p_wfs0.set_fstop("round")
 p_wfs0.set_pyr_npts(16) # Number of modulation point along the circle
 p_wfs0.set_pyr_ampl(3) # Pyramid modulation amplitude (pyramid only)
 p_wfs0.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
@@ -78,7 +79,7 @@ p_dm0 = conf.Param_dm()
 p_dms = [p_dm0]
 p_dm0.set_type("pzt")
 # nact = p_wfs0.nxsub + 1
-nact = 21
+nact = 41
 p_dm0.set_nact(nact)
 #p_dm0.set_nact(nact)
 p_dm0.set_alt(0.) # Layers altitudes

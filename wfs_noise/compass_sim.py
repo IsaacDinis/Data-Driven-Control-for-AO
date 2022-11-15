@@ -74,7 +74,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 5000
+        n_iter = 1000
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # K_dd = loadmat('Kdd.mat')['Kdd_matrix']
     # K_dd = K_dd.reshape((int(K_dd.shape[0]/2),2,n_modes_dd),order='F')
 
-    # dist = loadmat('data/single_mode_dist.mat')["data"]
+    dist = loadmat('data/single_mode_dist_phase.mat')["data"]
 
     K_dd = np.zeros((1,1))
     # Load command and influence matrix
@@ -147,7 +147,7 @@ if __name__ == "__main__":
             state_mat_dd[0,1,:] = command_dd
             command_int[0] = command_dd[0]
         # if i > 2:
-        #     command_int[0] = dist[0,i-1]
+        # command_int[0] = dist[0,i+2]
         u[i] = command_int[0] 
         voltage = -M2V[:,0:n_modes] @ command_int
         if not bool_dist:
@@ -155,15 +155,15 @@ if __name__ == "__main__":
 
         single_mode_res[i] = modes[0]
         single_mode_res_phase[i] = modes_phase[0]
-
+        # print('u = {:.3f} e = {:.3f} \n'.format(command_int[0], modes_phase[0]))
         if i%100==0:
             strehl = supervisor.target.get_strehl(0)
-            print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
-
+            print('s.e = {:.3f} l.e = {:.3f} \n'.format(strehl[0], strehl[1]))
+            
         supervisor.next()
     if bool_dist:
-        savemat('data/single_mode_dist.mat',{"data": single_mode_res[0:]})
-        savemat('data/single_mode_dist_phase.mat',{"data": single_mode_res_phase[0:]})
+        savemat('data/single_mode_dist_10.mat',{"data": single_mode_res[0:]})
+        # savemat('data/single_mode_dist_phase.mat',{"data": single_mode_res_phase[0:]})
 
     elif bool_int:
         savemat('data/single_mode_res_int.mat',{"data": single_mode_res[1:]})

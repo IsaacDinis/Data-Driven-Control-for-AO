@@ -78,7 +78,7 @@ if __name__ == "__main__":
     nactu = M2V.shape[0]
     nmodes = M2V.shape[1]
     # nmodes = 100
-    ampli = 0.1
+    ampli = 0.01
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
     M2S = np.zeros((slopes.shape[0], nmodes))
