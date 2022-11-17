@@ -146,15 +146,16 @@ def plot_int_dd_comp(img_int, img_dd, D, n_pixels, lamb, step, pad):
 
 if __name__ == '__main__':
     lamb = 1.65
-    n_frames = 996
+    n_frames = 5900
     n_pixels = 400
     c_obs = 0.14
     step = 4
     pad = 50
+    D = 8
 
-    psf_corono_int = average_corono('phase_int/phase_tar_int_', 'phase_diff_limit/phase_diff_limit_tar.csv', lamb, n_frames, n_pixels, c_obs, step, pad)
-    psf_corono_dd = average_corono('phase_dd/phase_tar_dd_', 'phase_diff_limit/phase_diff_limit_tar.csv', lamb, n_frames, n_pixels, c_obs, step, pad)
+    psf_corono_int = average_corono('phase_int/phase_int_', 'phase_diff_limit/phase_diff_limit_tar.csv', lamb, n_frames, n_pixels, c_obs, step, pad)
+    psf_corono_dd = average_corono('phase_dd/phase_dd_', 'phase_diff_limit/phase_diff_limit_tar.csv', lamb, n_frames, n_pixels, c_obs, step, pad)
 
-    plot_int_dd_comp(psf_corono_int,psf_corono_dd,8,n_pixels,lamb,step,pad)
+    plot_int_dd_comp(psf_corono_int,psf_corono_dd,D,n_pixels,lamb,step,pad)
     # polt_radial(psf_corono_int)
     print("fone")
