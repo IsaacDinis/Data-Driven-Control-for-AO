@@ -37,9 +37,9 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     %% Objectives
 
     OBJ.o2.W1 = W1;
-%     OBJ.oinf.W2 = W3;
-    OBJ.o2.W3 = W32;
-    CON.W3 = tf(0.5,1,1/fs);
+    OBJ.oinf.W2 = W3;
+%     OBJ.o2.W3 = W32;
+%     CON.W3 = tf(0.99,1,1/fs);
     %% Solve problem
     PAR.tol = 1e-4;
     PAR.maxIter = inf;

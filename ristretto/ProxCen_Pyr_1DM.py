@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Friday 7th of February 2020
+
+@author: nour
+"""
+
+import shesha.config as conf
+
+simul_name = "sphere+"
+layout = "layoutDeFab_PYR"
+
+# loop
+p_loop = conf.Param_loop()
+
+p_loop.set_niter(5000)          # number of loop iterations
+p_loop.set_ittime(1./1000.)     # =1/2000 - assuming loop at 2kHz
+
+# geom
+p_geom = conf.Param_geom()
+
+p_geom.set_zenithangle(0.)
+
+# tel
+p_tel = conf.Param_tel()
+p_tel.set_diam(8.0)            # VLT diameter
+p_tel.set_cobs(0.14)           # central obstruction
+p_tel.set_type_ap("VLT")       # VLT pupil
+p_tel.set_spiders_type("four")
+p_tel.set_t_spiders(0.00625)
+
+# atmos
+# here we simulate the first stage of correction of ao188
+p_atmos = conf.Param_atmos()
+
+p_atmos.set_r0(0.15) # Fried parameters @ 500 nm
+p_atmos.set_nscreens(1) # Number of layers
+p_atmos.set_frac([1.0])
+p_atmos.set_alt([0.0])
+p_atmos.set_windspeed([8.0])
+p_atmos.set_winddir([45])
+p_atmos.set_L0([25]) # in meters. here we simulate ao188's precorrection. Layers outer scale
+
+# target
+p_target = conf.Param_target()
+p_targets = [p_target]
+p_target.set_xpos(0.)
+p_target.set_ypos(0.)
+p_target.set_Lambda(1.65)
+p_target.set_mag(1.)
+
+# wfs
+p_wfs0 = conf.Param_wfs(roket=True)
+p_wfss = [p_wfs0]
+
+p_wfs0.set_type("pyrhr")
+p_wfs0.set_nxsub(50) # TBC Number of pixels along the pupil diameter, NB. need more subaperture than nactu.
+# p_wfs0.set_fssize(1.0829) # Size of the field stop
+# p_wfs0.set_fssize(1.5) # Size of the field stop
+p_wfs0.set_fracsub(0.8) # was 0.8 before Vincent 
+p_wfs0.set_xpos(0.)
+p_wfs0.set_ypos(0.)
+p_wfs0.set_Lambda(0.7) # pyramid wavelength 
+p_wfs0.set_gsmag(0.) # Guide star magnitude
+p_wfs0.set_optthroughput(1) # Optiical throughput coefficient
+p_wfs0.set_zerop(10.4e6)
+p_wfs0.set_noise(0)
+p_wfs0.set_fstop("round")
+p_wfs0.set_pyr_npts(16) # Number of modulation point along the circle
+p_wfs0.set_pyr_ampl(3) # Pyramid modulation amplitude (pyramid only)
+p_wfs0.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
+p_wfs0.set_atmos_seen(1) # If False, the WFS don’t see the atmosphere layers
+
+
+
+# dm
+p_dm0 = conf.Param_dm()
+p_dms = [p_dm0]
+p_dm0.set_type("pzt")
+# nact = p_wfs0.nxsub + 1
+nact = 41
+p_dm0.set_nact(nact)
+#p_dm0.set_nact(nact)
+p_dm0.set_alt(0.) # Layers altitudes
+p_dm0.set_thresh(0.25) # Threshold on response for selection of valid actuators. Expressed in fraction of the maximal response
+p_dm0.set_coupling(0.3)
+p_dm0.set_unitpervolt(1.)
+p_dm0.set_push4imat(1.0e-3) # Nominal voltage for imat = integration matrix = response matrix
+# p_dm0.set_margin_out(2) # pour adapter la taille de la pupille du DM a celle du WFS
+# p_dm0.set_margin_in(10) # pour adapter la taille de la pupille du DM a celle du WFS
+
+
+# p_dm0.set_file_influ_fits('SAXO_HODM.fits')
+# p_dm0.set_file_influ_fits('Boston32x32.fits')
+# p_dm0.set_file_influ_fits('Boston24x24.fits')
+
+
+
+# centroiders
+p_centroider0 = conf.Param_centroider()
+p_centroiders = [p_centroider0]
+
+p_centroider0.set_nwfs(0)
+p_centroider0.set_type("pyr")
+# p_centroider0.set_type("corr")
+# p_centroider0.set_type_fct("model")
+
+# controllers
+p_controller0 = conf.Param_controller()
+p_controllers = [p_controller0]
+
+p_controller0.set_type("generic") # ls (classic easy simple) or generic
+p_controller0.set_nwfs([0])
+p_controller0.set_ndm([0])
+p_controller0.set_maxcond(880)   # what determines the number of modes to be filtered
+p_controller0.set_delay(1)
+p_controller0.set_gain(0.3)
+#p_controller0.set_nstates(6)
