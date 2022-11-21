@@ -5,7 +5,7 @@ function [psd, f] =  compute_psd(data,n_average,window_size,fs)
 
     for mode = 1:n_modes
         for i = 1:n_average
-            data_xcorr = xcorr(data(1+(i-1)*window_size:1+i*window_size,mode),'biased');
+            data_xcorr = xcorr(data(1+(i-1)*window_size:1+i*window_size,mode),'unbiased');
             data_xcorr_w = hann_window.*data_xcorr;
             psd(:,mode) = psd(:,mode) + abs(fft(data_xcorr_w));
         end

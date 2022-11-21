@@ -75,56 +75,44 @@ if __name__ == "__main__":
     norm = np.linalg.norm(M2V, axis = 0)
     M2V /= norm
 
-    p_diam = config.p_geom.get_pupdiam()
-    n_pix = p_diam**2
-
     nactu = M2V.shape[0]
     nmodes = M2V.shape[1]
     # nmodes = 100
-    amp = 0.1
-    # amp = 0.01
+    ampli = 0.1
+    # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
     M2S = np.zeros((slopes.shape[0], nmodes))
-    M2P = np.zeros((n_pix,nmodes))
-
+    # M2S = np.zeros((slopes.shape[0], nmodes+2))
     supervisor.atmos.enable_atmos(False)
 
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
     for mode in range(nmodes):
-        supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,mode]*amp) 
+        supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,mode]*ampli) 
         supervisor.next()
         supervisor.next()
-
-        slopes = supervisor.rtc.get_slopes(0)/amp
-        phase = supervisor.target.get_tar_phase(0)/amp
-        phase = phase.reshape(n_pix)
+        slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S[:,mode] = slopes.copy()
-        M2P[:,mode] = phase.copy()
 
     # #tip
-    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-2]*amp) 
+    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-2]*ampli) 
     # supervisor.next()
     # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/amp
+    # slopes = supervisor.rtc.get_slopes(0)/ampli
     # M2S[:,-2] = slopes.copy()
 
     # #tilt
-    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-1]*amp) 
+    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-1]*ampli) 
     # supervisor.next()
     # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/amp
+    # slopes = supervisor.rtc.get_slopes(0)/ampli
     # M2S[:,-1] = slopes.copy()
 
     S2M = np.linalg.pinv(M2S) # [nmodes , nslopes]
-    P2M = np.linalg.pinv(M2P)
 
     np.save('S2M.npy', S2M)
     np.save('M2V.npy', M2V)
-
- 
-    np.save('P2M.npy', P2M)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

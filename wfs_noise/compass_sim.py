@@ -74,13 +74,13 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000
+        n_iter = 2000*10
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
     else:
-        n_modes = 1
-    n_modes_dd = 1
+        n_modes = 880
+    n_modes_dd = 10
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(True) 
@@ -88,22 +88,19 @@ if __name__ == "__main__":
 
 
     a = np.array([1.,-1]) 
-    b = np.array([0.5,0])
+    b = np.array([0.3,0])
 
-    # K_dd = loadmat('Kdd.mat')['Kdd_matrix']
+    # K_dd = loadmat('Kdd_ProxCen.mat')['Kdd_matrix']
     # K_dd = K_dd.reshape((int(K_dd.shape[0]/2),2,n_modes_dd),order='F')
-
-    dist = loadmat('data/single_mode_dist_phase.mat')["data"]
-
+    # K_dd = K_dd.reshape((int(K_dd.shape[0]/2),2),order='F')
     K_dd = np.zeros((1,1))
+    # dist = loadmat('data/single_mode_dist.mat')["data"]
     # Load command and influence matrix
     S2M = np.load('S2M.npy')
     M2V = np.load('M2V.npy')
-    P2M = np.load('P2M.npy')
 
     bool_int = True
     bool_dist = True
-    bool_lol = False
     #------------------------------------
     # control tilt mode
     #------------------------------------
@@ -111,7 +108,7 @@ if __name__ == "__main__":
 
     res_array = np.empty((n_iter,S2M.shape[0]))
     single_mode_res = np.empty(n_iter)
-    single_mode_res_phase = np.empty(n_iter)
+
     u = np.zeros(n_iter)
 
     state_mat_int = np.zeros((2,2,n_modes))
@@ -119,19 +116,14 @@ if __name__ == "__main__":
 
     phase_count = 0
 
-    p_diam = config.p_geom.get_pupdiam()
-    n_pix = p_diam**2
-
     for i in range(n_iter):
 
         voltage = np.zeros(M2V.shape[0])  
 
         slopes = supervisor.rtc.get_slopes(0)
-        phase = supervisor.target.get_tar_phase(0).reshape(n_pix)
 
         modes = np.dot(S2M,slopes)
-        modes_phase = np.dot(P2M,phase)
-
+        
         state_mat_int[1:,:,:] = state_mat_int[0:-1,:,:]
         state_mat_int[0,0,:] = modes[0:n_modes]
         state_mat_int[0,1,:] = 0
@@ -143,27 +135,40 @@ if __name__ == "__main__":
             state_mat_dd[1:,:,:] = state_mat_dd[0:-1,:,:]
             state_mat_dd[0,0,:] = modes[:n_modes_dd]
             state_mat_dd[0,1,:] = 0
-            command_dd = np.sum(np.multiply(K_dd[:,0,:],state_mat_dd[:,0,:]) - np.multiply(K_dd[:,1,:],state_mat_dd[:,1,:]),0)
+            # command_dd = np.sum(np.multiply(K_dd[:,0,:],state_mat_dd[:,0,:]) - np.multiply(K_dd[:,1,:],state_mat_dd[:,1,:]),0)
+            command_dd = np.dot(K_dd[:,0],state_mat_dd[:,0,:]) - np.dot(K_dd[:,1],state_mat_dd[:,1,:])
             state_mat_dd[0,1,:] = command_dd
-            command_int[0] = command_dd[0]
-        # if i > 2:
-        # command_int[0] = dist[0,i+2]
+            command_int[:n_modes_dd] = command_dd
+
         u[i] = command_int[0] 
         voltage = -M2V[:,0:n_modes] @ command_int
         if not bool_dist:
             supervisor.rtc.set_perturbation_voltage(0, "", voltage)
 
         single_mode_res[i] = modes[0]
-        single_mode_res_phase[i] = modes_phase[0]
-        # print('u = {:.3f} e = {:.3f} \n'.format(command_int[0], modes_phase[0]))
-        if i%100==0:
-            strehl = supervisor.target.get_strehl(0)
-            print('s.e = {:.3f} l.e = {:.3f} \n'.format(strehl[0], strehl[1]))
-            
+
+        strehl = supervisor.target.get_strehl(0)
+
+
+        # if i%10==0 and i > 200:
+        #     # print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
+        #     tar_phase = supervisor.target.get_tar_phase(0)
+        #     np.savetxt("phase_dd/phase_dd_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+        #     # np.savetxt("phase_int_34/phase_tar_int_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+        #     # np.savetxt("phase_turb/phase_turb_tar_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+        #     phase_count += 1
+
+        if i%100==0 and i > 200:
+            print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
+        #     tar_phase = supervisor.target.get_tar_phase(0)
+        #     np.savetxt("phase_dd/phase_dd_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+        #     # np.savetxt("phase_int_34/phase_tar_int_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+        #     # np.savetxt("phase_turb/phase_turb_tar_"+str(phase_count)+".csv", tar_phase, delimiter=",")
+        #     phase_count += 1
+
         supervisor.next()
     if bool_dist:
-        savemat('data/single_mode_dist_10.mat',{"data": single_mode_res[0:]})
-        # savemat('data/single_mode_dist_phase.mat',{"data": single_mode_res_phase[0:]})
+        savemat('data/single_mode_dist.mat',{"data": single_mode_res[1:]})
 
     elif bool_int:
         savemat('data/single_mode_res_int.mat',{"data": single_mode_res[1:]})

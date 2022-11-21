@@ -9,20 +9,23 @@ if strlength(path_to_fusion) && ~sum(fusion_chk)
 end 
 %% Load data
 
-% dist_matrix_path = '../data/single_mode_dist_ProxCen_1.mat';
-dist_matrix_path = '../data/single_mode_dist.mat';
+dist_matrix_path = '../data/single_mode_dist_ProxCen_1.mat';
+% dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = load(dist_matrix_path).data';
 dist_matrix = dist_matrix(2:end);
 %%
 fs = 1000;
 bandwidth = 400;
-order = 5;
+order = 2;
 max_control_gain = 0.1;
 noise_red = 4;
 %%
 
-window_size = 550*2*5;
-n_average = 20;
+% window_size = 550*2*5;
+% n_average = 20;
+
+window_size = 1000;
+n_average = 10;
 
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
 % [psd, f] = periodogram(dist_matrix,[],[],fs);

@@ -30,16 +30,16 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     SYS.controller = ctrl;
     SYS.model = G; % Specify model(s)
     
-%     w_logspace = utils.logspace2(w(2),w(end),500);
-    w_logspace = linspace(w(2),w(end),500);
+    w_logspace = utils.logspace2(w(2),w(end),500);
+%     w_logspace = linspace(w(2),w(end),500);
     SYS.W = w_logspace;  
     
     %% Objectives
 
     OBJ.o2.W1 = W1;
-    OBJ.oinf.W2 = W3;
+%     OBJ.oinf.W2 = W3;
 %     OBJ.o2.W3 = W32;
-%     CON.W3 = tf(0.99,1,1/fs);
+    CON.W3 = tf(0.99,1,1/fs);
     %% Solve problem
     PAR.tol = 1e-4;
     PAR.maxIter = inf;

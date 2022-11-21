@@ -74,7 +74,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000*60
+        n_iter = 1000*120
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     M2V = np.load('M2V.npy')
 
     bool_int = True
-    bool_dist = False
+    bool_dist = True
     #------------------------------------
     # control tilt mode
     #------------------------------------
@@ -167,18 +167,18 @@ if __name__ == "__main__":
         #     phase_count += 1
 
         supervisor.next()
-    # if bool_dist:
-    #     savemat('data/single_mode_dist.mat',{"data": single_mode_res[1:]})
+    if bool_dist:
+        savemat('data/single_mode_dist.mat',{"data": single_mode_res[1:]})
 
-    # elif bool_int:
-    #     savemat('data/single_mode_res_int.mat',{"data": single_mode_res[1:]})
-    #     savemat('data/single_mode_command_int.mat',{"data": u[1:]})
-    # elif bool_lol:
-    #     savemat('data/single_mode_res_lol.mat',{"data": single_mode_res[1:]})
-    #     savemat('data/single_mode_command_lol.mat',{"data": u[1:]})
-    # else:
-    #     savemat('data/single_mode_res_dd.mat',{"data": single_mode_res[1:]})
-    #     savemat('data/single_mode_command_dd.mat',{"data": u[1:]})
+    elif bool_int:
+        savemat('data/single_mode_res_int.mat',{"data": single_mode_res[1:]})
+        savemat('data/single_mode_command_int.mat',{"data": u[1:]})
+    elif bool_lol:
+        savemat('data/single_mode_res_lol.mat',{"data": single_mode_res[1:]})
+        savemat('data/single_mode_command_lol.mat',{"data": u[1:]})
+    else:
+        savemat('data/single_mode_res_dd.mat',{"data": single_mode_res[1:]})
+        savemat('data/single_mode_command_dd.mat',{"data": u[1:]})
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
