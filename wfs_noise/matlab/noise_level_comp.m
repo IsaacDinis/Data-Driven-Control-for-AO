@@ -25,11 +25,11 @@ figure()
 semilogx(f,10*log10(psd_nonoise))
 hold on;
 semilogx(f,10*log10(psd_ProxCen))
-semilogx(f,10*log10(psd_PDS70))
+% semilogx(f,10*log10(psd_PDS70))
 title('Disurbance PSD')
 xlabel('Frequency (Hz)')
 ylabel('Magnitude (dB)')
-legend('no photon noise','Prox Cen.','PDS70','Interpreter','latex')
+legend('no photon noise','Prox Cen.','Interpreter','latex')
 grid()
 make_it_nicer()
 

@@ -9,14 +9,14 @@ if strlength(path_to_fusion) && ~sum(fusion_chk)
 end 
 %% Load data
 
-dist_matrix_path = '../data/single_mode_dist_ProxCen_1.mat';
+dist_matrix_path = '../data/single_mode_dist_nonoise_1_2000.mat';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = load(dist_matrix_path).data';
 dist_matrix = dist_matrix(2:end);
 %%
-fs = 1000;
-bandwidth = 400;
-order = 2;
+fs = 2000;
+bandwidth = 900;
+order = 5;
 max_control_gain = 0.1;
 noise_red = 4;
 %%
@@ -24,8 +24,8 @@ noise_red = 4;
 % window_size = 550*2*5;
 % n_average = 20;
 
-window_size = 1000;
-n_average = 10;
+window_size = 999;
+n_average = 20;
 
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
 % [psd, f] = periodogram(dist_matrix,[],[],fs);
@@ -51,9 +51,9 @@ W1 = W1/val;
 W12 = makeweight(10^(70.5/20),[152,10^(34/20)],10^(-0.5/20),1/fs,2);
 W12 = makeweight(10^(54.5/20),[152,10^(34/20)],10^(20/20),1/fs,2);
 W12 = makeweight(10^(58.5/20),[180,10^(34/20)],10^(20/20),1/fs,2);
-W4 = makeweight(10^(0/20),[50,10^(1/20)],10^(30/20),1/fs,2);
+W4 = frd(makeweight(10^(0/20),[50,10^(1/20)],10^(30/20),1/fs,2),w);
 plop = W1*W4/freqresp(W1*W4, bandwidth*2*pi);
-W12 = makeweight(10^(58.5/20),[680,10^(34/20)],10^(20/20),1/fs,2);
+W12 = makeweight(10^(58.5/20),[680,10^(34/20)],10^(10/20),1/fs,2);
 val = freqresp(W12, bandwidth*2*pi);
 % val = interp1(f,psd,bandwidth);
 W12 = W12/val;
@@ -78,7 +78,7 @@ Kdd_matrix(:,1,:) = Kdd_numerator;
 Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
-g = 0.4;
+g = 0.5;
 K0 = tf([g,0],[1,-1],1/fs);
 
 sys_dd = feedback(1,Kdd*G);
@@ -99,13 +99,21 @@ gain = mean(100-rms_dd*100./rms_int);
 [psd_int, f] = compute_psd(yint,n_average,window_size,fs);
 
 figure()
-semilogx(w,10*log10(psd_dd))
+semilogx(f,10*log10(psd_dd))
 hold on;
-semilogx(w,10*log10(psd_int))
+semilogx(f,10*log10(psd_int))
 
-legend('dd','int')
-xlabel('frequency [Hz]')
-ylabel('magnitude [dB]')
+legend('Data-driven','Integrator','Interpreter','latex','Location','southeast')
+title('Residual PSD')
+xlabel('Frequency (Hz)')
+ylabel('Magnitude (dB)')
+
+grid()
+make_it_nicer()
+
+set(gcf, 'Position',  [100, 100, 700, 450])
+set(gcf,'PaperType','A4')
+% export_fig ../plot/residual_npnoise.pdf -transparent
 
 %% Save controller coefficients
 Kdd_matrix = reshape(Kdd_matrix,(max_order+1)*2,n_modes);

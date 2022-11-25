@@ -10,7 +10,7 @@ end
 %% Load data
 
 % dist_matrix_path = '../data/single_mode_dist_ProxCen_1.mat';
-dist_matrix_path = '../data/single_mode_dist.mat';
+dist_matrix_path = '../data/single_mode_dist_ProxCen_1_2000.mat';
 dist_matrix = load(dist_matrix_path).data';
 dist_matrix = dist_matrix(2:end);
 %%
@@ -44,6 +44,35 @@ Kdd_matrix = zeros(max_order+1,2,n_modes);
 tic
 w = f*2*pi;
 W1 = frd(psd,w,1/fs);
+%%
+
+% W1 = frd(psd/psd(20),w,1/fs);
+% 
+% opts = bodeoptions('cstprefs');
+% opts.PhaseVisible = 'off';
+% opts.FreqUnits = 'Hz';
+% % opts.Title.String = 'Sensitivity function of the integrator with different gains';
+% opts.XLabel.Interpreter = 'latex';
+% opts.YLabel.Interpreter = 'latex';
+% opts.Title.Interpreter = 'latex';
+% opts.Title.FontSize = 15;
+% opts.YLabel.FontSize = 15;
+% opts.XLabel.FontSize = 15;
+% opts.TickLabel.FontSize = 15;
+% opts.YLim={[-40 40]};
+% 
+% W4 = frd(makeweight(10^(0/20),[50,10^(1/20)],10^(23/20),1/fs,2),w);
+% plop = W1*W4;
+% 
+% figure()
+% bodeplot(W1,W4,plop,{w(2),w(end)},opts)
+% legend('$D$','$W$','$W_1$','Interpreter','latex');
+% title('Weighting filter, $W_1 = W\times D$ ','latex');
+% set(gcf, 'Position',  [100, 100, 700, 580])
+% grid on
+
+% export_fig ../plot/weighting_filter.pdf -noinvert
+%%
 val = freqresp(W1, bandwidth*2*pi);
 % val = interp1(f,psd,bandwidth);
 W1 = W1/val;
@@ -62,7 +91,7 @@ bodemag(W1,W12,W4,plop)
 
 W3 = tf(max_control_gain,1,1/fs);
 
-Kdd =  ao_dd_controller(fs,w,order,plop,W3,W4,'fusion');
+Kdd =  ao_dd_controller(fs,w,order,W1,W3,W4,'fusion');
 Kdd_numerator = Kdd.Numerator{1};
 Kdd_denominator = Kdd.Denominator{1};
 
@@ -93,20 +122,46 @@ gain = mean(100-rms_dd*100./rms_int);
 [psd_int, f] = compute_psd(yint,n_average,window_size,fs);
 
 figure()
-semilogx(w,10*log10(psd_dd))
+semilogx(f,10*log10(psd_dd))
 hold on;
-semilogx(w,10*log10(psd_int))
+semilogx(f,10*log10(psd_int))
 
-legend('dd','int')
-xlabel('frequency [Hz]')
-ylabel('magnitude [dB]')
+legend('Data-driven','Integrator','Interpreter','latex','Location','southeast')
+title('Residual PSD')
+xlabel('Frequency (Hz)')
+ylabel('Magnitude (dB)')
+
+grid()
+make_it_nicer()
+
+set(gcf, 'Position',  [100, 100, 700, 450])
+set(gcf,'PaperType','A4')
+% export_fig ../plot/residual_overdamp.pdf -transparent
 
 %% Save controller coefficients
 Kdd_matrix = reshape(Kdd_matrix,(max_order+1)*2,n_modes);
 % % Kdd = circshift(Kdd,-2,2); % put tip tilt controllers at the end 
 save('../Kdd_ProxCen','Kdd_matrix');
 %%
-S_dd = feedback(1,G*Kdd);
-dummy = S_dd*W1*val;
-figure()
-bodemag(dummy,S_dd,W1)
+% opts = bodeoptions('cstprefs');
+% opts.PhaseVisible = 'off';
+% opts.FreqUnits = 'Hz';
+% opts.Title.String = 'Sensitivity function of the integrator with different gains';
+% opts.XLabel.Interpreter = 'latex';
+% opts.YLabel.Interpreter = 'latex';
+% opts.Title.Interpreter = 'latex';
+% opts.Title.FontSize = 15;
+% opts.YLabel.FontSize = 15;
+% opts.XLabel.FontSize = 15;
+% opts.TickLabel.FontSize = 15;
+% opts.YLim={[-70 65]};
+% 
+% S_dd = feedback(1,G*Kdd);
+% dummy = S_dd*W1;
+% figure()
+% bodeplot(W1,S_dd,dummy,{w(2),w(end)},opts)
+% legend('$W_1$','$\mathcal{S}$','$W_{1}\times \mathcal{S}$','Interpreter','latex');
+% title('Expected residual PSD','Interpreter','latex');
+% set(gcf, 'Position',  [100, 100, 700, 580])
+grid on
+% export_fig ../plot/expceted_residual_psd.pdf -noinvert 
