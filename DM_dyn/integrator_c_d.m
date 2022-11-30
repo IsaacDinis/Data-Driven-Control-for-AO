@@ -1,0 +1,48 @@
+s=tf('s');
+Ts=1/2000; %replace with desired value;
+z = tf('z',Ts);
+
+sys=(1-exp(-s*Ts))/s;
+ZOH_c = (1-exp(-s*Ts))/(Ts*s);
+% impulse(ZOH_c)
+
+g = 0.6;
+K2_c = g/(1-exp(-s*Ts));
+K_d = g/(1-z^-1);
+K_c = d2c(K_d,'zoh');
+
+w_DM = 1200*2*pi;
+s_dm = 0.1;
+DM_c = w_DM.^2/(s^2+2*s_dm*w_DM*s+w_DM.^2);
+
+delay = exp(-s*650*1e-6);
+
+plop = ZOH_c*ZOH_c*delay;
+% S1 = feedback(1,K2_c*DM_c);
+% S2 = feedback(1,K_c*DM_c);
+
+dummy = ZOH_c*DM_c*delay*g/(s*Ts);
+
+% S1 = feedback(1,K2_c*DM_c*plop);
+S1 = feedback(1,dummy);
+S2 = feedback(1,K_c*DM_c);
+
+
+% S3 = feedback(1,K2_c);
+figure()
+% % bode(K2_c*ZOH_c,K_c,K_d)
+h = bodeplot(S1);
+setoptions(h,'FreqUnits','Hz','PhaseVisible','off');
+% legend()
+%%
+figure()
+step(S1)
+legend()
+
+figure()
+h = bodeplot(DM_c);
+setoptions(h,'FreqUnits','Hz');
+
+figure()
+h = bodeplot(dummy);
+setoptions(h,'FreqUnits','Hz');
