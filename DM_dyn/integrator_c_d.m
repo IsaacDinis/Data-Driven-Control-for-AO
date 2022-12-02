@@ -6,7 +6,7 @@ sys=(1-exp(-s*Ts))/s;
 ZOH_c = (1-exp(-s*Ts))/(Ts*s);
 % impulse(ZOH_c)
 
-g = 0.6;
+g = 0.1;
 K2_c = g/(1-exp(-s*Ts));
 K_d = g/(1-z^-1);
 K_c = d2c(K_d,'zoh');
@@ -22,11 +22,13 @@ plop = ZOH_c*ZOH_c*delay;
 % S2 = feedback(1,K_c*DM_c);
 
 dummy = ZOH_c*DM_c*delay*g/(s*Ts);
+dummy_no_delay = ZOH_c*DM_c*g/(s*Ts);
+dummy_no_DM = ZOH_c*delay*g/(s*Ts);
 
 % S1 = feedback(1,K2_c*DM_c*plop);
 S1 = feedback(1,dummy);
-S2 = feedback(1,K_c*DM_c);
-
+S2 = feedback(1,dummy_no_delay);
+S3 = feedback(1,dummy_no_DM);
 
 % S3 = feedback(1,K2_c);
 figure()
@@ -43,6 +45,17 @@ figure()
 h = bodeplot(DM_c);
 setoptions(h,'FreqUnits','Hz');
 
+% figure()
+% h = bodeplot(dummy);
+% setoptions(h,'FreqUnits','Hz');
+
+%%
 figure()
-h = bodeplot(dummy);
-setoptions(h,'FreqUnits','Hz');
+h = bodeplot(S1,S2);
+setoptions(h,'FreqUnits','Hz','PhaseVisible','off');
+legend('650 us delay', 'no delay')
+
+figure()
+h = bodeplot(S1,S3);
+setoptions(h,'FreqUnits','Hz','PhaseVisible','off');
+legend('with DM dynamics', 'without DM dynamics')
