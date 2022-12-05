@@ -6,7 +6,7 @@ sys=(1-exp(-s*Ts))/s;
 ZOH_c = (1-exp(-s*Ts))/(Ts*s);
 % impulse(ZOH_c)
 
-g = 0.1;
+g = 0.6;
 K2_c = g/(1-exp(-s*Ts));
 K_d = g/(1-z^-1);
 K_c = d2c(K_d,'zoh');
@@ -37,8 +37,9 @@ h = bodeplot(S1);
 setoptions(h,'FreqUnits','Hz','PhaseVisible','off');
 % legend()
 %%
+t_sim = 0:1/10000:1;
 figure()
-step(S1)
+step(S1,t_sim)
 legend()
 
 figure()

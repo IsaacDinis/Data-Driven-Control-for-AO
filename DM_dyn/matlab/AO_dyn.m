@@ -13,7 +13,7 @@ K_c = d2c(K_d,'zoh');
 K2_c = g/(1-exp(-s*Ts));
 ZOH_c = (1-exp(-s*Ts))/(Ts*s);
 
-w_DM = 1200;
+w_DM = 1200*2*pi;
 s_dm = 0.1;
 DM_c = w_DM.^2/(s^2+2*s_dm*w_DM*s+w_DM.^2);
 DM_d = c2d(DM_c,Ts,'tustin');
