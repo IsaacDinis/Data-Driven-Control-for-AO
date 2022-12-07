@@ -11,7 +11,7 @@ import shesha.config as conf
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)          # number of loop iterations
-p_loop.set_ittime(1./2000.)     # assuming loop at 1.38 kHz
+p_loop.set_ittime(1./4000.)     # assuming loop at 1.38 kHz
 
 # geom
 p_geom = conf.Param_geom()
@@ -60,7 +60,7 @@ p_wfs0.set_Lambda(1.05)        # SAXO SH bandwidth : [475, 900] nm
 p_wfs0.set_gsmag(0.)
 p_wfs0.set_optthroughput(1) # still unknown
 p_wfs0.set_zerop(10.4e6)        # zero point for guide star magnitude
-p_wfs0.set_noise(0)         # -1 = No noise
+p_wfs0.set_noise(-1)         # -1 = No noise
 p_wfs0.set_atmos_seen(1)
 p_wfs0.set_fstop("round")
 #p_wfs0.set_fssize(0.79412)   # 1.1*lambda/dSubap

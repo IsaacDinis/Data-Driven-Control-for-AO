@@ -74,7 +74,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 2000*10
+        n_iter = 4000*10
 
     if arguments["--modes"]:
         n_modes = (int(arguments["--modes"]))
