@@ -11,7 +11,7 @@ t = 0:Ts:size(dist,1)*Ts-Ts;
 
 %% Continuous time  model
 
-w_DM = 2000*2*pi;
+w_DM = 1200*2*pi;
 
 s_DM = 0.1;
 
