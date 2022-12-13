@@ -9,6 +9,19 @@ z = tf('z',Ts);
 
 t = 0:Ts:size(dist,1)*Ts-Ts;
 
+
+%% bode options
+opts = bodeoptions('cstprefs');
+opts.PhaseVisible = 'on';
+opts.FreqUnits = 'Hz';
+% opts.Title.String = 'Sensitivity function of the integrator with different gains';
+opts.XLabel.Interpreter = 'latex';
+opts.YLabel.Interpreter = 'latex';
+opts.Title.Interpreter = 'latex';
+opts.Title.FontSize = 15;
+opts.YLabel.FontSize = 15;
+opts.XLabel.FontSize = 15;
+opts.TickLabel.FontSize = 15;
 %% Continuous time  model
 
 w_DM = 1200*2*pi;
@@ -21,44 +34,66 @@ K_DM_c = (s^2+2*s_DM*w_DM*s+w_DM.^2)/(s^2+2*w_DM*s+w_DM.^2);
 
 K_int_c = 0.1/(Ts*s);
 
+K_int_c2 = 0.5/(1e-3*s);
 delay = exp(-s*2*Ts);
 
 
 
 %% Continuous time plots
 
-sys_ol = DM_c*K_DM_c;
 
-% sys_cl = feedback(1,sys_ol);
 
+opts.Title.String = "Bode plot of DM damper";
 figure()
-bode(DM_c,K_DM_c,DM_c*K_DM_c);
-% 
-% figure()
-% bode(sys_ol*K_int_c);
+bode(DM_c,K_DM_c,DM_c*K_DM_c,opts);
+set(gcf, 'Position',  [100, 100, 700, 580])
+legend('DM','damper','DM$\times$damper','Interpreter','latex');
+grid on;
 
+opts.Title.String = "Closed-loop Bode plot";
 figure()
-bode(feedback(1,DM_c),feedback(1,DM_c*K_DM_c));
+bode(feedback(1,DM_c),feedback(1,DM_c*K_DM_c),opts);
+set(gcf, 'Position',  [100, 100, 700, 580])
+legend('without damper','with damper','Interpreter','latex');
+grid on;
 
+[y1,tOut] = step(feedback(1,DM_c));
+[y2] = step(feedback(1,DM_c*K_DM_c),tOut);
 figure()
-step(feedback(1,DM_c),feedback(1,DM_c*K_DM_c));
+plot(tOut,y1)
+hold on;
+plot(tOut,y2)
+xlim([tOut(1),tOut(end)]);
+title("Step response")
+xlabel("Time (s)")
+ylabel("Amplitude")
+legend('without damper','with damper','Interpreter','latex');
+make_it_nicer()
+set(gcf, 'Position',  [100, 100, 700, 290])
+
 %% Same but  integrator
 
-sys_ol = DM_c*K_DM_c;
 
-% sys_cl = feedback(1,sys_ol);
-
-% figure()
-% bode(DM_c,K_DM_c,DM_c*K_DM_c);
-% 
+opts.Title.String = "Closed-loop Bode plot with integrator";
 figure()
-bode(DM_c*K_int_c);
+bode(feedback(1,DM_c*K_int_c),feedback(1,DM_c*K_DM_c*K_int_c),opts);
+set(gcf, 'Position',  [100, 100, 700, 580])
+legend('without damper','with damper','Interpreter','latex');
+grid on;
 
+[y1,tOut] = step(feedback(1,DM_c*K_int_c));
+[y2] = step(feedback(1,DM_c*K_DM_c*K_int_c),tOut);
 figure()
-bode(feedback(1,DM_c*K_int_c),feedback(1,DM_c*K_DM_c*K_int_c));
-
-figure()
-step(feedback(1,DM_c*K_int_c),feedback(1,DM_c*K_DM_c*K_int_c));
+plot(tOut,y1)
+hold on;
+plot(tOut,y2)
+xlim([tOut(1),tOut(end-50)]);
+title("Step response with integrator")
+xlabel("Time (s)")
+ylabel("Amplitude")
+legend('without damper','with damper','Interpreter','latex');
+make_it_nicer()
+set(gcf, 'Position',  [100, 100, 700, 290])
 %% Same but with delay and integrator
 
 sys_ol = DM_c*K_DM_c;
