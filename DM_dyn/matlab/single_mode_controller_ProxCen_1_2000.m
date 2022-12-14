@@ -10,15 +10,15 @@ end
 %% Load data
 
 % dist_matrix_path = '../data/single_mode_dist_ProxCen_1.mat';
-dist_matrix_path = 'data/single_mode_dist_ProxCen_1_2000.mat';
+dist_matrix_path = '../data/single_mode_dist_nonoise_1_4000.mat';
 dist_matrix = load(dist_matrix_path).data';
 dist_matrix = dist_matrix(2:end);
 %%
-fs = 1000;
+fs = 4000;
 Ts = 1/fs;
-bandwidth = 400;
+bandwidth = 1000;
 order = 5;
-max_control_gain = 0.1;
+max_control_gain = 10;
 noise_red = 4;
 %%
 
@@ -35,11 +35,11 @@ semilogx(f,10*log10(psd))
 % psd(1:4) = psd(5);
 delay = tf([1],[1,0,0],Ts); % 2 samples delay
 
-w_DM = 1200;
+w_DM = 1200*2*pi;
 s_dm = 0.1;
 DM_c = tf(w_DM.^2,[1,2*s_dm*w_DM,w_DM.^2]);
-DM_d = c2d(DM_c,1/fs,'tustin');
-G = DM_d;
+DM_d = c2d(DM_c,1/fs,'zoh');
+G = DM_d*tf([1],[1,0,0],Ts);
 
 
 %% Load data
@@ -60,7 +60,7 @@ W1 = frd(psd,w,1/fs);
 %%
 
 
-W1 = frd(makeweight(10^(54.5/20),[152 10^(34/20)],10^(20/20),1/fs,2),w);
+% W1 = frd(makeweight(10^(54.5/20),[152 10^(34/20)],10^(20/20),1/fs,2),w);
 % W1 = frd(makeweight(10^(54.5/20),[15 10^(34/20)],10^(20/20),1/fs,2),w);
 
 val = freqresp(W1, bandwidth*2*pi);
@@ -70,9 +70,9 @@ W1 = W1/val;
 % figure()
 % bodemag(W1,W12,W4,plop)
 % 
-% W3 = tf(max_control_gain,1,1/fs);
+W3 = tf(max_control_gain,1,1/fs);
 
-Kdd =  ao_dd_controller(fs,w,order,W1,[],[],'fusion');
+Kdd =  ao_dd_controller(fs,w,order,W1,W3,[],'fusion');
 Kdd_numerator = Kdd.Numerator{1};
 Kdd_denominator = Kdd.Denominator{1};
 
@@ -82,7 +82,7 @@ Kdd_matrix(:,1,:) = Kdd_numerator;
 Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
-g = 0.2;
+g = 0.5;
 K0 = tf([g,0],[1,-1],1/fs);
 
 sys_dd = feedback(1,Kdd*G);
@@ -93,8 +93,8 @@ t = 0:1/fs:size(dist_matrix,1)/fs-1/fs;
 [ydd,~] = lsim(sys_dd,dist_matrix,t);
 [yint,~] = lsim(sys_int,dist_matrix,t);
 
-rms_dd = rms(ydd(500:end));
-rms_int = rms(yint(500:end));
+rms_dd = rms(ydd);
+rms_int = rms(yint);
 
 fprintf("rms datadriven = %f \nrms integrator = %f \n",rms_dd,rms_int);
 gain = mean(100-rms_dd*100./rms_int);

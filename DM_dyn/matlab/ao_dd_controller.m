@@ -4,15 +4,16 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     
     delay = tf([1],[1,0,0],Ts); % 2 samples delay
 
-    w_DM = 1200;
+    w_DM = 1200*2*pi;
     s_dm = 0.1;
     DM_c = tf(w_DM.^2,[1,2*s_dm*w_DM,w_DM.^2]);
-    DM_d = c2d(DM_c,Ts,'tustin');
+    DM_d = c2d(DM_c,Ts,'zoh');
 
     w_logspace = utils.logspace2(w(2),w(end),500);
-    DM_f = abs(frd(DM_c,w_logspace,'rad/s'));
-    DM_f = squeeze(DM_f.ResponseData);
-    G = frd(DM_c,w_logspace,'rad/s');
+%     DM_f = abs(frd(DM_c,w_logspace,'rad/s'));
+%     DM_f = squeeze(DM_f.ResponseData);
+%     G = frd(DM_c,w_logspace,'rad/s');
+    G = delay*DM_d;
     %% Initial controller
     g = 0.2;
     K0 = tf([g,0],[1,-1],Ts);
@@ -46,9 +47,9 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     %% Objectives
 
     OBJ.o2.W1 = W1;
-%     OBJ.oinf.W2 = W3;
+    OBJ.oinf.W2 = W3;
 %     OBJ.o2.W3 = W32;
-%     CON.W3 = tf(0.99,1,1/fs);
+%      CON.W3 = tf(0.99,1,1/fs);
     %% Solve problem
     PAR.tol = 1e-4;
     PAR.maxIter = inf;
@@ -61,39 +62,39 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     %% Analysis using optimal controller
     
     Kdd = utils.toTF(controller); % 
-%     disp(['Eigenvalues close-loop using initial controller: ', ...
-%         num2str(max(abs(eig(feedback(1,G*Kdd))))), ' (stable CL)']) 
-%                                                   % < 1 --> Stable Closed-loop
+    disp(['Eigenvalues close-loop using final controller: ', ...
+        num2str(max(abs(eig(feedback(1,G*Kdd))))), ' (stable CL)']) 
+                                                  % < 1 --> Stable Closed-loop
     
     %% Datadriven
-%     U_dd = feedback(Kdd,G);
-%     U_int = feedback(K0,G);
-%     S_dd = feedback(1,G*Kdd);
-%     S_int = feedback(1,G*K0);
-%     opt = stepDataOptions('StepAmplitude',1);
-%     
-%     figure()
-%     
-%     subplot(2,2,1)
-%     step(S_dd,S_int,opt)
-%     title('Step Response');
-%     legend('Datadriven', 'Integrator');
-% 
-%     subplot(2,2,2)
-%     step(U_dd,U_int,opt)
-%     title('Control signal');
-%     legend('Datadriven', 'Integrator');
-% 
-%     subplot(2,2,3)
-%     bodemag(U_dd,U_int,{w(2),w(end)});
-%     title('Sensitivity function U');
-%     legend('Datadriven', 'Integrator');
-% 
-%     subplot(2,2,4)
-%     bodemag(S_dd,S_int,W1^-1,{w(2),w(end)})
-%     legend('Datadriven', 'Integrator','W1^{-1}');
-%     title('Sensitivity function S');
-%     
-%     sgtitle('Datadriven controller') 
+    U_dd = feedback(Kdd,G);
+    U_int = feedback(K0,G);
+    S_dd = feedback(1,G*Kdd);
+    S_int = feedback(1,G*K0);
+    opt = stepDataOptions('StepAmplitude',1);
+    
+    figure()
+    
+    subplot(2,2,1)
+    step(S_dd,S_int,opt)
+    title('Step Response');
+    legend('Datadriven', 'Integrator');
+
+    subplot(2,2,2)
+    step(U_dd,U_int,opt)
+    title('Control signal');
+    legend('Datadriven', 'Integrator');
+
+    subplot(2,2,3)
+    bodemag(U_dd,U_int,{w(2),w(end)});
+    title('Sensitivity function U');
+    legend('Datadriven', 'Integrator');
+
+    subplot(2,2,4)
+    bodemag(S_dd,S_int,W1^-1,{w(2),w(end)})
+    legend('Datadriven', 'Integrator','W1^{-1}');
+    title('Sensitivity function S');
+    
+    sgtitle('Datadriven controller') 
 
 end

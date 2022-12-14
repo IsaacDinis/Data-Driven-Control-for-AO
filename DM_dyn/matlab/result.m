@@ -37,3 +37,56 @@ make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
 make_it_nicer()
+
+%%
+DM_freq = [700,800,850,900,950,1000,1200,1400,1600,1800,2000,2200,2400,2800,...
+    3000,3400,4000];
+
+load('out_2frame.mat')
+RMS_no_noise_1000 = [out.h700,out.h800,0,0,out.h950,out.h1000...
+    ,out.h1200,out.h1400,out.h1600,out.h1800,out.h2000,out.h2200,out.h2400...
+    ,out.h2800,out.h3000,out.h3400,out.h4000,out.no_dm]; %integrator gain = 0.5
+
+load('out_noise.mat')
+RMS_ProxCen_1000 = [out.h700,out.h800,out.h850,out.h900,out.h950,out.h1000...
+    ,out.h1200,out.h1400,out.h1600,out.h1800,out.h2000,out.h2200,out.h2400...
+    ,out.h2800,out.h3000,out.h3400,out.h4000,out.no_dm]; %integrator gain = 0.5
+
+load('out_1frame.mat')
+RMS_no_noise_1000_1delay = [out.h700,out.h800,out.h850,out.h900,out.h950,out.h1000...
+    ,out.h1200,out.h1400,out.h1600,out.h1800,out.h2000,out.h2200,out.h2400...
+    ,out.h2800,out.h3000,out.h3400,out.h4000,out.no_dm]; %integrator gain = 0.5
+
+figure()
+plot(DM_freq,RMS_no_noise_1000(1:end-1),'-o')
+title('residual RMS, 2 frames delay, no photon noise',' RMS without DM dymanics = 19.6')
+xlim([DM_freq(1),DM_freq(end)])
+xlabel('DM natural frequency [Hz]')
+ylabel('RMS')
+make_it_nicer()
+set(gcf, 'Position',  [100, 100, 700, 450])
+set(gcf,'PaperType','A4')
+make_it_nicer()
+% export_fig ../plot/psd.pdf -transparent
+
+figure()
+plot(DM_freq,RMS_ProxCen_1000(1:end-1),'-o')
+title('residual RMS, 2 frames delay, 10.4e6 photons/m2/s ',' RMS without DM dymanics = 1284')
+xlim([DM_freq(1),DM_freq(end)])
+xlabel('DM natural frequency [Hz]')
+ylabel('RMS')
+make_it_nicer()
+set(gcf, 'Position',  [100, 100, 700, 450])
+set(gcf,'PaperType','A4')
+make_it_nicer()
+
+figure()
+plot(DM_freq,RMS_no_noise_1000_1delay(1:end-1),'-o')
+title('residual RMS, 1 frame delay, no photon noise',' RMS without DM dymanics = 15.2')
+xlim([DM_freq(1),DM_freq(end)])
+xlabel('DM natural frequency [Hz]')
+ylabel('RMS')
+make_it_nicer()
+set(gcf, 'Position',  [100, 100, 700, 450])
+set(gcf,'PaperType','A4')
+make_it_nicer()
