@@ -34,7 +34,7 @@ p_tel = conf.Param_tel()
 p_tel.set_diam(8.0)            # /!\  VLT diameter
 p_tel.set_cobs(0.14)           # /!\  central obstruction
 p_tel.set_type_ap("VLT")       # /!\  VLT pupil
-p_tel.set_spiders_type("four") # /!\
+p_tel.set_spiders_type("six") # /!\
 p_tel.set_t_spiders(0.00625)   # /!\  spider width = 5 cm
 
 # atmos

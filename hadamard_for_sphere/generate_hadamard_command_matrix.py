@@ -75,17 +75,14 @@ if __name__ == "__main__":
 
     # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,0])
     supervisor.atmos.enable_atmos(False)
-
-    n_act = config.p_dms[0].get_nact()
-    n_act_square = n_act**2
     
-    n_act_eff = config.p_dms[0].get_xpos().shape[0]
+    n_act = config.p_dms[0].get_xpos().shape[0] # get number of visible actuators
     
     n_slopes = supervisor.rtc.get_slopes(0).shape[0]
  
     ampli = 0.1
 
-    hadamard_size = 2**n_act_square.bit_length()
+    hadamard_size = 2**n_act.bit_length()
     hadamard_matrix = hadamard(hadamard_size)
 
     C = np.zeros((n_slopes,hadamard_size))
@@ -101,7 +98,7 @@ if __name__ == "__main__":
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
     for i in range(hadamard_size):
-        supervisor.rtc.set_perturbation_voltage(0, "", hadamard_matrix[:n_act_square,i]*ampli)
+        supervisor.rtc.set_perturbation_voltage(0, "", hadamard_matrix[:n_act,i]*ampli)
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
@@ -109,7 +106,7 @@ if __name__ == "__main__":
 
     D = C @ np.linalg.inv(hadamard_matrix)
     # D = D[:,:n_act_square]
-    D = D[:,:n_act_eff]
+    # D = D[:,:n_act_eff]
     S2A = np.linalg.pinv(D)
 
     # command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]
