@@ -153,7 +153,7 @@ ylabel("Amplitude")
 legend('w/o damper','w/ damper','Interpreter','latex');
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 290])
-% export_fig ../plot/damper_cl_int_delay.pdf -noinvert
+% export_fig ../plot/damper_step_int_delay.pdf -noinvert
 %% Discrete time components
 
 DM_d = c2d(DM_c,Ts);
@@ -178,12 +178,12 @@ opts.YlimMode = 'auto';
 % opts.XlimMode = 'auto';
 opts.Title.String = "Closed-loop ($\mathcal{S}$) Bode plot with high gain integrator";
 figure()
-bode(feedback(1,K_int_d*z^-2),feedback(1,K_int_d*DM_d*z^-2),feedback(1,K_int_d*z^-2*K_DM_d),feedback(1,Kdd*z^-2*K_DM_d),opts);
+bode(feedback(1,K_int_d*z^-2),feedback(1,K_int_d*DM_d*z^-2),feedback(1,K_int_d*z^-2*K_DM_d),opts);
 set(gcf, 'Position',  [100, 100, 700, 580])
-legend('w/o DM dyn.','w/o damper','w/ damper','data-driven','Interpreter','latex');
+legend('w/o DM dyn.','w/o damper','w/ damper','Interpreter','latex');
 grid on;
 
-% export_fig ../plot/damper_cl_int_delay.pdf -noinvert
+% export_fig ../plot/damper_discrete_high_gain.pdf -noinvert
 
 dist_matrix_path = '../data/single_mode_dist_nonoise_1_4000.mat';
 dist = load(dist_matrix_path).data';
@@ -193,12 +193,12 @@ y1 = lsim(feedback(1,K_int_d*z^-2),dist,t);
 y2 = lsim(feedback(1,K_int_d*DM_d*z^-2),dist,t);
 y3 = lsim(feedback(1,K_int_d*z^-2*K_DM_d),dist,t);
 
-y4 = lsim(feedback(1,Kdd*K_DM_d*z^-2),dist,t);
+% y4 = lsim(feedback(1,Kdd*K_DM_d*z^-2),dist,t);
 
 rms_y1 = rms(y1);
 rms_y2 = rms(y2);
 rms_y3 = rms(y3);
-rms_y4 = rms(y4);
+% rms_y4 = rms(y4);
 % figure()
 % bode(c2d(DM_c*delay,Ts),c2d(DM_c,Ts)*z^-1)
 
@@ -223,6 +223,9 @@ bode(feedback(1,K_int_d*z^-2),feedback(1,K_int_d*DM_d*z^-2),feedback(1,K_int_d*z
 set(gcf, 'Position',  [100, 100, 700, 580])
 legend('w/o DM dyn.','w/o damper','w/ damper','Interpreter','latex');
 grid on;
+
+% export_fig ../plot/damper_discrete_low_gain.pdf -noinvert
+
 % 
 % figure()
 % pzplot(sys_d_cl)
