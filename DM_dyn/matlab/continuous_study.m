@@ -5,7 +5,7 @@ s=tf('s');
 
 %% Continuous time  model
 
-w_DM = 3000*2*pi;
+w_DM = 20000*2*pi;
 
 s_DM = 0.1;
 

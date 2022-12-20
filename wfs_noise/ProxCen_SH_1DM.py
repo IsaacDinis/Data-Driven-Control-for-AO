@@ -11,7 +11,7 @@ import shesha.config as conf
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)          # number of loop iterations
-p_loop.set_ittime(1./4000.)     # assuming loop at 1.38 kHz
+p_loop.set_ittime(1./2000.)     # assuming loop at 1.38 kHz
 
 # geom
 p_geom = conf.Param_geom()
@@ -21,10 +21,15 @@ p_geom.set_zenithangle(0.)
 # tel
 p_tel = conf.Param_tel()
 p_tel.set_diam(8.0)            # VLT diameter
-p_tel.set_cobs(0.14)           # central obstruction
+# p_tel.set_cobs(0.14)           # central obstruction
+# p_tel.set_type_ap("VLT")       # VLT pupil
+# p_tel.set_spiders_type("six")
+# p_tel.set_t_spiders(0.00625)
+
 p_tel.set_type_ap("VLT")       # VLT pupil
-p_tel.set_spiders_type("four")
-p_tel.set_t_spiders(0.00625)
+p_tel.set_spiders_type("six")
+p_tel.set_t_spiders(0.)
+p_tel.set_cobs(-1)   
 
 # atmos
 p_atmos = conf.Param_atmos()

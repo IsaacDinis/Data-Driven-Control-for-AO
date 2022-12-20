@@ -40,3 +40,7 @@ wao.supervisor.next()
 slopes = wao.supervisor.rtc.get_slopes(0)
 amplitude = S2A@slopes
 amplitude[x-1:x+2]
+
+config.p_tel.set_spiders_type('six')
+wao.supervisor.config.p_geom.set_is_init(False)
+wao.supervisor.__init__(wao.config)

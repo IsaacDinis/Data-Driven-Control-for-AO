@@ -1,4 +1,4 @@
-ipython -i ~/compass/shesha/shesha/widgets/widget_ao.py compass_param.py 
+ipython -i ~/compass/shesha/shesha/widgets/widget_ao.py saxo.py 
 
 
 n_act_square = wao.config.p_dms[0].get_nact()
