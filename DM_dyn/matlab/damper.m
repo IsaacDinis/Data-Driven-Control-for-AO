@@ -158,9 +158,9 @@ set(gcf, 'Position',  [100, 100, 700, 290])
 
 DM_d = c2d(DM_c,Ts);
 
-opt = c2dOptions('Method','tustin','PrewarpFrequency',w_DM);
-
-K_DM_d = c2d(K_DM_c,Ts,opt);
+% opt = c2dOptions('Method','tustin','PrewarpFrequency',w_DM);
+% 
+% K_DM_d = c2d(K_DM_c,Ts,opt);
 
 
 %% Case 1 no DM dynamics no photon noise
@@ -187,6 +187,7 @@ grid on;
 
 dist_matrix_path = '../data/single_mode_dist_nonoise_1_4000.mat';
 dist = load(dist_matrix_path).data';
+dist = dist(1:4:end);
 t = 0:Ts:size(dist,1)*Ts-Ts;
 
 y1 = lsim(feedback(1,K_int_d*z^-2),dist,t);
@@ -198,6 +199,7 @@ y3 = lsim(feedback(1,K_int_d*z^-2*K_DM_d),dist,t);
 rms_y1 = rms(y1);
 rms_y2 = rms(y2);
 rms_y3 = rms(y3);
+rms_y4 = rms(dist);
 % rms_y4 = rms(y4);
 % figure()
 % bode(c2d(DM_c*delay,Ts),c2d(DM_c,Ts)*z^-1)
@@ -205,7 +207,7 @@ rms_y3 = rms(y3);
 
 %%
 
-K_int_d = 0.1/(1-z^-1);
+K_int_d = 0.2/(1-z^-1);
 
 
 % figure()
@@ -232,6 +234,7 @@ grid on;
 
 dist_matrix_path = '../data/single_mode_dist_ProxCen_1_4000.mat';
 dist = load(dist_matrix_path).data';
+% dist = dist(1:4:end);
 t = 0:Ts:size(dist,1)*Ts-Ts;
 
 y1 = lsim(feedback(1,K_int_d*z^-2),dist,t);
@@ -240,3 +243,7 @@ y3 = lsim(feedback(1,K_int_d*z^-2*K_DM_d),dist,t);
 rms_y1 = rms(y1);
 rms_y2 = rms(y2);
 rms_y3 = rms(y3);
+rms_y4 = rms(dist);
+
+Ts = 1/1000;
+z = tf('z',Ts);
