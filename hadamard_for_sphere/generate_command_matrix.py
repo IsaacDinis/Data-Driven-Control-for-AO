@@ -94,19 +94,7 @@ if __name__ == "__main__":
         slopes = supervisor.rtc.get_slopes(0)/ampli
         imat[:,mode] = slopes.copy()
 
-    # #tip
-    # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,-2]*ampli) 
-    # supervisor.next()
-    # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # imat[:,-2] = slopes.copy()
 
-    # #tilt
-    # supervisor.rtc.set_perturbation_voltage(0, "", inf_mat[:,-1]*ampli) 
-    # supervisor.next()
-    # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # imat[:,-1] = slopes.copy()
 
     command_mat = np.linalg.pinv(imat) # [nmodes , nslopes]
 
