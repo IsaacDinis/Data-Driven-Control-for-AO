@@ -53,7 +53,7 @@ p_targets = [p_target]
 p_target.set_xpos(0.)         # /!\ On axis
 p_target.set_ypos(0.)         # /!\ On axis
 p_target.set_Lambda(1.65)     # /!\ H Band
-p_target.set_mag(6.)          # /!\
+p_target.set_mag(1.)          # /!\
 
 # wfs
 p_wfs0 = conf.Param_wfs()
@@ -70,7 +70,7 @@ p_wfs0.set_Lambda(0.7)        # /!\ SAXO SH bandwidth : [475, 900] nm
 p_wfs0.set_gsmag(6.)
 p_wfs0.set_optthroughput(0.1) # still unknown
 p_wfs0.set_zerop(1e11)        # zero point for guide star magnitude
-p_wfs0.set_noise(0.1)         # EMCCD with < 0.1e- RON
+p_wfs0.set_noise(-1)         # EMCCD with < 0.1e- RON
 p_wfs0.set_atmos_seen(1)      # /!\
 p_wfs0.set_fstop("square")    # /!\
                               # Choose one spatial filter or none.
@@ -95,7 +95,7 @@ p_dm0.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
 p_dm0.set_coupling(0.3)
 p_dm0.set_alt(0.)             # /!\
 p_dm0.set_unitpervolt(1.)     # /!\
-p_dm0.set_push4imat(0.180)    #     to displace ~ half a pixel
+p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
 
 
 p_dm1.set_type("pzt")         # /!\
@@ -105,7 +105,7 @@ p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_coupling(0.3)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
-p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
+p_dm1.set_push4imat(0.001)    #     to displace ~ half a pixel
 
 # p_dm0.set_file_influ_fits("SAXO_HODM.fits") # /!\ to use a custom SAXO HO DM
 
