@@ -43,7 +43,7 @@ if __name__ == "__main__":
     supervisor.atmos.enable_atmos(True) 
 
     n_modes_DM0 = 88
-    n_modes_DM1 = 1374
+    n_modes_DM1 = 800
 
     a = np.array([1.,-1]) 
     b = np.array([0.3,0])
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     state_mat_DM0 = np.zeros((2,2,n_modes_DM0))
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
 
-    bool_DMO = False
+    bool_DMO = True
     rms_stroke = 0;
     for i in range(n_iter):
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         modes_DM0 = np.dot(S2M_DM0,slopes)
         modes_DM1 = np.dot(S2M_DM1,slopes)
 
-        if bool_DMO:
+        if bool_DMO and i%2==0:
             state_mat_DM0[1:,:,:] = state_mat_DM0[0:-1,:,:]
             state_mat_DM0[0,0,:] = modes_DM0[0:n_modes_DM0]
             state_mat_DM0[0,1,:] = 0

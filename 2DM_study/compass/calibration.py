@@ -42,15 +42,22 @@ if __name__ == "__main__":
     norm = np.linalg.norm(M2V, axis = 0)
     M2V /= norm
 
-    nactu_DM0 = supervisor.config.p_dms[0].get_ntotact()
-    nactu_DM1 = supervisor.config.p_dms[1].get_ntotact()
+
+
+    n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()
+    n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
+
+    n_modes_DM0 = n_actus_DM0
+    # n_modes_DM1 = n_actus_DM1
+    n_modes_DM1 = 800
+ 
     nmodes = M2V.shape[1]
  
     ampli = 0.1
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
-    M2S_DM0 = np.zeros((slopes.shape[0], nactu_DM0))
-    M2S_DM1 = np.zeros((slopes.shape[0], nactu_DM1))
+    M2S_DM0 = np.zeros((slopes.shape[0], n_modes_DM0))
+    M2S_DM1 = np.zeros((slopes.shape[0], n_modes_DM1))
 
     # M2S = np.zeros((slopes.shape[0], nmodes+2))
     supervisor.atmos.enable_atmos(False)
@@ -58,15 +65,15 @@ if __name__ == "__main__":
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
-    for mode in range(nactu_DM0):
+    for mode in range(n_modes_DM0):
         supervisor.rtc.set_command(0, M2V[:,mode]*ampli) 
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM0[:,mode] = slopes.copy()
 
-    for mode in range(nactu_DM1):
-        supervisor.rtc.set_command(0, M2V[:,nactu_DM0+mode]*ampli) 
+    for mode in range(n_modes_DM1):
+        supervisor.rtc.set_command(0, M2V[:,n_modes_DM0+mode]*ampli) 
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
@@ -89,8 +96,8 @@ if __name__ == "__main__":
     S2M_DM0 = np.linalg.pinv(M2S_DM0) # [nmodes , nslopes]
     S2M_DM1 = np.linalg.pinv(M2S_DM1) # [nmodes , nslopes
 
-    M2V_DM0 = M2V[:88,:88]
-    M2V_DM1 = M2V[88:,88:]
+    M2V_DM0 = M2V[:n_actus_DM0,:n_modes_DM0]
+    M2V_DM1 = M2V[n_actus_DM0:n_actus_DM0+n_actus_DM1,n_actus_DM0:n_actus_DM0+n_modes_DM1]
 
     V2M_DM0 = np.linalg.pinv(M2V_DM0)
 
