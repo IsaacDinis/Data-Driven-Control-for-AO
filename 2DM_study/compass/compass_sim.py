@@ -17,6 +17,8 @@ from shesha.config import ParamConfig
 from docopt import docopt
 import numpy as np
 from scipy.io import savemat, loadmat
+#ipython -i shesha/widgets/widget_ao.py ~/saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
+#V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
 if __name__ == "__main__":
     arguments = docopt(__doc__)
