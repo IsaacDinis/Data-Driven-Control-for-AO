@@ -1,6 +1,6 @@
 dist_matrix_path = '../data/single_mode_dist_nonoise_1_2000.mat';
 dist = load(dist_matrix_path).data';
-fs = 2000;
+fs = 4000;
 %% DM1
 fs_DM1=1/1000;
 z = tf('z',1/fs_DM1);
@@ -12,7 +12,7 @@ z = tf('z',1/fs);
 g = 0.5;
 K_DM2 = g/(1-z^-1);
 %%
-[b_lp, a_lp] = butter(2,10/fs*2,'low');
+[b_lp, a_lp] = butter(2,50/fs*2,'low');
 figure()
 freqz(b_lp,a_lp,[],fs)
 
