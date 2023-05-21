@@ -15,7 +15,7 @@ import os
 
 simul_name = "2dm_1wfs"
 
-Ts = 1./1000.
+Ts = 1./4000.
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)         # /?\ number of loops

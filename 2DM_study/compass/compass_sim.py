@@ -17,6 +17,7 @@ from shesha.config import ParamConfig
 from docopt import docopt
 import numpy as np
 from scipy.io import savemat, loadmat
+import astropy.io.fits as pfits
 #ipython -i shesha/widgets/widget_ao.py ~/saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     n_modes_DM1 = 800
 
     a = np.array([1.,-1]) 
-    b = np.array([0.3,0])
+    b = np.array([0.5,0])
 
 
     # Load command and influence matrix
@@ -59,7 +60,8 @@ if __name__ == "__main__":
     M2V_DM1 = np.load('calib_mat/M2V_DM1.npy')
 
     V_DM0_2_V_DM1 = np.load('calib_mat/V_DM0_2_V_DM1.npy')
-  
+    res_DM0 = np.zeros(n_iter)
+    res_DM1 = np.zeros(n_iter)
 
     #------------------------------------
     # control tilt mode
@@ -71,17 +73,18 @@ if __name__ == "__main__":
     state_mat_DM0 = np.zeros((2,2,n_modes_DM0))
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
 
-    bool_DMO = True
+    bool_DMO = False
     rms_stroke = 0;
     for i in range(n_iter):
 
 
         slopes = supervisor.rtc.get_slopes(0)
 
-        modes_DM0 = np.dot(S2M_DM0,slopes)
+        # modes_DM0 = np.dot(S2M_DM0,slopes)
         modes_DM1 = np.dot(S2M_DM1,slopes)
 
-        if bool_DMO and i%2==0:
+        if  i%4==0:
+            modes_DM0 = np.dot(S2M_DM0,slopes)
             state_mat_DM0[1:,:,:] = state_mat_DM0[0:-1,:,:]
             state_mat_DM0[0,0,:] = modes_DM0[0:n_modes_DM0]
             state_mat_DM0[0,1,:] = 0
@@ -97,9 +100,10 @@ if __name__ == "__main__":
         command_int_DM1 -= np.mean(command_int_DM1)  
         state_mat_DM1[0,1,:] = command_int_DM1
         voltage_DM1 = -M2V_DM1[:,0:n_modes_DM1] @ command_int_DM1
+        voltage_DM1 *= 0
 
         if bool_DMO:
-            voltage_DM1 -= np.dot(V_DM0_2_V_DM1,voltage_DM0)
+            # voltage_DM1 -= np.dot(V_DM0_2_V_DM1,voltage_DM0)
             voltage = np.concatenate((voltage_DM0, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
@@ -113,9 +117,15 @@ if __name__ == "__main__":
         if i%100==0 and i > 200:
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
 
+        res_DM0[i] = modes_DM0[0]
+        res_DM1[i] = modes_DM1[0]
         supervisor.next()
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
+
+    pfits.writeto("../data/dist_DM0_1kHz.fits", res_DM0, overwrite = True)
+    # pfits.writeto("../data/res_DM0_proj.fits", res_DM1, overwrite = True)
+
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import basename
