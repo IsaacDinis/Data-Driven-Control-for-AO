@@ -38,7 +38,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 4000
+        n_iter = 32000
 
 
     supervisor = Supervisor(config)
@@ -73,18 +73,18 @@ if __name__ == "__main__":
     state_mat_DM0 = np.zeros((2,2,n_modes_DM0))
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
 
-    bool_DMO = False
+    bool_DMO = True
     rms_stroke = 0;
     for i in range(n_iter):
 
 
         slopes = supervisor.rtc.get_slopes(0)
 
-        # modes_DM0 = np.dot(S2M_DM0,slopes)
+        modes_DM0 = np.dot(S2M_DM0,slopes)
         modes_DM1 = np.dot(S2M_DM1,slopes)
 
         if  i%4==0:
-            modes_DM0 = np.dot(S2M_DM0,slopes)
+            # modes_DM0 = np.dot(S2M_DM0,slopes)
             state_mat_DM0[1:,:,:] = state_mat_DM0[0:-1,:,:]
             state_mat_DM0[0,0,:] = modes_DM0[0:n_modes_DM0]
             state_mat_DM0[0,1,:] = 0
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
 
-        supervisor.rtc.set_command(0, voltage)
+        # supervisor.rtc.set_command(0, voltage)
 
         strehl = supervisor.target.get_strehl(0)
 
@@ -123,8 +123,8 @@ if __name__ == "__main__":
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
 
-    pfits.writeto("../data/dist_DM0_1kHz.fits", res_DM0, overwrite = True)
-    # pfits.writeto("../data/res_DM0_proj.fits", res_DM1, overwrite = True)
+    pfits.writeto("../data/dist_DM0.fits", res_DM0, overwrite = True)
+    pfits.writeto("../data/dist_DM1.fits", res_DM1, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
