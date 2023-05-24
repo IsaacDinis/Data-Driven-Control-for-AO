@@ -8,8 +8,8 @@ res_parallel_LP = load('../data/res_parallel_LP.mat').data;
 res_parallel = load('../data/res_parallel.mat').data;
 res_parallel_noP = load('../data/res_parallel_noP.mat').data;
 dist = load('../data/single_mode_dist_nonoise_1_4000_ts.mat').plop.Data;
-
-t = 0:1/4000:0.25-1/4000;
+fs = 4000;
+t = 0:1/fs:0.25-1/fs;
 t_start = 9001;
 t_end = 10000;
 %% Dist
@@ -75,6 +75,9 @@ make_it_nicer()
 % export_fig ../plot/inter.pdf -transparent
 
 %% Case 1
+rms_case1 = rms(res_cascaded_standalone(2,:));
+rms_ref = rms(res_1dm(2,:));
+
 figure()
 plot(t,res_cascaded_standalone(2,t_start:t_end))
 hold on;
@@ -93,13 +96,22 @@ n = 40;
 w = 1000;
 
 [psd,f] = compute_psd((res_1dm(2,:)-mean(res_1dm(2,:)))',n,w,fs);
-
+sum_psd = sum(psd);
 [inter_psd,f] = compute_psd((res_cascaded_standalone(2,:))',n,w,fs);
-
+sum_inter_psd = sum(inter_psd);
 figure()
-plot(f(1:end),psd(1:end))
-hold on;
 plot(f(1:end),inter_psd(1:end))
+hold on;
+plot(f(1:end),psd(1:end))
+legend('Case 1','Ref.','Interpreter','latex');
+title('residual PSD case 1')
+xlabel('Frequency (Hz)')
+ylabel('Amp.')
+% xlim([0,2050])
+make_it_nicer()
+set(gcf, 'Position',  [100, 100, 700, 450])
+set(gcf,'PaperType','A4')
+% export_fig ../plot/case_1_psd.pdf -transparent
 %% Case 2
 figure()
 plot(t,res_cascaded_integrated(2,t_start:t_end),'LineWidth',1)
