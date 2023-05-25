@@ -39,8 +39,8 @@ if __name__ == "__main__":
     supervisor.rtc.open_loop(0) # disable implemented controller
     
     M2V, _ = supervisor.basis.compute_modes_to_volts_basis("KL2V") # or "KL2V" [nvolts ,nmodes]
-    norm = np.linalg.norm(M2V, axis = 0)
-    M2V /= norm
+    # norm = np.linalg.norm(M2V, axis = 0)
+    # M2V /= norm
 
 
 
