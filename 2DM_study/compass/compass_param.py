@@ -90,7 +90,7 @@ p_dms = [p_dm0, p_dm1]        # /!\
 # p_dms = [p_dm0]        # /!\
 
 p_dm0.set_type("pzt")         # /!\
-nact = 10
+nact = 11
 p_dm0.set_nact(nact)
 p_dm0.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
 p_dm0.set_coupling(0.3)
