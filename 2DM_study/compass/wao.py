@@ -2,6 +2,8 @@ M2V_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/
 M2V_DM0 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V_DM0.npy')
 S2M_DM0 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/S2M_DM0.npy')
 S2M_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/S2M_DM1.npy')
+command = wao.supervisor.rtc.get_command(0)
+
 M2V = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V.npy')
 M_DM0_2_M_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M_DM0_2_M_DM1.npy')
 nact_DM0 = 88
@@ -13,16 +15,20 @@ command[88:] = -M2V_DM1@M_DM0_2_M_DM1[:,0]
 
 
 mode_n = 0
-amp = 100
+amp = 1
 
 u_DM0 = M2V_DM0[:,mode_n]
 u_DM1 = M2V_DM1[:,mode_n]
 
-command[88:] = u_DM1*0
-command[:88] = u_DM0*amp
+command[88:] = u_DM1*amp
+command[:88] = u_DM0*0
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
 wao.supervisor.next()
+
+a = wao.supervisor.target.get_tar_phase(0)*1000
+
+print(np.std(a))
 
 
 

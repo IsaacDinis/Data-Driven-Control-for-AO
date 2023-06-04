@@ -54,7 +54,7 @@ if __name__ == "__main__":
     nmodes = M2V.shape[1]
  
     # ampli = 50
-    ampli = 0.01
+    ampli = 50
     slopes = supervisor.rtc.get_slopes(0)
     M2S_DM0 = np.zeros((slopes.shape[0], n_modes_DM0))
     M2S_DM1 = np.zeros((slopes.shape[0], n_modes_DM1))
