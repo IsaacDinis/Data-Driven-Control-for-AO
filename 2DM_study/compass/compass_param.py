@@ -30,14 +30,11 @@ p_geom.set_zenithangle(0.)     # /!\ keep it 0 until we know what it does in COM
 # tel
 p_tel = conf.Param_tel()
 p_tel.set_diam(8.0)            # /!\  VLT diameter
-# p_tel.set_cobs(0.)           # /!\  central obstruction
-# p_tel.set_cobs(0.14)           # /!\  central obstruction
-# p_tel.set_type_ap('VLT-NoObs')       # /!\  VLT pupil
-# p_tel.set_t_spiders(0.00625)   # /!\  spider width = 5 cm
-p_tel.set_cobs(0.14)  
-p_tel.set_type_ap("VLT")       # VLT pupil
-p_tel.set_spiders_type("four")
-p_tel.set_t_spiders(0.00625)
+p_tel.set_type_ap('VLT-NoObs')       # /!\  VLT pupil
+# p_tel.set_cobs(0.14)  
+# p_tel.set_type_ap("VLT")       # VLT pupil
+# p_tel.set_spiders_type("four")
+p_tel.set_t_spiders(0.)
 
 # atmos
 p_atmos = conf.Param_atmos()
@@ -99,7 +96,7 @@ p_dm0.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
 p_dm0.set_coupling(0.3)
 p_dm0.set_alt(0.)             # /!\
 p_dm0.set_unitpervolt(1.)     # /!\
-p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
+# p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
 
 
 p_dm1.set_type("pzt")         # /!\
@@ -109,7 +106,7 @@ p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_coupling(0.3)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
-p_dm1.set_push4imat(0.001)    #     to displace ~ half a pixel
+# p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
 
 # p_dm0.set_file_influ_fits("SAXO_HODM.fits") # /!\ to use a custom SAXO HO DM
 

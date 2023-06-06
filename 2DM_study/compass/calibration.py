@@ -19,6 +19,7 @@ Options:
 from shesha.config import ParamConfig
 from docopt import docopt
 import numpy as np
+import astropy.io.fits as pfits
 
 if __name__ == "__main__":
     arguments = docopt(__doc__)
@@ -54,7 +55,7 @@ if __name__ == "__main__":
     nmodes = M2V.shape[1]
  
     # ampli = 50
-    ampli = 50
+    ampli = 0.1
     slopes = supervisor.rtc.get_slopes(0)
     M2S_DM0 = np.zeros((slopes.shape[0], n_modes_DM0))
     M2S_DM1 = np.zeros((slopes.shape[0], n_modes_DM1))
@@ -104,6 +105,7 @@ if __name__ == "__main__":
     M_DM0_2_M_DM1 = S2M_DM1@M2S_DM0
     V_DM0_2_V_DM1 = M2V_DM1@M_DM0_2_M_DM1@V2M_DM0
 
+    pfits.writeto("../data2/M2M.fits", M_DM0_2_M_DM1, overwrite = True)
     np.save('calib_mat/S2M_DM0.npy', S2M_DM0)
     np.save('calib_mat/S2M_DM1.npy', S2M_DM1)
     np.save('calib_mat/M2V.npy', M2V)
