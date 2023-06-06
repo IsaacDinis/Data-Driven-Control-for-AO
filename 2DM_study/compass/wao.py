@@ -17,25 +17,23 @@ command[88:] = -M2V_DM1@M_DM0_2_M_DM1[:,0]*1000
 
 
 mode_n = 0
-amp = 100
+amp = 0.0
 
 u_DM0 = M2V_DM0[:,mode_n]
-# u_DM1 = M2V_DM1[:,mode_n]
-u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n] 
+u_DM1 = M2V_DM1[:,mode_n]
+# u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n] 
 
 command[88:] = -u_DM1*amp
-command[:88] = u_DM0*amp
+command[:88] = u_DM0*0
 
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
 wao.supervisor.next()
 
-a = wao.supervisor.target.get_tar_phase(0,pupil=True)
+# a = wao.supervisor.target.get_tar_phase(0,pupil=True)
+# print(np.std(a))
 
-print(np.std(a))
 
-a = wao.supervisor.target.get_tar_phase(0)
-print(np.std(a))
 
 
 slopes = wao.supervisor.rtc.get_slopes(0)
@@ -55,7 +53,7 @@ command[:88] = u_DM0*amp/1.5617224
 -M2V_DM1 @ M_DM0_2_M_DM1 
 
 
-u_DM0 = np.random.rand(88)
+u_DM0 = np.random.rand(88)*100
 u_DM0 -= np.mean(u_DM0)
 
 command[:88] = u_DM0
