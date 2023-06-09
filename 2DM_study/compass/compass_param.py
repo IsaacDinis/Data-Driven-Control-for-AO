@@ -69,7 +69,7 @@ p_wfs0.set_xpos(0.)           # /!\ On axis
 p_wfs0.set_ypos(0.)           # /!\ On axis
 p_wfs0.set_Lambda(0.7)        # /!\ SAXO SH bandwidth : [475, 900] nm
 p_wfs0.set_gsmag(6.)
-p_wfs0.set_optthroughput(0.1) # still unknown
+p_wfs0.set_optthroughput(1) # still unknown
 p_wfs0.set_zerop(1e11)        # zero point for guide star magnitude
 p_wfs0.set_noise(-1)         # EMCCD with < 0.1e- RON
 p_wfs0.set_atmos_seen(1)      # /!\
