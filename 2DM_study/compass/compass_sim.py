@@ -18,6 +18,9 @@ from docopt import docopt
 import numpy as np
 from scipy.io import savemat, loadmat
 import astropy.io.fits as pfits
+from hcipy.field import make_pupil_grid 
+from hcipy.mode_basis import make_zernike_basis 
+
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
@@ -45,6 +48,12 @@ if __name__ == "__main__":
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(True) 
 
+    pupil_diam = supervisor.config.p_geom.get_pupdiam()
+    pupil_grid = make_pupil_grid(pupil_diam)
+    zernike_basis = make_zernike_basis(3, 1, pupil_grid)
+    tilt = zernike_basis[1].shaped
+    pupil_valid = zernike_basis[0].shaped
+
     n_modes_DM0 = 88
     n_modes_DM1 = 800
 
@@ -60,8 +69,10 @@ if __name__ == "__main__":
     M2V_DM1 = np.load('calib_mat/M2V_DM1.npy')
 
     V_DM0_2_V_DM1 = np.load('calib_mat/V_DM0_2_V_DM1.npy')
+
     res_DM0 = np.zeros(n_iter)
     res_DM1 = np.zeros(n_iter)
+    res_tilt = np.zeros(n_iter)
 
     #------------------------------------
     # control tilt mode
@@ -77,12 +88,12 @@ if __name__ == "__main__":
     rms_stroke = 0;
     for i in range(n_iter):
 
-
         slopes = supervisor.rtc.get_slopes(0)
 
         # modes_DM0 = np.dot(S2M_DM0,slopes)
         modes_DM1 = np.dot(S2M_DM1,slopes)
         # modes_DM1[0:n_modes_DM0] = 0
+
         if  i%4==0:
             modes_DM0 = np.dot(S2M_DM0,slopes)
             state_mat_DM0[1:,:,:] = state_mat_DM0[0:-1,:,:]
@@ -99,12 +110,11 @@ if __name__ == "__main__":
         command_int_DM1 = np.dot(b,state_mat_DM1[:,0,:]) - np.dot(a,state_mat_DM1[:,1,:])
         command_int_DM1 -= np.mean(command_int_DM1)  
         state_mat_DM1[0,1,:] = command_int_DM1
-        # command_int_DM1[0:n_modes_DM0] = 0
         voltage_DM1 = -M2V_DM1[:,0:n_modes_DM1] @ command_int_DM1
-        # voltage_DM1 *= 0
+        voltage_DM1 *= 0
 
         if bool_DMO:
-            voltage_DM1 -= np.dot(V_DM0_2_V_DM1,voltage_DM0)
+            # voltage_DM1 -= np.dot(V_DM0_2_V_DM1,voltage_DM0)
             voltage = np.concatenate((voltage_DM0, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
@@ -118,14 +128,19 @@ if __name__ == "__main__":
         if i%100==0 and i > 200:
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
 
-        res_DM0[i] = modes_DM0[0]
-        res_DM1[i] = modes_DM1[0]
+        res_DM0[i] = modes_DM0[0]/557.2036425356519
+        res_DM1[i] = modes_DM1[0]/557.2036425356519
+
+        target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+        res_tilt[i] = -np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid)
         supervisor.next()
+
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
 
-    # pfits.writeto("../data2/res_DM1_proj.fits", res_DM0, overwrite = True)
-    # pfits.writeto("../data2/res_DM1_alone.fits", res_DM1, overwrite = True)
+    # pfits.writeto("../data2/res_DM0_alone.fits", res_DM0, overwrite = True)
+    # pfits.writeto("../data2/res_DM0_proj.fits", res_DM1, overwrite = True)
+    pfits.writeto("../data2/res_tilt_DM0_4kHz.fits", res_tilt, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

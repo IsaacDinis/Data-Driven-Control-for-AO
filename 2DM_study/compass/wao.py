@@ -1,3 +1,12 @@
+from hcipy.field import make_pupil_grid 
+from hcipy.mode_basis import make_zernike_basis 
+
+pupil_diam = wao.supervisor.config.p_geom.get_pupdiam()
+pupil_grid = make_pupil_grid(pupil_diam)
+zernike_basis = make_zernike_basis(3, 1, pupil_grid)
+tilt = zernike_basis[2].shaped
+pupil_valid = zernike_basis[0].shaped
+
 M2V_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V_DM1.npy')
 M2V_DM0 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V_DM0.npy')
 S2M_DM0 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/S2M_DM0.npy')
@@ -17,30 +26,65 @@ command[88:] = -M2V_DM1@M_DM0_2_M_DM1[:,0]*1000
 
 
 mode_n = 0
-amp = 0.0
+amp = 1.0
 
 u_DM0 = M2V_DM0[:,mode_n]
 u_DM1 = M2V_DM1[:,mode_n]
-# u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n] 
+# u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n]
 
-command[88:] = -u_DM1*amp
-command[:88] = u_DM0*0
+command[:88] = -u_DM0*amp
+command[88:] = u_DM1*amp
 
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
 wao.supervisor.next()
 
-# a = wao.supervisor.target.get_tar_phase(0,pupil=True)
+
+# print(np.std(a))
+
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.std(target_phase,where = pupil_valid.astype(bool)))
+
+print(np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid))
+
+slopes = wao.supervisor.rtc.get_slopes(0)
+
+modes_DM0 = np.dot(S2M_DM0,slopes)/557.2036425356519
+modes_DM1 = np.dot(S2M_DM1,slopes)/557.2036425356519
+print(modes_DM0[0])
+print(modes_DM1[0])
+
+u_DM0 = M2V_DM0[:,mode_n]
+u_DM1 = M2V_DM1[:,mode_n]
+# u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n] 
+
+command[88:] = u_DM1*0
+command[:88] = u_DM0*amp
+
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+
+
 # print(np.std(a))
 
 
 
 
+
+
+
+
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.std(np.dot(target_phase,tilt),where = pupil_valid.astype(bool)))
+
+
 slopes = wao.supervisor.rtc.get_slopes(0)
-modes_DM0 = np.dot(S2M_DM0,slopes)
-modes_DM1 = np.dot(S2M_DM1,slopes)
+modes_DM0 = np.dot(S2M_DM0,slopes)/2.1816739410448625
+modes_DM1 = np.dot(S2M_DM1,slopes)/2.08673169704465
 print(modes_DM0[0])
 print(modes_DM1[0])
+
 
 #DM1 1.6243452
 #DM0 1.7792003
