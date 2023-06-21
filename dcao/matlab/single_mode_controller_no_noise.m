@@ -2,7 +2,7 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -15,8 +15,8 @@ dist_matrix = fitsread(dist_matrix_path)';
 %%
 fs = 2760;
 bandwidth = 690;
-order = 10;
-max_control_gain = 0.5;
+order = 6;
+max_control_gain = 0.1;
 
 %%
 
@@ -24,7 +24,7 @@ max_control_gain = 0.5;
 % n_average = 20;
 
 window_size = 100;
-n_average = 20;
+n_average = 10;
 
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
 % [psd, f] = periodogram(dist_matrix,[],[],fs);
