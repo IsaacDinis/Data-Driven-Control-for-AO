@@ -30,14 +30,14 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     SYS.controller = ctrl;
     SYS.model = G; % Specify model(s)
     
-    w_logspace = utils.logspace2(w(2),w(end),100);
+    w_logspace = utils.logspace2(w(2),w(end),200);
 %     w_logspace = linspace(w(2),w(end),500);
     SYS.W = w_logspace;  
     
     %% Objectives
 
     OBJ.o2.W1 = W1;
-    OBJ.oinf.W2 = W3;
+    % OBJ.oinf.W2 = W3;
 %     OBJ.o2.W3 = W32;
 %     CON.W3 = tf(0.99,1,1/fs);
     %% Solve problem
@@ -86,5 +86,14 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     title('Sensitivity function S');
     
     sgtitle('Datadriven controller') 
+
+    %%
+    figure()
+    bodemag(S_dd,S_int,W1^-1,{w(2),w(end)})
+    legend('Datadriven', 'Integrator','disturbance^{-1}');
+    title('Sensitivity function S');
+    grid on;
+    sgtitle('Datadriven controller') 
+
 
 end

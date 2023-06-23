@@ -44,7 +44,7 @@ p_target = conf.Param_target()
 p_targets = [p_target]
 p_target.set_xpos(0.)         # /!\ On axis
 p_target.set_ypos(0.)         # /!\ On axis
-p_target.set_Lambda(1.65)     # /!\ H Band
+p_target.set_Lambda(0.75)     # /!\ H Band
 p_target.set_mag(6.)          # /!\
 
 # wfs
@@ -54,14 +54,14 @@ p_wfss = [p_wfs0]
 p_wfs0.set_type("pyrhr")        # /!\ pyramid
 p_wfs0.set_nxsub(16)            #     number of pixels
 p_wfs0.set_fracsub(0.5)      #     threshold on illumination fraction for valid pixel
-p_wfs0.set_Lambda(1.2)          #     wavelength
+p_wfs0.set_Lambda(0.75)          #     wavelength
 p_wfs0.set_gsmag(6.)
 p_wfs0.set_zerop(1.e11)
 p_wfs0.set_optthroughput(1)
 p_wfs0.set_noise(-1)           #     readout noise
 p_wfs0.set_xpos(0.)             # /!\ On axis
 p_wfs0.set_ypos(0.)             # /!\ On axis
-rMod = 3.                       # Modulation radius, in lam/D units
+rMod = 0.5                       # Modulation radius, in lam/D units
 p_wfs0.set_pyr_ampl(rMod)
 nbPtMod = int(np.ceil(int(rMod * 2 * 3.141592653589793) / 4.) * 4)
 p_wfs0.set_pyr_npts(nbPtMod) 
