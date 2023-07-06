@@ -83,14 +83,14 @@ plot(t,res_cascaded_standalone(2,t_start:t_end))
 hold on;
 plot(t,res_1dm(2,t_start:t_end),'LineWidth',1)
 xlabel('Time (s)')
-ylabel('Res. amp.')
-title('Case 1')
-legend('Case 1','Ref.','Interpreter','latex');
+ylabel('Res. amp. (AU)')
+title('Residual comparison')
+legend('CAO','dCAO','Interpreter','latex');
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
 make_it_nicer()
-% export_fig ../plot/case_1.pdf -transparent
+export_fig ../plot/case_1.pdf -transparent
 %% PSD
 n = 40;
 w = 1000;
@@ -103,15 +103,15 @@ figure()
 plot(f(1:end),inter_psd(1:end))
 hold on;
 plot(f(1:end),psd(1:end))
-legend('Case 1','Ref.','Interpreter','latex');
-title('residual PSD case 1')
+legend('CAO','dCAO','Interpreter','latex');
+title('Residual PSD comparison')
 xlabel('Frequency (Hz)')
-ylabel('Amp.')
+ylabel('Res. amp. (AU)')
 % xlim([0,2050])
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
-% export_fig ../plot/case_1_psd.pdf -transparent
+export_fig ../plot/case_1_psd.pdf -transparent
 %% Case 2
 figure()
 plot(t,res_cascaded_integrated(2,t_start:t_end),'LineWidth',1)

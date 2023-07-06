@@ -23,24 +23,21 @@ def compute_psd_fft(data, n_average, window_size,fs):
     except IndexError:
         n_modes = 1
         data = data.reshape((data.shape[0],1))
-    hann_window = np.hanning(window_size )
+
     psd = np.zeros((window_size, n_modes))
 
     for mode in range(n_modes):
         for i in range(n_average):
-            data_w = data[i*window_size:(i+1)*window_size, mode] * hann_window # TODO check if window useful
+            data_w = data[i*window_size:(i+1)*window_size, mode]
             psd[:, mode] = psd[:, mode] + np.abs((np.fft.fft(data_w)/data_w.size))**2
 
-    f = fs / (2 * window_size + 1) * np.arange(0,2 * window_size)
+    freq = np.fft.fftfreq(psd.size,1/fs)
 
     # remove frequencies above nyquist
-    f = f[:window_size]
-    psd = psd[:window_size,:]
+    psd = psd[:int(psd.size / 2)]
+    freq = freq[:int(freq.size/2)]
 
-    # freq = np.fft.fftfreq(psd.size,1/fs)
-    # psd = psd[:int(psd.size / 2)]
-    # freq = freq[:int(freq.size/2)]
-
+    psd *= 2/n_average # normalize energy because of removing negative parts and number of averages
     return psd, freq
 
 
@@ -60,35 +57,34 @@ def compute_psd_xcorr(data, n_average, window_size, fs):
             data_xcorr_w = hann_window * data_xcorr
             psd[:, mode] = psd[:, mode] + np.abs(np.fft.fft(data_xcorr_w)/window_size)
 
-    psd = psd / n_average
-    f = fs / (2 * window_size + 1) * np.arange(0,2 * window_size)
+    psd /= n_average
+    freq = fs / (2 * window_size + 1) * np.arange(0,2 * window_size)
 
     # remove frequencies above nyquist
-    # f = f[:window_size]
-    # psd = psd[:window_size,:]
+    freq = freq[:window_size]
+    psd = psd[:window_size,:]
 
-    return psd, f
+    return psd, freq
 
 
 if __name__ == '__main__':
+    n_average = 10 # to decrase variance
+    window_size = 1000 # defines number of frequency bins between 0 and nyquist
+    # /!\ window_size * n_average < length of signal
+
     T = 50
     fs = 1000
     t = np.arange(0,T,1/fs)
     signal = 3*np.sin(5*2*np.pi*t) + 7*np.sin(100*2*np.pi*t) + 2*np.sin(367*2*np.pi*t)
 
-    psd, freq = compute_psd_xcorr(signal, 1, 50 * fs - 1, fs)
-    psd2, freq2 = compute_psd_fft(signal, 1, 50 * fs - 1, fs)
-
-    # corr,h = autocorr(a)
-
-    # plt.plot(h, corr)
-    # plt.show()
+    psd_xcorr, freq_xcorr = compute_psd_xcorr(signal, n_average, window_size, fs)
+    psd_fft, freq_fft = compute_psd_fft(signal, n_average, window_size, fs)
 
     print(np.std(signal) ** 2)
-    print(np.sum(psd))
-    print(np.sum(psd2))
+    print(np.sum(psd_xcorr))
+    print(np.sum(psd_fft))
 
-    plt.plot(freq, psd)
+    plt.plot(freq_xcorr, psd_xcorr)
     plt.show()
-    plt.plot(freq2, psd2)
+    plt.plot(freq_fft, psd_fft)
     plt.show()
