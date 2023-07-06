@@ -61,7 +61,7 @@ p_wfs0.set_optthroughput(1)
 p_wfs0.set_noise(-1)           #     readout noise
 p_wfs0.set_xpos(0.)             # /!\ On axis
 p_wfs0.set_ypos(0.)             # /!\ On axis
-rMod = 0.5                       # Modulation radius, in lam/D units
+rMod = 3                       # Modulation radius, in lam/D units
 p_wfs0.set_pyr_ampl(rMod)
 nbPtMod = int(np.ceil(int(rMod * 2 * 3.141592653589793) / 4.) * 4)
 p_wfs0.set_pyr_npts(nbPtMod) 
