@@ -20,9 +20,9 @@ def H2_opt_1_freq():
     W1 = 0.6
     P = Y+G*X
     Pc = Y_c+G*X_c
-    gamma_2 = cp.Variable(1)
+    gamma_2 = cp.Variable((1,1))
     # cons = np.array([[gamma_2,W1*Y],[cp.conj(0.6*Y),cp.conj(P)*Pc+cp.conj(Pc)*P-cp.conj(Pc)*Pc]])
-    cons = cp.vstack([cp.hstack([gamma_2, W1*Y]), cp.hstack([cp.conj(W1*Y.T), cp.conj(P.T)@Pc+cp.conj(Pc.T)@P-cp.conj(Pc.T)@Pc])])
+    cons = cp.vstack([cp.hstack([gamma_2, W1*Y]), cp.hstack([cp.conj(W1*Y), cp.conj(P)@Pc+cp.conj(Pc)@P-cp.conj(Pc)@Pc])])
     constraints = [cons >= 0 , gamma_2 >= 0]
     objective = cp.Minimize(cp.abs(gamma_2))
 

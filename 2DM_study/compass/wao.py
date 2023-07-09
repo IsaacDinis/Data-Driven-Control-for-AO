@@ -1,3 +1,5 @@
+#ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
+
 from hcipy.field import make_pupil_grid 
 from hcipy.mode_basis import make_zernike_basis 
 
@@ -17,7 +19,7 @@ M2V = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V.
 M_DM0_2_M_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M_DM0_2_M_DM1.npy')
 nact_DM0 = 88
 V2V = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
-
+V2V2 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM1_2_V_DM0.npy')
 
 pfits.writeto("../../Data-Driven-Control-for-AO/2DM_study/data2/slopes4.fits", slopes, overwrite = True)
 command = wao.supervisor.rtc.get_command(0)
@@ -112,3 +114,40 @@ wao.supervisor.next()
 a = wao.supervisor.target.get_tar_phase(0,pupil=True)
 
 print(np.std(a))
+
+
+
+command *= 0
+
+command[500] = 0.5 
+# command[:88] = -V2V2@command[88:]
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+
+
+command *= 0
+
+command[40] = 0.1 
+command[88:] = -V2V@command[:88]
+
+command[88:] -= np.mean(command[88:])
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+print(np.max(np.abs(command[88:])))
+phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.max(np.abs(phase)))
+
+
+command *= 0
+command[500] = 0.5 
+command[499] = 0.5 
+command[460] = 0.5 
+command[461] = 0.5 
+command[25] = -0.75
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.max(np.abs(phase)))

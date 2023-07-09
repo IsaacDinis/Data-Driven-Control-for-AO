@@ -100,10 +100,10 @@ p_dm0.set_unitpervolt(1.)     # /!\
 
 
 p_dm1.set_type("pzt")         # /!\
-nact = 41
+nact = 40
 p_dm1.set_nact(nact)
 p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
-p_dm1.set_coupling(0.3)
+p_dm1.set_coupling(0.13)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
 # p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
