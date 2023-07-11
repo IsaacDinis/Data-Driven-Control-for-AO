@@ -97,7 +97,7 @@ p_dm0.set_coupling(0.3)
 p_dm0.set_alt(0.)             # /!\
 p_dm0.set_unitpervolt(1.)     # /!\
 # p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
-
+p_dm0.set_influ_type("gaussian")
 
 p_dm1.set_type("pzt")         # /!\
 nact = 40
@@ -106,6 +106,7 @@ p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_coupling(0.13)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
+p_dm1.set_influ_type("gaussian")
 # p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
 
 # p_dm0.set_file_influ_fits("SAXO_HODM.fits") # /!\ to use a custom SAXO HO DM
