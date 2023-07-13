@@ -161,7 +161,7 @@ w = 1/d
 w /= np.sum(w)
 # print(w, i, sep='\n')
 
-# command *= 0
+command *= 0
 command_LODM = np.zeros(88)
 for act in range(4):
 	command_LODM[i[act]] = w[act]/0.49920276

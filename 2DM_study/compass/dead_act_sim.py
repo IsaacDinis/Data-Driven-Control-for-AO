@@ -21,6 +21,7 @@ import astropy.io.fits as pfits
 from hcipy.field import make_pupil_grid 
 from hcipy.mode_basis import make_zernike_basis 
 from scipy.spatial import KDTree
+from matplotlib import pyplot as plt
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1000
+        n_iter = 40000
 
 
     supervisor = Supervisor(config)
@@ -132,7 +133,7 @@ if __name__ == "__main__":
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0) + command_dead_act*(voltage_dead_act-voltage_DM1[HODM_act])
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
-
+        voltage -= np.mean(voltage)
         supervisor.rtc.set_command(0, voltage)
 
         strehl = supervisor.target.get_strehl(0)
@@ -156,6 +157,16 @@ if __name__ == "__main__":
     # pfits.writeto("../data2/res_DM0_alone.fits", res_DM0, overwrite = True)
     pfits.writeto("../data4/act_dead.fits", res_DM1, overwrite = True)
     # pfits.writeto("../data3/res_tilt_DM0.fits", res_tilt, overwrite = True)
+    # psf = supervisor.target.get_tar_image(0)
+    # plt.imshow(np.log(psf))
+    # plt.show()
+    
+    phase = supervisor.target.get_tar_phase(0,pupil=True)
+    phase[phase!=0] -= np.mean(phase,where = pupil_valid.astype(bool))
+    print(np.sum(np.abs(phase))/np.sum([phase!=0]))
+    plt.imshow(phase)
+    plt.colorbar()
+    plt.show()
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

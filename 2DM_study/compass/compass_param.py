@@ -30,12 +30,12 @@ p_geom.set_zenithangle(0.)     # /!\ keep it 0 until we know what it does in COM
 # tel
 p_tel = conf.Param_tel()
 p_tel.set_diam(8.0)            # /!\  VLT diameter
-p_tel.set_type_ap('VLT-NoObs')       # /!\  VLT pupil
-# p_tel.set_cobs(0.14)  
-# p_tel.set_type_ap("VLT")       # VLT pupil
-# p_tel.set_spiders_type("four")
+# p_tel.set_type_ap('VLT-NoObs')       # /!\  VLT pupil
+p_tel.set_cobs(0.14)  
+p_tel.set_type_ap("VLT")       # VLT pupil
+p_tel.set_spiders_type("four")
 # p_tel.set_t_spiders(0.)
-
+p_tel.set_t_spiders(0.00625)
 # atmos
 p_atmos = conf.Param_atmos()
 p_atmos.set_r0(0.15)       # Fried parameters @ 500 nm
@@ -102,7 +102,7 @@ p_dm0.set_influ_type("gaussian")
 p_dm1.set_type("pzt")         # /!\
 nact = 40
 p_dm1.set_nact(nact)
-p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
+p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 activectuators
 p_dm1.set_coupling(0.13)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
