@@ -80,19 +80,6 @@ if __name__ == "__main__":
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM1[:,mode] = slopes.copy()
 
-    # #tip
-    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-2]*ampli) 
-    # supervisor.next()
-    # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # M2S[:,-2] = slopes.copy()
-
-    # #tilt
-    # supervisor.rtc.set_perturbation_voltage(0, "", M2V[:,-1]*ampli) 
-    # supervisor.next()
-    # supervisor.next()
-    # slopes = supervisor.rtc.get_slopes(0)/ampli
-    # M2S[:,-1] = slopes.copy()
 
     S2M_DM0 = np.linalg.pinv(M2S_DM0) # [nmodes , nslopes]
     S2M_DM1 = np.linalg.pinv(M2S_DM1) # [nmodes , nslopes

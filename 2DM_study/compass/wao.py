@@ -38,7 +38,7 @@ u_DM1 = M2V_DM1[:,mode_n]
 
 command *=0 
 command[:88] = u_DM0*amp
-# command[88:] = u_DM1*amp
+command[88:] = u_DM1*amp
 
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
