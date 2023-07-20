@@ -4,6 +4,7 @@ from hcipy.field import make_pupil_grid
 from hcipy.mode_basis import make_zernike_basis 
 from matplotlib import pyplot as plt
 from scipy.spatial import KDTree
+import astropy.io.fits as pfits
 
 pupil_diam = wao.supervisor.config.p_geom.get_pupdiam()
 pupil_grid = make_pupil_grid(pupil_diam)
@@ -22,6 +23,8 @@ M_DM0_2_M_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/cali
 nact_DM0 = 88
 V2V = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 V2V2 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM1_2_V_DM0.npy')
+phase_tilt = pfits.getdata('../../Data-Driven-Control-for-AO/2DM_study/data3/dist_tilt.fits')
+
 
 # pfits.writeto("../../Data-Driven-Control-for-AO/2DM_study/data2/slopes4.fits", slopes, overwrite = True)
 command = wao.supervisor.rtc.get_command(0)
@@ -231,3 +234,77 @@ wao.supervisor.next()
 wao.supervisor.next()
 phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
 print(np.max(np.abs(phase)))
+
+
+
+
+
+pupil_grid = make_pupil_grid(644)
+zernike_tel = make_zernike_basis(3, 1, pupil_grid)
+tilt_tel = zernike_tel[1].shaped
+pup_valid_tel = zernike_tel[0].shaped
+
+# tilt_record = np.dstack([tilt]*phase_tilt.size)
+tilt_record = np.dstack([tilt_tel]*10)
+wao.supervisor.tel.set_input_phase(tilt_record)
+slopes = wao.supervisor.rtc.get_slopes(0)
+modes_DM0 = np.dot(S2M_DM0,slopes)
+modes_DM1 = np.dot(S2M_DM1,slopes)
+print(modes_DM0[1])
+print(modes_DM1[1])
+
+
+print(np.std(tilt,where = pupil_valid.astype(bool)))
+print(np.max(np.abs(tilt*pupil_valid)))
+
+
+
+wao.supervisor.tel.set_input_phase(tilt_record*3.14)
+wao.supervisor.rtc.set_command(0,command*0)
+wao.supervisor.next()
+wao.supervisor.next()
+
+# print(np.std(tilt,where = pupil_valid.astype(bool)))
+tilt = zernike_basis[1].shaped
+tip = zernike_basis[2].shaped
+
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.std(target_phase,where = pupil_valid.astype(bool)))
+print(np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid))
+print(np.sum(np.multiply(target_phase,tip))/np.sum(pupil_valid))
+print(np.max(np.abs(target_phase*pupil_valid)))
+
+
+print(np.std(tilt_record[:,:,0],where = pup_valid_tel.astype(bool)))
+print(np.max(np.abs(tilt_record[:,:,0]*pup_valid_tel)))
+
+mode_n = 1
+wao.supervisor.tel.reset_input_phase()
+u_DM0 = M2V_DM0[:,0]
+u_DM1 = M2V_DM1[:,mode_n]
+# u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n]
+
+amp = 1/0.001763353*3.14
+command *=0 
+command[:88] = u_DM0*0
+command[88:] = u_DM1*amp
+
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.std(target_phase,where = pupil_valid.astype(bool)))
+print(np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid))
+print(np.sum(np.multiply(target_phase,tip))/np.sum(pupil_valid))
+print(np.max(np.abs(target_phase*pupil_valid)))
+
+slopes = wao.supervisor.rtc.get_slopes(0)
+modes_DM0 = np.dot(S2M_DM0,slopes)*0.001763353
+modes_DM1 = np.dot(S2M_DM1,slopes)*0.001763353
+
+print(modes_DM0[mode_n])
+print(modes_DM1[mode_n])
+
+print(modes_DM0[2])
+print(modes_DM1[2])

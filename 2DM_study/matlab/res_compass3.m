@@ -1,14 +1,45 @@
-res_DM0_alone = fitsread('../data3/res_DM0_alone.fits')*1000;
-res_tilt_DM0 = fitsread('../data3/res_tilt_DM0.fits')*1000;
-res_DM0_proj = fitsread('../data3/res_DM0_proj.fits')*1000;
+% res_DM0_alone = fitsread('../data3/res_DM0_alone.fits')*1000;
+% res_tilt_DM0 = fitsread('../data3/res_tilt_DM0.fits')*1000;
+% res_DM0_proj = fitsread('../data3/res_DM0_proj.fits')*1000;
+% 
+% 
+% res_DM0_alone_4kHz = fitsread('../data3/res_DM0_alone_4kHz.fits')*1000;
+% res_tilt_DM0_4kHz = fitsread('../data3/res_tilt_DM0_4kHz.fits')*1000;
+% res_DM0_proj_4kHz = fitsread('../data3/res_DM0_proj_4kHz.fits')*1000;
+% 
+% res_DM0_all = fitsread('../data3/res_DM0_alone_all.fits')*1000;
+% res_DM0_all_4kHz = fitsread('../data3/res_DM0_alone_all_4kHz.fits')*1000;
+% res_DM1_all = fitsread('../data3/res_DM1_alone_all.fits')*1000;
+% res_DM1_all_4kHz = fitsread('../data3/res_DM1_alone_all_4kHz.fits')*1000;
+% 
+% slopes = fitsread('../data3/slopes.fits');
+% slopes_4kHz = fitsread('../data3/slopes_4kHz.fits');
 
 
-res_DM0_alone_4kHz = fitsread('../data3/res_DM0_alone_4kHz.fits')*1000;
-res_tilt_DM0_4kHz = fitsread('../data3/res_tilt_DM0_4kHz.fits')*1000;
-res_DM0_proj_4kHz = fitsread('../data3/res_DM0_proj_4kHz.fits')*1000;
 
 
-t = 0:1/4000:2.5-1/4000;
+
+
+res_DM0_alone = fitsread('../data5/res_DM0_alone.fits')*1000;
+res_tilt_DM0 = fitsread('../data5/res_tilt_DM0.fits')*1000;
+res_DM0_proj = fitsread('../data5/res_DM0_proj.fits')*1000;
+
+
+res_DM0_alone_4kHz = fitsread('../data5/res_DM0_alone_4kHz.fits')*1000;
+res_tilt_DM0_4kHz = fitsread('../data5/res_tilt_DM0_4kHz.fits')*1000;
+res_DM0_proj_4kHz = fitsread('../data5/res_DM0_proj_4kHz.fits')*1000;
+
+res_DM0_all = fitsread('../data5/res_DM0_alone_all.fits')*1000;
+res_DM0_all_4kHz = fitsread('../data5/res_DM0_alone_all_4kHz.fits')*1000;
+res_DM1_all = fitsread('../data5/res_DM1_alone_all.fits')*1000;
+res_DM1_all_4kHz = fitsread('../data5/res_DM1_alone_all_4kHz.fits')*1000;
+
+slopes = fitsread('../data5/slopes.fits');
+slopes_4kHz = fitsread('../data5/slopes_4kHz.fits');
+
+
+
+t = 0:1/4000:1-1/4000;
 t_start = 1001;
 t_end = 2000;
 
@@ -25,6 +56,7 @@ plot(t,res_DM0_proj_4kHz)
 xlabel('Time (s)')
 ylabel('Res. amp. (nm)')
 legend('1 kHz','4kHz','Interpreter','latex');
+title('Residual on HODM 1st KL')
 make_it_nicer()
 
 set(gcf, 'Position',  [100, 100, 700, 450])
@@ -116,3 +148,53 @@ ylabel('Amp.')
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
+%%
+figure()
+imagesc(res_DM0_all)
+figure()
+imagesc(res_DM0_all_4kHz)
+
+%%
+figure()
+imagesc(slopes)
+figure()
+imagesc(slopes_4kHz)
+%%
+figure()
+imagesc(res_DM1_all(1:88,:))
+figure()
+imagesc(res_DM1_all_4kHz(1:88,:))
+
+%%
+figure()
+plot(sum(abs(res_DM0_all),1))
+hold on
+plot(sum(abs(res_DM0_all_4kHz),1))
+%%
+figure()
+plot(sum(abs(slopes),1))
+hold on
+plot(sum(abs(slopes_4kHz),1))
+
+%%
+figure()
+plot(sum(abs(res_DM1_all),1))
+hold on
+plot(sum(abs(res_DM1_all_4kHz),1))
+
+%%
+figure()
+plot(sum((res_DM0_all),1))
+hold on
+plot(sum((res_DM0_all_4kHz),1))
+%%
+figure()
+plot(sum((slopes),1))
+hold on
+plot(sum((slopes_4kHz),1))
+
+%%
+figure()
+plot(sum((res_DM1_all),1))
+hold on
+plot(sum((res_DM1_all_4kHz),1))
