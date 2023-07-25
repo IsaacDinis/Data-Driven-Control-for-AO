@@ -21,12 +21,12 @@
 
 
 res_DM0_alone = fitsread('../data5/res_DM0_alone.fits')*1000;
-res_tilt_DM0 = fitsread('../data5/res_tilt_DM0.fits')*1000;
+res_tilt_DM0 = -fitsread('../data5/res_tilt_DM0.fits')*1000;
 res_DM0_proj = fitsread('../data5/res_DM0_proj.fits')*1000;
 
 
 res_DM0_alone_4kHz = fitsread('../data5/res_DM0_alone_4kHz.fits')*1000;
-res_tilt_DM0_4kHz = fitsread('../data5/res_tilt_DM0_4kHz.fits')*1000;
+res_tilt_DM0_4kHz = -fitsread('../data5/res_tilt_DM0_4kHz.fits')*1000;
 res_DM0_proj_4kHz = fitsread('../data5/res_DM0_proj_4kHz.fits')*1000;
 
 res_DM0_all = fitsread('../data5/res_DM0_alone_all.fits')*1000;
@@ -164,7 +164,11 @@ figure()
 imagesc(res_DM1_all(1:88,:))
 figure()
 imagesc(res_DM1_all_4kHz(1:88,:))
-
+%%
+figure()
+plot(sum(abs(res_DM1_all(1:88,:)),1))
+hold on
+plot(sum(abs(res_DM1_all_4kHz(1:88,:)),1))
 %%
 figure()
 plot(sum(abs(res_DM0_all),1))
