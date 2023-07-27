@@ -23,7 +23,7 @@ M_DM0_2_M_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/cali
 nact_DM0 = 88
 V2V = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 V2V2 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM1_2_V_DM0.npy')
-phase_tilt = pfits.getdata('../../Data-Driven-Control-for-AO/2DM_study/data3/dist_tilt.fits')
+# phase_tilt = pfits.getdata('../../Data-Driven-Control-for-AO/2DM_study/data3/dist_tilt.fits')
 
 
 # pfits.writeto("../../Data-Driven-Control-for-AO/2DM_study/data2/slopes4.fits", slopes, overwrite = True)
@@ -241,7 +241,7 @@ print(np.max(np.abs(phase)))
 m_pupil_size = wao.supervisor.get_m_pupil().shape[0]
 pupil_grid = make_pupil_grid(m_pupil_size)
 zernike_tel = make_zernike_basis(3, 1, pupil_grid)
-tilt_tel = zernike_tel[1].shaped
+tilt_tel = zernike_tel[2].shaped
 pup_valid_tel = zernike_tel[0].shaped
 
 # tilt_record = np.dstack([tilt]*phase_tilt.size)
@@ -293,9 +293,9 @@ print(modes_DM0[1])
 print(modes_DM1[1])
 
 # command *= 0
-command[:88] += -u_DM0*0
+# command[:88] += -u_DM0*modes_DM0[mode_n]
 # command[:88] -= M2V_DM0 @ modes_DM0
-# command[88:] -= u_DM1*0
+# command[88:] -= u_DM1*modes_DM0[1]
 command[88:] -= M2V_DM1 @ modes_DM1
 
 wao.supervisor.rtc.set_command(0,command)
@@ -374,3 +374,19 @@ print(np.max(np.abs(target_phase*pupil_valid)))
 pfits.writeto("../../Data-Driven-Control-for-AO/2DM_study/data5/DM0_close_all.fits", modes_DM0, overwrite = True)
 pfits.writeto("../../Data-Driven-Control-for-AO/2DM_study/data5/DM1_close_all.fits", modes_DM1, overwrite = True)
 pfits.writeto("../../Data-Driven-Control-for-AO/2DM_study/data5/phase.fits", phase, overwrite = True)
+
+
+
+
+command[1] = (-1+0.02154211927797799)/9.546481186594894
+
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+
+
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.std(target_phase,where = pupil_valid.astype(bool)))
+print(np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid))
+print(np.sum(np.multiply(target_phase,tip))/np.sum(pupil_valid))
+print(np.max(np.abs(target_phase*pupil_valid)))

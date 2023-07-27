@@ -5,7 +5,7 @@ res_1dm_1kHz = load('../data/res_1dm_1kHz.mat').res_1dm;
 res_1dm_1kHz_noalias = load('../data/res_1dm_1kHz_noaliasmat.mat').data;
 
 res_parallel_LP = load('../data/res_parallel_LP.mat').data;
-res_parallel = load('../data/res_parallel.mat').data;
+res_parallel = load('../data/res_parallel_fixed.mat').data;
 res_parallel_noP = load('../data/res_parallel_noP.mat').data;
 dist = load('../data/single_mode_dist_nonoise_1_4000_ts.mat').plop.Data;
 fs = 4000;
@@ -90,7 +90,7 @@ make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
 make_it_nicer()
-export_fig ../plot/case_1.pdf -transparent
+% export_fig ../plot/case_1.pdf -transparent
 %% PSD
 n = 40;
 w = 1000;
@@ -111,7 +111,7 @@ ylabel('Res. amp. (AU)')
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
-export_fig ../plot/case_1_psd.pdf -transparent
+% export_fig ../plot/case_1_psd.pdf -transparent
 %% Case 2
 figure()
 plot(t,res_cascaded_integrated(2,t_start:t_end),'LineWidth',1)

@@ -1,8 +1,8 @@
 stroke_cascaded_standalone = load('../data/stroke_cascaded_standalone.mat').data;
 stroke_cascaded_integrated = load('../data/stroke_cascaded_integrated.mat').data;
 stroke_parallel_standalone = load('../data/stroke_parallel_standalone.mat').data;
-stroke_parallel_integrated = load('../data/stroke_parallel_integrated.mat').data;
-
+stroke_parallel_integrated = load('../data/stroke_parallel_integrated_fixed.mat').data;
+stroke_1dm = load('../data/stroke_ref.mat').data;
 
 
 fs = 4000;
@@ -152,7 +152,7 @@ make_it_nicer()
 % export_fig ../plot/stroke_case_3.pdf -transparent
 
 %% Case 4
-rms_case3 = rms(stroke_parallel_integrated(2,:));
+rms_case4 = rms(stroke_parallel_integrated(2,:));
 rms_ref = rms(stroke_1dm(2,:));
 
 figure()
@@ -162,7 +162,7 @@ plot(t,stroke_1dm(2,t_start:t_end),'LineWidth',1)
 xlabel('Time (s)')
 ylabel('Amp.')
 title('Stroke')
-legend('Case 3','Ref.','Interpreter','latex',Location='northwest');
+legend('Case 4','Ref.','Interpreter','latex',Location='northwest');
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')

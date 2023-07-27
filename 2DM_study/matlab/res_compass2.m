@@ -1,28 +1,28 @@
-res_DM0_alone = fitsread('../data2/res_DM0_alone.fits')*1000;
-res_DM1_alone = fitsread('../data2/res_DM1_alone.fits')*1000;
+res_DM0_alone = fitsread('../data_parallel/res_DM0_alone.fits')*1000;
+res_DM1_alone = fitsread('../data_parallel/res_DM1_alone.fits')*1000;
 
-res_DM0 = fitsread('../data2/res_DM0.fits')*1000;
-res_DM1 = fitsread('../data2/res_DM1.fits')*1000;
+res_DM0 = fitsread('../data_parallel/res_DM0.fits')*1000;
+res_DM1 = fitsread('../data_parallel/res_DM1.fits')*1000;
 
-res_tilt = fitsread('../data2/res_tilt.fits')*1000;
-res_tilt_DM1 = fitsread('../data2/res_tilt_DM1.fits')*1000;
-res_tilt_DM0 = fitsread('../data2/res_tilt_DM0.fits')*1000;
-res_tilt_DM0_4kHz = fitsread('../data2/res_tilt_DM0_4kHz.fits')*1000;
+res_tilt = -fitsread('../data_parallel/res_tilt.fits')*1000;
+res_tilt_DM1 = -fitsread('../data_parallel/res_tilt_DM1.fits')*1000;
+res_tilt_DM0 = -fitsread('../data_parallel/res_tilt_DM0.fits')*1000;
+res_tilt_DM0_4kHz = -fitsread('../data_parallel/res_tilt_DM0.fits')*1000;
 
-res_DM0_proj = fitsread('../data2/res_DM0_proj.fits')*1000;
-res_DM1_proj = fitsread('../data2/res_DM1_proj.fits')*1000;
+res_DM0_proj = fitsread('../data_parallel/res_DM0_proj.fits')*1000;
+res_DM1_proj = fitsread('../data_parallel/res_DM1_proj.fits')*1000;
 
 % res_DM1_integrating_DM0 = fitsread('../data2/res_DM1_integrating_DM0.fits');
-M2M = fitsread('../data2/M2M.fits');
+% M2M = fitsread('../data2/M2M.fits');
 
-dist_DM1 = fitsread('../data2/dist_DM1.fits')*1000;
-dist_DM0 = fitsread('../data2/dist_DM0.fits')*1000;
-dist_tilt = fitsread('../data2/dist_tilt.fits')*1000;
+dist_DM1 = fitsread('../data_parallel/dist_DM1.fits')*1000;
+dist_DM0 = fitsread('../data_parallel/dist_DM0.fits')*1000;
+dist_tilt = -fitsread('../data_parallel/dist_tilt.fits')*1000;
 
 % dist_DM0_1kHz = fitsread('../data2/dist_DM0_1kHz.fits');
 % res_DM1_alone_proj_1kHz = fitsread('../data/res_DM1_alone_projeted_1kHz.fits');
 
-t = 0:1/4000:0.25-1/4000;
+t = 0:1/4000:1-1/4000;
 t_start = 1001;
 t_end = 2000;
 
@@ -40,12 +40,12 @@ plot(0:1/4000:1-1/4000,dist_tilt)
 ylabel('Dist. amp. (nm)')
 xlabel('Time (s)')
 title('Disturbance')
-legend('HODM 1st KL','LODM 1st KL','phase tilt','Interpreter','latex','location','northwest');
+legend('HODM 1st KL','LODM 1st KL','phase tilt','Interpreter','latex','location','southeast');
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
 make_it_nicer()
-% export_fig ../plot/compass/dist.pdf -transparent
+export_fig ../plot/compass/dist.pdf -transparent
 %% Dist 2
 % figure()
 % 
@@ -137,76 +137,78 @@ sgtitle('Residual on HODM 1st KL','Interpreter','latex','Fontsize',20)
 set(gcf, 'Position',  [100, 100, 1400, 450])
 set(gcf,'PaperType','A4')
 make_it_nicer()
-% export_fig ../plot/compass/res_DM1.pdf -transparent -nocrop
+export_fig ../plot/compass/res_DM1.pdf -transparent -nocrop
 %% RES tot DM0
-figure()
+% figure()
+% 
+% plot(t(20:end),res_DM0_alone(20:end))
+% hold on
+% plot(t(20:end),res_DM1_proj(20:end))
+% plot(t(20:end),res_DM0(20:end))
+% % plot(t,res_DM1_integrating_DM0(t_start:t_end))
+% xlabel('Time (s)')
+% ylabel('Res. amp. (nm)')
+% title('Residual on LODM 1st KL')
+% legend('LODM only','HODM only','both DMs','Interpreter','latex');
+% make_it_nicer()
+% set(gcf, 'Position',  [100, 100, 700, 450])
+% set(gcf,'PaperType','A4')
+% make_it_nicer()
+% % export_fig ../plot/compass/res_DM0.pdf -transparent
 
-plot(t(20:end),res_DM0_alone(20:end))
+%% RES tot DM0
+start = 30;
+figure()
+subplot(1,2,1)
+plot(t(start:end),res_DM0(start:end))
 hold on
-plot(t(20:end),res_DM1_proj(20:end))
-plot(t(20:end),res_DM0(20:end))
-% plot(t,res_DM1_integrating_DM0(t_start:t_end))
+plot(t(start:end),res_DM0_alone(start:end))
 xlabel('Time (s)')
 ylabel('Res. amp. (nm)')
-title('Residual on LODM 1st KL')
-legend('LODM only','HODM only','both DMs','Interpreter','latex');
+legend('LODM only','Both DMs','Interpreter','latex');
 make_it_nicer()
-set(gcf, 'Position',  [100, 100, 700, 450])
+subplot(1,2,2)
+plot(t(start:end),res_DM1_proj(start:end))
+xlabel('Time (s)')
+ylabel('Res. amp. (nm)')
+legend('HODM only','Interpreter','latex','location','southeast');
+sgtitle('Residual on LODM 1st KL','Interpreter','latex','Fontsize',20)
+set(gcf, 'Position',  [100, 100, 1400, 450])
 set(gcf,'PaperType','A4')
 make_it_nicer()
-% export_fig ../plot/compass/res_DM0.pdf -transparent
-
+export_fig ../plot/compass/res_DM0.pdf -transparent -nocrop
 %% M2M
-figure()
-plot(M2M(:,1))
-title('LODM 1 KL with HODM KLs')
-xlabel('HODM KL mode')
-make_it_nicer()
-set(gcf, 'Position',  [100, 100, 700, 450])
-set(gcf,'PaperType','A4')
-% export_fig ../plot/compass/M2M.pdf -transparent
+% figure()
+% plot(M2M(:,1))
+% title('LODM 1 KL with HODM KLs')
+% xlabel('HODM KL mode')
+% make_it_nicer()
+% set(gcf, 'Position',  [100, 100, 700, 450])
+% set(gcf,'PaperType','A4')
+% % export_fig ../plot/compass/M2M.pdf -transparent
 
 
 
 
-%% RES tot DM0
+%% RES tot tilt
 figure()
 
 plot(t,res_tilt_DM0)
 hold on
 plot(t,res_tilt_DM1)
 plot(t,res_tilt)
-plot(t,res_tilt_DM0_4kHz)
 % plot(t,res_DM1_integrating_DM0(t_start:t_end))
 xlabel('Time (s)')
 ylabel('Res. amp. (um)')
 title('Residual on tilt')
-legend('LODM only','HODM only','both DMs','LODM only 4 kHz','Interpreter','latex', 'Location','southwest');
+legend('LODM only','HODM only','both DMs','Interpreter','latex', 'Location','southeast');
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
 make_it_nicer()
-% export_fig ../plot/compass/res_DM0.pdf -transparent
+export_fig ../plot/compass/res_tilt.pdf -transparent
 
-%% RES tot DM0
-t = 0:1/4000:1-1/4000;
-figure()
 
-plot(t,res_tilt_DM0)
-hold on
-plot(t,res_tilt_DM1)
-plot(t,res_tilt)
-plot(t,res_tilt_DM0_4kHz)
-% plot(t,res_DM1_integrating_DM0(t_start:t_end))
-xlabel('Time (s)')
-ylabel('Res. amp. (nm)')
-title('Tilt residual')
-legend('LODM only','HODM only','both DMs','LODM only 4 kHz','Interpreter','latex');
-make_it_nicer()
-set(gcf, 'Position',  [100, 100, 700, 450])
-set(gcf,'PaperType','A4')
-make_it_nicer()
-% export_fig ../plot/compass/res_tilt.pdf -transparent
 %%
 n = 10;
 w = 399;
@@ -230,4 +232,4 @@ ylabel('Amp.')
 make_it_nicer()
 set(gcf, 'Position',  [100, 100, 700, 450])
 set(gcf,'PaperType','A4')
-export_fig ../plot/tilt_psd.pdf -transparent
+export_fig ../plot/compass/tilt_psd.pdf -transparent
