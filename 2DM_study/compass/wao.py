@@ -241,7 +241,7 @@ print(np.max(np.abs(phase)))
 m_pupil_size = wao.supervisor.get_m_pupil().shape[0]
 pupil_grid = make_pupil_grid(m_pupil_size)
 zernike_tel = make_zernike_basis(3, 1, pupil_grid)
-tilt_tel = zernike_tel[2].shaped
+tilt_tel = zernike_tel[1].shaped
 pup_valid_tel = zernike_tel[0].shaped
 
 # tilt_record = np.dstack([tilt]*phase_tilt.size)

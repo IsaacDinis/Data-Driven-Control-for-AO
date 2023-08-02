@@ -88,7 +88,7 @@ if __name__ == "__main__":
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
 
 
-    bool_DMO = False
+    bool_DMO = True
     rms_stroke = 0;
 
     for i in range(n_iter):
@@ -146,9 +146,9 @@ if __name__ == "__main__":
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
 
-    pfits.writeto("../data_parallel/res_DM0_proj.fits", res_DM0, overwrite = True)
-    pfits.writeto("../data_parallel/res_DM1_alone.fits", res_DM1, overwrite = True)
-    pfits.writeto("../data_parallel/res_tilt_DM1.fits", res_tilt, overwrite = True)
+    # pfits.writeto("../data_parallel/res_DM0_proj.fits", res_DM0, overwrite = True)
+    # pfits.writeto("../data_parallel/res_DM1_alone.fits", res_DM1, overwrite = True)
+    # pfits.writeto("../data_parallel/res_tilt_DM1.fits", res_tilt, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
