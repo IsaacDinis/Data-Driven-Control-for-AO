@@ -27,15 +27,14 @@ w = 100;
 [psd_saxoplus_standalone,f] = compute_psd((tilt_saxoplus_standalone)',n,w,fs);
 [psd_saxoplus_dcao,f] = compute_psd((tilt_saxoplus_dcao)',n,w,fs);
 
-psd_saxoplus_dcao = psd_saxoplus_dcao;
-psd_saxoplus_standalone = psd_saxoplus_standalone;
+
 
 figure()
 semilogx(f,10*log10(psd_saxoplus_dcao))
 hold on
 semilogx(f,10*log10(psd_saxoplus_standalone))
 
-title('2nd stage phase tilt residual PSD in standalone')
+title('2nd stage phase tilt residual PSD')
 legend('dcao','standalone','Interpreter','latex','location','northeast');
 ylabel('Magnitude (dB)')
 xlabel('Frequency (Hz)')
