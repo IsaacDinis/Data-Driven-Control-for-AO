@@ -93,7 +93,7 @@ hold on
 plot(t,res_tilt_DM0_4kHz)
 % plot(t,res_DM1_integrating_DM0(t_start:t_end))
 xlabel('Time (s)')
-ylabel('Res. amp. (um)')
+ylabel('Res. amp. (nm)')
 title('Residual on tilt')
 legend('1 kHz','4kHz','Interpreter','latex');
 make_it_nicer()
@@ -151,9 +151,10 @@ set(gcf,'PaperType','A4')
 %%
 figure()
 imagesc(res_DM0_all)
+title('DM0 1 kHz')
 figure()
 imagesc(res_DM0_all_4kHz)
-
+title('DM0 4 kHz')
 %%
 figure()
 imagesc(slopes)
@@ -162,18 +163,24 @@ imagesc(slopes_4kHz)
 %%
 figure()
 imagesc(res_DM1_all(1:88,:))
+title('DM1 1 kHz')
 figure()
 imagesc(res_DM1_all_4kHz(1:88,:))
+title('DM1 4 kHz')
 %%
 figure()
 plot(sum(abs(res_DM1_all(1:88,:)),1))
+title('DM1 1 kHz')
 hold on
 plot(sum(abs(res_DM1_all_4kHz(1:88,:)),1))
+title('DM1 4 kHz')
 %%
 figure()
 plot(sum(abs(res_DM0_all),1))
+title('DM0 1 kHz')
 hold on
 plot(sum(abs(res_DM0_all_4kHz),1))
+title('DM0 4 kHz')
 %%
 figure()
 plot(sum(abs(slopes),1))

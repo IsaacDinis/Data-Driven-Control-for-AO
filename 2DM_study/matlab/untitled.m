@@ -31,8 +31,10 @@ tip = fitsread('../compass/calib_mat/target_phase_tip.fits');
 % figure()
 % plot(tip)
 tip =tip';
-dm = M2P_DM0(:,1)./max(M2P_DM0(:,1)).*max(tip);
+dm = M2P_DM1(:,1)./max(M2P_DM1(:,1)).*max(tip);
 dm = dm*0.85;
+figure()
+plot(tip)
 figure()
 plot(dm)
 result = tip+dm;
