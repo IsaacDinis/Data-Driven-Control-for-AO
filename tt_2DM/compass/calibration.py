@@ -39,20 +39,20 @@ if __name__ == "__main__":
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     
-
+    M2V, _ = supervisor.basis.compute_modes_to_volts_basis("KL2V") # or "KL2V" [nvolts ,nmodes]
     # norm = np.linalg.norm(M2V, axis = 0)
     # M2V /= norm
 
 
 
-    n_actus_DM0 = 2
-    n_actus_DM1 = 2
+    n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()
+    n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
 
-    n_modes_DM0 = 2
+    n_modes_DM0 = n_actus_DM0
     # n_modes_DM1 = n_actus_DM1
-    n_modes_DM1 = 2
+    n_modes_DM1 = 800
  
-
+    nmodes = M2V.shape[1]
  
     # ampli = 50
     ampli = 0.01

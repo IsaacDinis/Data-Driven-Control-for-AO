@@ -1,11 +1,11 @@
 % tilt_saxo_standalone = fitsread('../data/tilt_saxo_standalone.fits')*1000;
-tilt_saxoplus_standalone = fitsread('../data/res_saxoplus_KL_standalone.fits')*1000;
+tilt_saxoplus_standalone = fitsread('../data/tilt_saxoplus_dcao_offset.fits')*1000;
 % res_saxo_mode_0 = fitsread('../data/res_saxo_mode_0.fits')*1000;
 % res_saxoplus_mode_0 = fitsread('../data/res_saxoplus_mode_0.fits')*1000;
 % tilt_saxo_dcao = fitsread('../data/tilt_saxo_dcao.fits')*1000;
 % tilt_saxoplus_dcao = fitsread('../data/tilt_saxoplus_dcao.fits')*1000;
 % tilt_saxo_dd = fitsread('../data/tilt_saxo_dd5.fits')*1000;
-tilt_saxoplus_dcao = fitsread('../data/res_saxoplus_KL_dcao.fits')*1000;
+tilt_saxoplus_dcao = fitsread('../data/tilt_saxoplus_dcao4.fits')*1000;
 T = 1;
 fs = 1/0.00036231884057971015;
 t = 0:1/fs:T-1/fs;
