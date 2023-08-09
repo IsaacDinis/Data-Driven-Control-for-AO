@@ -46,22 +46,21 @@ if __name__ == "__main__":
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(False) 
 
-    n_modes_DM0 = 88
-    n_modes_DM1 = 800
+    n_modes_DM0 = 2
+    n_modes_DM1 = 2
 
     a = np.array([1.,-1]) 
     b = np.array([0.5,0])
 
 
     # Load command and influence matrix
-    S2M_DM0 = np.load('calib_mat/S2M_DM0.npy')
-    S2M_DM1 = np.load('calib_mat/S2M_DM1.npy')
+    S2M_DM0 = pfits.getdata('calib_mat/S2M_DM0.fits')
+    S2M_DM1 = pfits.getdata('calib_mat/S2M_DM1.fits')
 
-    M2V_DM0 = np.load('calib_mat/M2V_DM0.npy')
-    M2V_DM1 = np.load('calib_mat/M2V_DM1.npy')
+    M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
+    M2V_DM1 = pfits.getdata('calib_mat/M2V_DM1.fits')
 
-    V_DM0_2_V_DM1 = np.load('calib_mat/V_DM0_2_V_DM1.npy')
-    M_DM0_2_M_DM1 = np.load('calib_mat/M_DM0_2_M_DM1.npy')
+    V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
 
     n_points = 1000
     res_DM0_0 = np.zeros(n_points)
@@ -75,7 +74,7 @@ if __name__ == "__main__":
     #------------------------------------
 
 
-    amp = np.linspace(-10,10,n_points)
+    amp = np.linspace(-0.55,0.55,n_points)
 
     for i in range(n_points):
 
@@ -92,7 +91,7 @@ if __name__ == "__main__":
         modes_DM1 = np.dot(S2M_DM1,slopes)
 
         res_DM0_0[i] = modes_DM0[0]
-        res_DM1_0[i] = -modes_DM1[0]
+        res_DM1_0[i] = modes_DM1[0]
 
         voltage_DM1 = -M2V_DM1[:,0]*amp[i]
         voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
@@ -107,7 +106,7 @@ if __name__ == "__main__":
         modes_DM1 = np.dot(S2M_DM1,slopes)
 
         res_DM0_1[i] = modes_DM0[0]
-        res_DM1_1[i] = -modes_DM1[0]
+        res_DM1_1[i] = modes_DM1[0]
 
 
 

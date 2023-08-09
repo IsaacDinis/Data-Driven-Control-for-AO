@@ -1,4 +1,4 @@
-#ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
+#ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/tt_2DM/compass/compass_param.py
 
 from hcipy.field import make_pupil_grid 
 from hcipy.mode_basis import make_zernike_basis 
@@ -12,21 +12,21 @@ zernike_basis = make_zernike_basis(3, 1, pupil_grid)
 tilt = zernike_basis[2].shaped
 pupil_valid = zernike_basis[0].shaped
 
-M2V_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V_DM1.npy')
-M2V_DM0 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V_DM0.npy')
-S2M_DM0 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/S2M_DM0.npy')
-S2M_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/S2M_DM1.npy')
+M2V_DM1 = pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/compass/calib_mat/M2V_DM1.fits')
+M2V_DM0 = pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/compass/calib_mat/M2V_DM0.fits')
+S2M_DM0 = pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/compass/calib_mat/S2M_DM0.fits')
+S2M_DM1 = pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/compass/calib_mat/S2M_DM1.fits')
 command = wao.supervisor.rtc.get_command(0)
 
-M2V = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M2V.npy')
-M_DM0_2_M_DM1 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/M_DM0_2_M_DM1.npy')
+
+M_DM0_2_M_DM1 = pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/compass/calib_mat/M_DM0_2_M_DM1.fits')
 nact_DM0 = 88
-V2V = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
-V2V2 = np.load('../../Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM1_2_V_DM0.npy')
-# phase_tilt = pfits.getdata('../../Data-Driven-Control-for-AO/2DM_study/data3/dist_tilt.fits')
+V2V =pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/compass/calib_mat/V_DM0_2_V_DM1.fits')
+V2V2 = pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/compass/calib_mat/V_DM1_2_V_DM0.fits')
+# phase_tilt = pfits.getdata('../../Data-Driven-Control-for-AO/tt_2DM/data3/dist_tilt.fits')
 
 
-# pfits.writeto("../../Data-Driven-Control-for-AO/2DM_study/data2/slopes4.fits", slopes, overwrite = True)
+# pfits.writeto("../../Data-Driven-Control-for-AO/tt_2DM/data2/slopes4.fits", slopes, overwrite = True)
 command = wao.supervisor.rtc.get_command(0)
 wao.supervisor.rtc.set_command(0,command)
 command[88:] = -M2V_DM1@M_DM0_2_M_DM1[:,0]*1000
@@ -40,8 +40,8 @@ u_DM1 = M2V_DM1[:,mode_n]
 # u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n]
 
 command *=0 
-command[:88] = u_DM0*amp
-command[88:] = u_DM1*amp
+command[:2] = -u_DM0*amp
+command[2:] = u_DM1*amp
 
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
