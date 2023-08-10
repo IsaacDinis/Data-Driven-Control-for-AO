@@ -42,13 +42,14 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 4000
+        n_iter = 5000
 
 
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
-    supervisor.atmos.enable_atmos(True) 
-
+    supervisor.atmos.enable_atmos(False) 
+    phase_tilt = pfits.getdata("../data3/dist_tilt.fits")
+    print(np.max(np.abs(phase_tilt)))
 
 
     pupil_diam = supervisor.config.p_geom.get_pupdiam()
@@ -77,6 +78,10 @@ if __name__ == "__main__":
     res_DM1 = np.zeros(n_iter)
     res_tilt = np.zeros(n_iter)
 
+    command_DM0 = np.zeros(n_iter)
+    command_DM1 = np.zeros(n_iter)
+
+
     #------------------------------------
     # control tilt mode
     #------------------------------------
@@ -90,6 +95,16 @@ if __name__ == "__main__":
 
     bool_DMO = True
     rms_stroke = 0;
+
+
+    m_pupil_size = supervisor.get_m_pupil().shape[0]
+    pupil_tel_grid = make_pupil_grid(m_pupil_size)
+    zernike_tel = make_zernike_basis(3, 1, pupil_tel_grid)
+    tilt_tel = zernike_tel[2].shaped
+    pup_valid_tel = zernike_tel[0].shaped
+    tilt_record = np.dstack([tilt_tel]*5000)
+    supervisor.tel.set_input_phase(tilt_record*phase_tilt[:5000])
+    print(np.max(np.abs(tilt_record*phase_tilt[:5000])))
 
     for i in range(n_iter):
         
@@ -108,8 +123,8 @@ if __name__ == "__main__":
         state_mat_DM0[0,1,:] = command_int_DM0
         voltage_DM0 = -M2V_DM0[:,0:n_modes_DM0] @ command_int_DM0
 
-        # if  i%4==0:
-        voltage_DM0_applied = voltage_DM0
+        if  i%4==0:
+            voltage_DM0_applied = voltage_DM0
 
         state_mat_DM1[1:,:,:] = state_mat_DM1[0:-1,:,:]
         state_mat_DM1[0,0,:] = modes_DM1[0:n_modes_DM1]
@@ -117,17 +132,15 @@ if __name__ == "__main__":
         command_int_DM1 = np.dot(b,state_mat_DM1[:,0,:]) - np.dot(a,state_mat_DM1[:,1,:]) 
         state_mat_DM1[0,1,:] = command_int_DM1
         voltage_DM1 = -M2V_DM1[:,0:n_modes_DM1] @ command_int_DM1
-        # voltage_DM1 *= 0
-        voltage_DM0 *= 0
-        # voltage_DM1 = voltage_DM0
+        voltage_DM1 *= 0
+
         if bool_DMO:
             # voltage_DM1 -= np.dot(V_DM0_2_V_DM1,voltage_DM0_applied)
-            # voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
-            voltage = np.concatenate((voltage_DM0, voltage_DM1), axis=0)
+            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
 
-        # supervisor.rtc.set_command(0, voltage)
+        supervisor.rtc.set_command(0, voltage)
 
         strehl = supervisor.target.get_strehl(0)
 
@@ -135,20 +148,33 @@ if __name__ == "__main__":
 
         if i%100==0 and i > 200:
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
+        if  i%4==0:
+            res_DM0[i] = modes_DM0[0]
+            res_DM1[i] = modes_DM1[0]
 
-        res_DM0[i] = modes_DM0[1]
-        res_DM1[i] = modes_DM1[1]
+            command_DM0[i] = voltage_DM0[0]
+            command_DM1[i] = voltage_DM1[0]
+        
+            target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+            res_tilt[i] = np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid)
+        else : 
+            res_DM0[i] = res_DM0[i-1]
+            res_DM1[i] = res_DM1[i-1]
+        
 
-        target_phase = supervisor.target.get_tar_phase(0,pupil=True)
-        res_tilt[i] = np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid)
+            res_tilt[i] = res_tilt[i-1]
+
         supervisor.next()
 
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
+    start = 1000
+    pfits.writeto("../data_parallel/res_DM0_alone_1kHz.fits", res_DM0[start:], overwrite = True)
+    pfits.writeto("../data_parallel/res_DM0_proj_1kHz.fits", res_DM1[start:], overwrite = True)
+    pfits.writeto("../data_parallel/res_tilt_DM0_1kHz.fits", res_tilt[start:], overwrite = True)
 
-    pfits.writeto("../data_parallel/res_DM0_alone.fits", res_DM0, overwrite = True)
-    pfits.writeto("../data_parallel/res_DM0_proj.fits", res_DM1, overwrite = True)
-    pfits.writeto("../data_parallel/res_tilt_DM0.fits", res_tilt, overwrite = True)
+    # pfits.writeto("../data_parallel/command_DM0.fits", command_DM0[start:], overwrite = True)
+    # pfits.writeto("../data_parallel/command_DM1.fits", command_DM1, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

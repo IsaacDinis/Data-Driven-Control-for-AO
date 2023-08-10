@@ -57,29 +57,29 @@ if __name__ == "__main__":
     tilt = zernike_basis[2].shaped
     pupil_valid = zernike_basis[0].shaped
 
-    n_modes_DM0 = 88
-    n_modes_DM1 = 800
+    n_modes_DM0 = 2
+    n_modes_DM1 = 2
 
     a = np.array([1.,-1]) 
     b = np.array([0.5,0])
 
 
     # Load command and influence matrix
-    S2M_DM0 = np.load('calib_mat/S2M_DM0.npy')
-    S2M_DM1 = np.load('calib_mat/S2M_DM1.npy')
+    S2M_DM0 = pfits.getdata('calib_mat/S2M_DM0.fits')
+    S2M_DM1 = pfits.getdata('calib_mat/S2M_DM1.fits')
 
-    M2V_DM0 = np.load('calib_mat/M2V_DM0.npy')
-    M2V_DM1 = np.load('calib_mat/M2V_DM1.npy')
+    M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
+    M2V_DM1 = pfits.getdata('calib_mat/M2V_DM1.fits')
 
-    V_DM0_2_V_DM1 = np.load('calib_mat/V_DM0_2_V_DM1.npy')
+    V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
 
     res_DM0 = np.zeros(n_iter)
     res_DM1 = np.zeros(n_iter)
     res_tilt = np.zeros(n_iter)
 
 
-    res_DM0_all = np.zeros((n_modes_DM0,n_iter))
-    res_DM1_all = np.zeros((n_modes_DM1,n_iter))
+    state_mat_DM0 = np.zeros((2,2,n_modes_DM0))
+    state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
     slopes_save = np.zeros((supervisor.rtc.get_slopes(0).shape[0],n_iter))
 
     #------------------------------------
