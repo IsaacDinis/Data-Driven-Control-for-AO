@@ -98,21 +98,11 @@ p_wfs0.set_fssize(1.0829)     # 1.5*lambda/dSubap
 #p_wfs0.set_fssize(1.227275)  # 1.7*lambda/dSubap
 #p_wfs0.set_fssize(1.44385)   # 2*lambda/dSubap
 
-# dm
-p_dm0 = conf.Param_dm()       # /!\
+# dm   # /!\
 p_dm1 = conf.Param_dm()       # /!\
-p_dms = [p_dm0, p_dm1]        # /!\
+p_dms = [p_dm1]        # /!\
 # p_dms = [p_dm0]        # /!\
 
-p_dm0.set_type("pzt")         # /!\
-nact = 10
-p_dm0.set_nact(nact)
-p_dm0.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
-p_dm0.set_coupling(0.3)
-p_dm0.set_alt(0.)             # /!\
-p_dm0.set_unitpervolt(1.)     # /!\
-# p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
-p_dm0.set_influ_type("gaussian")
 
 p_dm1.set_type("pzt")         # /!\
 # nact = 40
@@ -148,7 +138,7 @@ p_controllers = [p_controller0]
 
 p_controller0.set_type("generic")
 p_controller0.set_nwfs([0])         # /!\
-p_controller0.set_ndm([0,1])       # /!\
+p_controller0.set_ndm([0])       # /!\
 p_controller0.set_delay(1) # /!\ same delay in ms as in saxo.py
 p_controller0.set_gain(0.3)
 

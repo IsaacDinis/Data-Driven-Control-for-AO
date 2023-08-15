@@ -39,20 +39,20 @@ if __name__ == "__main__":
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     
-    M2V, _ = supervisor.basis.compute_modes_to_volts_basis("KL2V") # or "KL2V" [nvolts ,nmodes]
+
     # norm = np.linalg.norm(M2V, axis = 0)
     # M2V /= norm
 
 
 
-    n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()
-    n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
+    n_actus_DM0 = 2
+    n_actus_DM1 = 2
 
-    n_modes_DM0 = n_actus_DM0
+    n_modes_DM0 = 2
     # n_modes_DM1 = n_actus_DM1
-    n_modes_DM1 = 800
+    n_modes_DM1 = 2
  
-    nmodes = M2V.shape[1]
+
  
     # ampli = 50
     ampli = 0.01
@@ -70,15 +70,11 @@ if __name__ == "__main__":
         supervisor.rtc.set_command(0, M2V[:,mode]*ampli) 
         supervisor.next()
         supervisor.next()
-        supervisor.next()
-        supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM0[:,mode] = slopes.copy()
 
     for mode in range(n_modes_DM1):
         supervisor.rtc.set_command(0, M2V[:,n_modes_DM0+mode]*ampli) 
-        supervisor.next()
-        supervisor.next()
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
@@ -88,17 +84,8 @@ if __name__ == "__main__":
     S2M_DM0 = np.linalg.pinv(M2S_DM0) # [nmodes , nslopes]
     S2M_DM1 = np.linalg.pinv(M2S_DM1) # [nmodes , nslopes
 
-
-
     M2V_DM0 = M2V[:n_actus_DM0,:n_modes_DM0]
     M2V_DM1 = M2V[n_actus_DM0:n_actus_DM0+n_actus_DM1,n_actus_DM0:n_actus_DM0+n_modes_DM1]
-
-    # imat = M2S_DM1[:,:800].copy()
-    # Dmp = np.linalg.pinv(imat)
-
-    # cmat = M2V_DM1[:,:800]@Dmp
-    # M2V_DM1_2 = cmat@imat
-
 
     V2M_DM0 = np.linalg.pinv(M2V_DM0)
 
