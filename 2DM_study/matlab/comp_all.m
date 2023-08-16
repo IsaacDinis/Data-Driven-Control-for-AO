@@ -14,7 +14,7 @@ voltage_DM1_all = fitsread('../gendron/voltage_DM1_all.fits');
 voltage_DM1_all_DM1_alone = fitsread('../gendron/voltage_DM1_all_DM1_alone.fits');
 
 fs = 1000;
-tilt = fitsread('../gendron/tilt.fits');
+% tilt = fitsread('../gendron/tilt.fits');
 
 t = 0:1/fs:4.99-1/fs;
 %%
@@ -73,3 +73,13 @@ title('DM1 voltage')
 legend('both DMs','HODM only')
 xlabel('mode')
 ylabel('rms')
+
+%%
+figure()
+plot(res_DM0_all(1,:))
+hold on
+plot(res_DM1_all(1,:))
+hold on
+plot(res_DM0_all(2,:)+1)
+hold on
+plot(res_DM1_all(2,:)+1)
