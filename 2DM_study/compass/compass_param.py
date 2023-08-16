@@ -39,28 +39,28 @@ p_tel.set_t_spiders(0.00625)
 
 
 
-# atmos
-p_atmos = conf.Param_atmos()
-p_atmos.set_r0(0.15)       # Fried parameters @ 500 nm
-p_atmos.set_nscreens(1)    # Number of layers
-p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
-p_atmos.set_alt([0.0])     # Altitude(s) in meters
-p_atmos.set_windspeed([8]) # wind speed of layer(s) in m/s
-p_atmos.set_winddir([45])  # wind direction in degrees
-p_atmos.set_L0([25])       # in meters
-
+# # atmos
 # p_atmos = conf.Param_atmos()
-# atm = atmosphere.TurbulenceProfile(single_layer=True)  # /?\ instantiate 1L or 35L atmosphere   
-# profileCondition = 'median'    # /?\ 'median', 'Q1', 'Q2', 'Q3' or 'Q4'
-# r0 = (atm.r0[atm.profile_conditions.index(profileCondition)]).value # /?\ take ESO r0 or..      
-# #r0 = 0.14                                                          # /?\ set your r0 value    
-# p_atmos.set_nscreens(len(atm.height.value))                         # /!\ set Nb of layers      
-# p_atmos.set_r0(r0)                                                  # /!\ set r0               
-# p_atmos.set_frac(atm.profile_data[profileCondition].tolist())       # /!\ set frac Cn2        
-# p_atmos.set_alt(atm.height.value)                                   # /!\ set heights          
-# p_atmos.set_windspeed(atm.wind_velocity.value)                      # /!\ set wind speeds      
-# p_atmos.set_winddir(atm.wind_dir.value)                             # /!\ set wind directions  
-# p_atmos.set_L0([25.] * len(atm.height.value))   
+# p_atmos.set_r0(0.15)       # Fried parameters @ 500 nm
+# p_atmos.set_nscreens(1)    # Number of layers
+# p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
+# p_atmos.set_alt([0.0])     # Altitude(s) in meters
+# p_atmos.set_windspeed([8]) # wind speed of layer(s) in m/s
+# p_atmos.set_winddir([45])  # wind direction in degrees
+# p_atmos.set_L0([25])       # in meters
+
+p_atmos = conf.Param_atmos()
+atm = atmosphere.TurbulenceProfile(single_layer=True)  # /?\ instantiate 1L or 35L atmosphere   
+profileCondition = 'median'    # /?\ 'median', 'Q1', 'Q2', 'Q3' or 'Q4'
+r0 = (atm.r0[atm.profile_conditions.index(profileCondition)]).value # /?\ take ESO r0 or..      
+#r0 = 0.14                                                          # /?\ set your r0 value    
+p_atmos.set_nscreens(len(atm.height.value))                         # /!\ set Nb of layers      
+p_atmos.set_r0(r0)                                                  # /!\ set r0               
+p_atmos.set_frac(atm.profile_data[profileCondition].tolist())       # /!\ set frac Cn2        
+p_atmos.set_alt(atm.height.value)                                   # /!\ set heights          
+p_atmos.set_windspeed(atm.wind_velocity.value)                      # /!\ set wind speeds      
+p_atmos.set_winddir(atm.wind_dir.value)                             # /!\ set wind directions  
+p_atmos.set_L0([25.] * len(atm.height.value))   
 
 
 # target
@@ -83,7 +83,7 @@ p_wfs0.set_fracsub(0.5)       # /!\ Select 1240 subapertures.
 p_wfs0.set_xpos(0.)           # /!\ On axis
 p_wfs0.set_ypos(0.)           # /!\ On axis
 p_wfs0.set_Lambda(0.7)        # /!\ SAXO SH bandwidth : [475, 900] nm
-p_wfs0.set_gsmag(6.)
+p_wfs0.set_gsmag(1.)
 p_wfs0.set_optthroughput(1) # still unknown
 p_wfs0.set_zerop(1e11)        # zero point for guide star magnitude
 p_wfs0.set_noise(-1)         # EMCCD with < 0.1e- RON

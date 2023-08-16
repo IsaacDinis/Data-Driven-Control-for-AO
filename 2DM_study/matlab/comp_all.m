@@ -1,19 +1,20 @@
-res_DM0_all = fitsread('../data_parallel/res_DM0_all.fits');
-res_DM1_all = fitsread('../data_parallel/res_DM1_all.fits');
-res_phase = fitsread('../data_parallel/res_phase.fits');
+res_DM0_all = fitsread('../gendron/res_DM0_all.fits');
+res_DM1_all = fitsread('../gendron/res_DM1_all.fits');
+res_phase = fitsread('../gendron/res_phase.fits');
 
-res_DM0_all_DM1_alone = fitsread('../data_parallel/res_DM0_all_DM1_alone.fits');
-res_DM1_all_DM1_alone = fitsread('../data_parallel/res_DM1_all_DM1_alone.fits');
-res_phase_DM1_alone = fitsread('../data_parallel/res_phase_DM1_alone.fits');
+res_DM0_all_DM1_alone = fitsread('../gendron/res_DM0_all_DM1_alone.fits');
+res_DM1_all_DM1_alone = fitsread('../gendron/res_DM1_all_DM1_alone.fits');
+res_phase_DM1_alone = fitsread('../gendron/res_phase_DM1_alone.fits');
 
-res_DM0_all_openloop = fitsread('../data_parallel/res_DM0_all_openloop.fits');
-res_DM1_all_openloop = fitsread('../data_parallel/res_DM1_all_openloop.fits');
-res_phase_openloop = fitsread('../data_parallel/res_phase_openloop.fits');
+res_DM0_all_openloop = fitsread('../gendron/res_DM0_all_openloop.fits');
+res_DM1_all_openloop = fitsread('../gendron/res_DM1_all_openloop.fits');
+res_phase_openloop = fitsread('../gendron/res_phase_openloop.fits');
 
-voltage_DM1_all = fitsread('../data_parallel/voltage_DM1_all.fits');
-voltage_DM1_all_DM1_alone = fitsread('../data_parallel/voltage_DM1_all_DM1_alone.fits');
+voltage_DM1_all = fitsread('../gendron/voltage_DM1_all.fits');
+voltage_DM1_all_DM1_alone = fitsread('../gendron/voltage_DM1_all_DM1_alone.fits');
 
 fs = 1000;
+tilt = fitsread('../gendron/tilt.fits');
 
 t = 0:1/fs:4.99-1/fs;
 %%
