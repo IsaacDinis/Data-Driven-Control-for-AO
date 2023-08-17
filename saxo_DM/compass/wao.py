@@ -35,7 +35,7 @@ wao.supervisor.rtc.set_command(0,command)
 command[88:] = -M2V_DM1@M_DM0_2_M_DM1[:,0]*1000
 
 
-mode_n = 1
+mode_n = 3
 amp = 1
 
 u_DM0 = M2V_DM0[:,mode_n]
@@ -44,7 +44,7 @@ u_DM1 = M2V_DM1[:,mode_n]
 
 command *=0 
 command[:n_act_DM0] = u_DM0*amp
-command[n_act_DM0:] = u_DM1*amp
+command[n_act_DM0:] = u_DM1*amp*1.7
 
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
@@ -53,13 +53,13 @@ wao.supervisor.next()
 
 
 
-mode_n = 1
+mode_n = 4
 amp = 1
 
 u_DM0 = M2V_DM0[:,mode_n]
-u_DM1 = M2V_DM1@M_DM0_2_M_DM1[:,mode_n]
--V2V@command[:88]
-# u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n]
+# u_DM1 = M2V_DM1@M_DM0_2_M_DM1[:,mode_n]
+u_DM1 = V2V@u_DM0
+
 
 command *=0 
 command[:n_act_DM0] = u_DM0*amp
