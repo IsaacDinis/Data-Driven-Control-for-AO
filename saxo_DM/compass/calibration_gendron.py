@@ -20,6 +20,7 @@ from shesha.config import ParamConfig
 from docopt import docopt 
 import numpy as np
 from shesha.util.slopesCovariance import KLmodes
+import astropy.io.fits as pfits
 
 if __name__ == "__main__":
     arguments = docopt(__doc__)
@@ -76,6 +77,9 @@ if __name__ == "__main__":
         supervisor.rtc.set_command(0, command) 
         supervisor.next()
         supervisor.next()
+        supervisor.next()
+        supervisor.next()
+
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM0[:,mode] = slopes.copy()
 
@@ -84,6 +88,10 @@ if __name__ == "__main__":
         supervisor.rtc.set_command(0, command) 
         supervisor.next()
         supervisor.next()
+        supervisor.next()
+        supervisor.next()
+        if mode == 0:
+            a = supervisor.dms.get_dm_shape(1)
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM1[:,mode] = slopes.copy()
 
@@ -102,7 +110,7 @@ if __name__ == "__main__":
     np.save('calib_mat/M2V_DM1.npy', M2V_DM1)
     np.save('calib_mat/M_DM0_2_M_DM1.npy', M_DM0_2_M_DM1)
     np.save('calib_mat/V_DM0_2_V_DM1.npy', V_DM0_2_V_DM1)
-
+    pfits.writeto('../gendron/tilt.fits', a, overwrite = True)
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname

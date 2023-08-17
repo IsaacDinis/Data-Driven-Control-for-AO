@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Friday 16th of September 2022
 
-@author: Clementine Bechet for the SPHERE+ simulation group
-"""
 
-# /!\ : This symbol marks the parameters that must not be changed.
-# /?\ : This symbol marks the parameters that must be chosen among a list.
 
 import shesha.config as conf
 import os
-
+import atmosphere
 
 simul_name = "2dm_1wfs"
 
-Ts = 1./4000.
+Ts = 1./1000.
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)         # /?\ number of loops
 p_loop.set_ittime(Ts) 
 
+# Boston DMs                                # /?\ Choose the Boston DM
+#boston_dm_file = 'Boston34x34_measured_IF.fits'
+boston_dm_file = 'Boston34x34_flat.fits'                                                                                                                        
+#boston_dm_file = 'Boston28x28_flat.fits'
+#boston_dm_file = 'Boston24x24_flat.fits'
+recommended_dm_pup = True                  # /?\ Choose using recommended DM pupil size
 
 # geom
 p_geom = conf.Param_geom()
@@ -36,16 +36,20 @@ p_tel.set_type_ap("VLT")       # VLT pupil
 p_tel.set_spiders_type("four")
 # p_tel.set_t_spiders(0.)
 p_tel.set_t_spiders(0.00625)
-# atmos
-p_atmos = conf.Param_atmos()
-p_atmos.set_r0(0.15)       # Fried parameters @ 500 nm
-p_atmos.set_nscreens(1)    # Number of layers
-p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
-p_atmos.set_alt([0.0])     # Altitude(s) in meters
-p_atmos.set_windspeed([8]) # wind speed of layer(s) in m/s
-p_atmos.set_winddir([45])  # wind direction in degrees
-p_atmos.set_L0([25])       # in meters
 
+
+p_atmos = conf.Param_atmos()
+atm = atmosphere.TurbulenceProfile(single_layer=True)  # /?\ instantiate 1L or 35L atmosphere   
+profileCondition = 'median'    # /?\ 'median', 'Q1', 'Q2', 'Q3' or 'Q4'
+r0 = (atm.r0[atm.profile_conditions.index(profileCondition)]).value # /?\ take ESO r0 or..      
+#r0 = 0.14                                                          # /?\ set your r0 value    
+p_atmos.set_nscreens(len(atm.height.value))                         # /!\ set Nb of layers      
+p_atmos.set_r0(r0)                                                  # /!\ set r0               
+p_atmos.set_frac(atm.profile_data[profileCondition].tolist())       # /!\ set frac Cn2        
+p_atmos.set_alt(atm.height.value)                                   # /!\ set heights          
+p_atmos.set_windspeed(atm.wind_velocity.value)                      # /!\ set wind speeds      
+p_atmos.set_winddir(atm.wind_dir.value)                             # /!\ set wind directions  
+p_atmos.set_L0([25.] * len(atm.height.value))   
 
 
 # target
@@ -68,7 +72,7 @@ p_wfs0.set_fracsub(0.5)       # /!\ Select 1240 subapertures.
 p_wfs0.set_xpos(0.)           # /!\ On axis
 p_wfs0.set_ypos(0.)           # /!\ On axis
 p_wfs0.set_Lambda(0.7)        # /!\ SAXO SH bandwidth : [475, 900] nm
-p_wfs0.set_gsmag(6.)
+p_wfs0.set_gsmag(1.)
 p_wfs0.set_optthroughput(1) # still unknown
 p_wfs0.set_zerop(1e11)        # zero point for guide star magnitude
 p_wfs0.set_noise(-1)         # EMCCD with < 0.1e- RON
@@ -90,32 +94,30 @@ p_dms = [p_dm0, p_dm1]        # /!\
 # p_dms = [p_dm0]        # /!\
 
 p_dm0.set_type("pzt")         # /!\
-nact = 10
-p_dm0.set_nact(nact)
-p_dm0.set_thresh(0.25)        # /!\ to get the SAXO 1377 active actuators
-p_dm0.set_coupling(0.3)
 p_dm0.set_alt(0.)             # /!\
 p_dm0.set_unitpervolt(1.)     # /!\
-# p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
-p_dm0.set_influ_type("gaussian")
+p_dm0.set_thresh(-0.5)
+p_dm0.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
 
-p_dm1.set_type("pzt")         # /!\
-nact = 40
-p_dm1.set_nact(nact)
-p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 activectuators
-p_dm1.set_coupling(0.13)
-p_dm1.set_alt(0.)             # /!\
-p_dm1.set_unitpervolt(1.)     # /!\
-p_dm1.set_influ_type("gaussian")
-# p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
 
-# p_dm0.set_file_influ_fits("SAXO_HODM.fits") # /!\ to use a custom SAXO HO DM
+p_dm1.set_type("pzt")           # /!\
+p_dm1.set_thresh(-200)          # /!\ to get all Boston actuators
+p_dm1.set_alt(0.)               # /!\
+p_dm1.set_unitpervolt(1.)       # /!\
+p_dm1.set_push4imat(1.0e-3)
+p_dm1.set_file_influ_fits(boston_dm_file) # /!\ choice made at the begin. of this file
+boston_dms = ['Boston24x24_flat.fits',
+              'Boston28x28_flat.fits',
+              'Boston34x34_flat.fits',
+              'Boston34x34_measured_IF.fits']
+if (boston_dm_file in boston_dms) and recommended_dm_pup:
+    # recommanded pupil diam on DMs
+    boston_rec_diam = [(24-3)*450e-6, (28-3)*450e-6,
+                       (34-3)*400e-6, (34-3)*400e-6]
+    p_dm1.set_diam_dm(boston_rec_diam[boston_dms.index(boston_dm_file)])
+else:
+    print('No recommended pupil size used on Boston DM')
 
-# # tip-tilt
-# p_dm1.set_type("tt")         # /!\
-# p_dm1.set_alt(0.)            # /!\
-# p_dm1.set_unitpervolt(1.)    # /!\
-# p_dm1.set_push4imat(0.18)    #     to displace about half a pixel
 
 # centroiders
 p_centroider0 = conf.Param_centroider()
@@ -131,12 +133,10 @@ p_centroider0.set_thresh(0)
 p_controller0 = conf.Param_controller()
 p_controllers = [p_controller0]
 
-#p_controller0.set_type("generic")   # /?\ ls (classic easy simple) or generic
-p_controller0.set_type("ls")
+p_controller0.set_type("generic")
 p_controller0.set_nwfs([0])         # /!\
 p_controller0.set_ndm([0,1])       # /!\
-p_controller0.set_maxcond(1500)     #     determines the nb of modes to be filtered
-p_controller0.set_delay(Ts) # /!\ same delay in ms as in saxo.py
+p_controller0.set_delay(1) # /!\ same delay in ms as in saxo.py
 p_controller0.set_gain(0.3)
 
 # coronagraph
@@ -152,4 +152,3 @@ p_controller0.set_gain(0.3)
 # p_corono0.set_delta_wav(0.054)    # spectral bandwidth in micron
                                     # 0.054 μm = bandwidth of H3 IRDIS filter
                                     # this value is just an example, not a fixed paramete
-
