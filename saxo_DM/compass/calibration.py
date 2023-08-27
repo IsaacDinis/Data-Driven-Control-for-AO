@@ -71,13 +71,28 @@ if __name__ == "__main__":
     slopes = supervisor.rtc.get_slopes(0)
     M2S_DM0 = np.zeros((slopes.shape[0], n_modes_DM0))
     M2S_DM1 = np.zeros((slopes.shape[0], n_modes_DM1))
-
+    modes_stage1_2_modes_stage2 = np.zeros((n_modes_DM1, n_modes_DM1))
     # M2S = np.zeros((slopes.shape[0], nmodes+2))
     supervisor.atmos.enable_atmos(False)
 
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
     #-----------------------------------------------
+
+    for mode in range(n_modes_DM1):
+        supervisor.rtc.set_command(0, M2V[:,n_actus_DM0+mode]*ampli) 
+        supervisor.next()
+        supervisor.next()
+        supervisor.next()
+        supervisor.next()
+        slopes = supervisor.rtc.get_slopes(0)/ampli
+        target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
+
+        M2S_DM1[:,mode] = slopes.copy()
+        phase_mode_DM1[:,:,mode] = target_phase.copy()
+
+    S2M_DM1 = np.linalg.pinv(M2S_DM1) # [nmodes , nslopes
+
     for mode in range(n_modes_DM0):
         supervisor.rtc.set_command(0, M2V[:,mode]*ampli) 
         supervisor.next()
@@ -89,21 +104,15 @@ if __name__ == "__main__":
 
         M2S_DM0[:,mode] = slopes.copy()
         phase_mode_DMO[:,:,mode] = target_phase.copy()
-
-    for mode in range(n_modes_DM1):
-        supervisor.rtc.set_command(0, M2V[:,n_modes_DM0+mode]*ampli) 
-        supervisor.next()
-        supervisor.next()
-        supervisor.next()
-        supervisor.next()
-        slopes = supervisor.rtc.get_slopes(0)/ampli
-        target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
-
-        M2S_DM1[:,mode] = slopes.copy()
-        phase_mode_DM1[:,:,mode] = target_phase.copy()
+        if mode < n_modes_DM1:
+            modes_stage1_2_modes_stage2[:,mode] = S2M_DM1@slopes  
 
     S2M_DM0 = np.linalg.pinv(M2S_DM0) # [nmodes , nslopes]
-    S2M_DM1 = np.linalg.pinv(M2S_DM1) # [nmodes , nslopes
+
+
+
+    
+    
 
 
 
@@ -111,7 +120,7 @@ if __name__ == "__main__":
     M2V_DM1 = M2V[n_actus_DM0:n_actus_DM0+n_actus_DM1,n_actus_DM0:n_actus_DM0+n_modes_DM1]
 
 
-    n_projected_modes = 2 # number of modes projected from saxo HODM to saxoplus HODM,
+    n_projected_modes = 150 # number of modes projected from saxo HODM to saxoplus HODM,
     # S2M_stage1 = np.linalg.pinv(imat1[:, :n_projected_modes]) # SAXO imat
     # V2M_stage1 = np.linalg.pinv(B0[:, :n_projected_modes]) # SAXO KL basis
 
@@ -120,6 +129,7 @@ if __name__ == "__main__":
 
     # modes_stage1_2_modes_stage2 = S2M_stage1@imat01[:,:n_projected_modes] # Modal projection matrix
     # volts_stage1_2_volts_stage2 = B1[:, :n_projected_modes]@modes_stage1_2_modes_stage2@V2M_stage1 # Voltage projection matrix
+
     modes_stage1_2_modes_stage2 = S2M_stage2[:n_projected_modes,:]@M2S_DM0[:,:n_projected_modes] # Modal projection matrix
     volts_stage1_2_volts_stage2 = M2V_DM1[:, :n_projected_modes]@modes_stage1_2_modes_stage2@V2M_stage1 # Voltage projection matrix
 

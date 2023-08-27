@@ -35,16 +35,16 @@ wao.supervisor.rtc.set_command(0,command)
 command[88:] = -M2V_DM1@M_DM0_2_M_DM1[:,0]*1000
 
 
-mode_n = 3
+mode_n = 1
 amp = 1
 
 u_DM0 = M2V_DM0[:,mode_n]
-u_DM1 = M2V_DM1[:,mode_n]
+u_DM1 = M2V[:,n_act_DM0+mode_n]
 # u_DM1 = M2V_DM1 @ M_DM0_2_M_DM1[:,mode_n]
 
 command *=0 
-command[:n_act_DM0] = u_DM0*amp
-command[n_act_DM0:] = u_DM1*amp*1.7
+command[:n_act_DM0] = u_DM0*amp*0
+command[n_act_DM0:] = u_DM1[n_act_DM0:]*amp
 
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
@@ -53,7 +53,7 @@ wao.supervisor.next()
 
 
 
-mode_n = 4
+mode_n = 1
 amp = 1
 
 u_DM0 = M2V_DM0[:,mode_n]
@@ -63,7 +63,7 @@ u_DM1 = V2V@u_DM0
 
 command *=0 
 command[:n_act_DM0] = u_DM0*amp
-command[n_act_DM0:] = u_DM1*amp
+command[n_act_DM0:] = -u_DM1*amp
 
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
@@ -71,8 +71,18 @@ wao.supervisor.next()
 wao.supervisor.next()
 
 
+slopes = wao.supervisor.rtc.get_slopes(0)
+modes_DM0 = np.dot(S2M_DM0,slopes)
+modes_DM1 = np.dot(S2M_DM1,slopes)
+print(modes_DM0[1])
+print(modes_DM1[0])
 
-
+mode_n = n_act_DM0
+wao.supervisor.rtc.set_command(0, M2V[:,mode_n]) 
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
 
 
 # print(np.std(a))
