@@ -44,7 +44,6 @@ if __name__ == "__main__":
     # M2V /= norm
 
 
-
     n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()
     n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
 
@@ -52,8 +51,10 @@ if __name__ == "__main__":
     # n_modes_DM1 = n_actus_DM1
     n_modes_DM1 = 800
  
-    nmodes = M2V.shape[1]
- 
+    pupil_diam = supervisor.config.p_geom.get_pupdiam()
+    phase_mode_DMO = np.zeros((pupil_diam, pupil_diam, n_modes_DM0))
+    phase_mode_DM1 = np.zeros((pupil_diam, pupil_diam, n_modes_DM1))
+    phase_tt_DM = np.zeros((pupil_diam, pupil_diam, 4))
     # ampli = 50
     ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
@@ -73,7 +74,10 @@ if __name__ == "__main__":
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
+        target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
+
         M2S_DM0[:,mode] = slopes.copy()
+        phase_mode_DMO[:,:,mode] = target_phase.copy()
 
     for mode in range(n_modes_DM1):
         supervisor.rtc.set_command(0, M2V[:,n_modes_DM0+mode]*ampli) 
@@ -82,8 +86,10 @@ if __name__ == "__main__":
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
-        M2S_DM1[:,mode] = slopes.copy()
+        target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
 
+        M2S_DM1[:,mode] = slopes.copy()
+        phase_mode_DM1[:,:,mode] = target_phase.copy()
 
     S2M_DM0 = np.linalg.pinv(M2S_DM0) # [nmodes , nslopes]
     S2M_DM1 = np.linalg.pinv(M2S_DM1) # [nmodes , nslopes
@@ -98,6 +104,52 @@ if __name__ == "__main__":
 
     # cmat = M2V_DM1[:,:800]@Dmp
     # M2V_DM1_2 = cmat@imat
+    xpos0 = supervisor.config.p_dms[0]._xpos # actus positions
+    ypos0 = supervisor.config.p_dms[0]._ypos
+    xpos1 = supervisor.config.p_dms[1]._xpos # actus positions
+    ypos1 = supervisor.config.p_dms[1]._ypos
+
+    command = supervisor.rtc.get_command(0)
+
+    command *= 0
+    command[:n_actus_DM0] =  xpos0-np.mean(xpos0);
+    supervisor.rtc.set_command(0, command) 
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+    phase_tt_DM[:,:,0] = target_phase.copy()
+
+    command *= 0
+    command[:n_actus_DM0] =  ypos0-np.mean(ypos0);
+    supervisor.rtc.set_command(0, command) 
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+    phase_tt_DM[:,:,1] = target_phase.copy()
+
+    command *= 0
+    command[n_actus_DM0:] =  xpos1-np.mean(xpos1);
+    supervisor.rtc.set_command(0, command) 
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+    phase_tt_DM[:,:,2] = target_phase.copy()
+
+    command *= 0
+    command[n_actus_DM0:] =  ypos1-np.mean(ypos1);
+    supervisor.rtc.set_command(0, command) 
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    supervisor.next()
+    target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+    phase_tt_DM[:,:,3] = target_phase.copy()
 
 
     V2M_DM0 = np.linalg.pinv(M2V_DM0)
@@ -116,6 +168,9 @@ if __name__ == "__main__":
     np.save('calib_mat/M_DM0_2_M_DM1.npy', M_DM0_2_M_DM1)
     np.save('calib_mat/V_DM0_2_V_DM1.npy', V_DM0_2_V_DM1)
     np.save('calib_mat/V_DM1_2_V_DM0.npy', V_DM1_2_V_DM0)
+    pfits.writeto("../data_parallel/phase_mode_DMO.fits", phase_mode_DMO, overwrite = True)
+    pfits.writeto("../data_parallel/phase_mode_DM1.fits", phase_mode_DM1, overwrite = True)
+    pfits.writeto("../data_parallel/phase_tt_DM.fits", phase_tt_DM, overwrite = True)
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname

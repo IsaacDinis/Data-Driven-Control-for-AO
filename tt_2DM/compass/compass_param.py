@@ -15,7 +15,7 @@ import os
 
 simul_name = "2dm_1wfs"
 
-Ts = 1./4000.
+Ts = 1./1000.
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)         # /?\ number of loops
@@ -73,13 +73,13 @@ p_wfs0.set_optthroughput(1) # still unknown
 p_wfs0.set_zerop(1e11)        # zero point for guide star magnitude
 p_wfs0.set_noise(-1)         # EMCCD with < 0.1e- RON
 p_wfs0.set_atmos_seen(1)      # /!\
-# p_wfs0.set_fstop("square")    # /!\
+p_wfs0.set_fstop("square")    # /!\
                               # Choose one spatial filter or none.
 #p_wfs0.set_fssize(0.79412)   # 1.1*lambda/dSubap
 #p_wfs0.set_fssize(0.8663)    # 1.2*lambda/dSubap
 #p_wfs0.set_fssize(0.9385)    # 1.3*lambda/dSubap
 #p_wfs0.set_fssize(1.0107)    # 1.4*lambda/dSubap
-# p_wfs0.set_fssize(1.0829)     # 1.5*lambda/dSubap
+p_wfs0.set_fssize(1.0829)     # 1.5*lambda/dSubap
 #p_wfs0.set_fssize(1.227275)  # 1.7*lambda/dSubap
 #p_wfs0.set_fssize(1.44385)   # 2*lambda/dSubap
 

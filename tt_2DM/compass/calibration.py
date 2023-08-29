@@ -52,7 +52,10 @@ if __name__ == "__main__":
     # n_modes_DM1 = n_actus_DM1
     n_modes_DM1 = 2
 
- 
+    pupil_diam = supervisor.config.p_geom.get_pupdiam()
+    phase_mode_tt = np.zeros((pupil_diam, pupil_diam, 2))
+
+
     # ampli = 50
     ampli = 0.1
     slopes = supervisor.rtc.get_slopes(0)
@@ -74,6 +77,8 @@ if __name__ == "__main__":
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM0[:,mode] = slopes.copy()
+        target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
+        phase_mode_tt[:,:,mode] = target_phase.copy()
 
     for mode in range(2):
         command[mode+2] = ampli
@@ -103,6 +108,8 @@ if __name__ == "__main__":
     pfits.writeto('calib_mat/M_DM0_2_M_DM1.fits', M_DM0_2_M_DM1, overwrite = True)
     pfits.writeto('calib_mat/V_DM0_2_V_DM1.fits', V_DM0_2_V_DM1, overwrite = True)
     pfits.writeto('calib_mat/V_DM1_2_V_DM0.fits', V_DM1_2_V_DM0, overwrite = True)
+    pfits.writeto("../data_parallel/phase_mode_tt.fits", phase_mode_tt, overwrite = True)
+    
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname
