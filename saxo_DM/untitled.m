@@ -1,14 +1,14 @@
-tilt = fitsread('tilt.fits');
-KL = fitsread('KL0.fits');
+% tilt = fitsread('phase.fits');
+KL = fitsread('phase2.fits');
 
-plop = KL/max(KL,[],'all')*max(tilt,[],'all');
-plop = KL/norm(KL,'fro')*norm(tilt,'fro');
-figure()
-imagesc(tilt+plop)
+% plop = KL/max(KL,[],'all')*max(tilt,[],'all');
+% plop = KL/norm(KL,'fro')*norm(tilt,'fro');
+% figure()
+% imagesc(tilt+plop)
 
-pl = tilt+plop;
+% pl = tilt+plop;
 figure()
-plot(KL(:,60))
+stem(KL(60,:))
 
 figure()
-imagesc(plop)
+imagesc(KL)

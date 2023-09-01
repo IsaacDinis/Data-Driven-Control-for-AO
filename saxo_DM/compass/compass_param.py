@@ -98,7 +98,10 @@ p_dm0.set_alt(0.)             # /!\
 p_dm0.set_unitpervolt(1.)     # /!\
 p_dm0.set_thresh(-0.5)
 p_dm0.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
-
+# nact = 40
+# p_dm0.set_nact(nact)
+# p_dm0.set_thresh(0.25)        # /!\ to get the SAXO 1377 activectuators
+# p_dm0.set_coupling(0.13)
 
 p_dm1.set_type("pzt")           # /!\
 p_dm1.set_thresh(-200)          # /!\ to get all Boston actuators

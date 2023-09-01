@@ -423,3 +423,34 @@ print(np.std(target_phase,where = pupil_valid.astype(bool)))
 print(np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid))
 print(np.sum(np.multiply(target_phase,tip))/np.sum(pupil_valid))
 print(np.max(np.abs(target_phase*pupil_valid)))
+
+pfits.writeto("../../Data-Driven-Control-for-AO/saxo_DM/phase2.fits", target_phase, overwrite = True)
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+
+
+M2V, _ =wao.supervisor.basis.compute_modes_to_volts_basis("KL2V")
+
+wao.supervisor.rtc.set_command(0,M2V[:,0])
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
+
+target_phase = wao.supervisor.dms.get_dm_shape(0)
+pupil_diam = wao.supervisor.config.p_geom.get_pupdiam()
+pupil = wao.supervisor.get_i_pupil()
+
+phase_size = target_phase.shape[0]
+pupil_size = pupil.shape[0]
+dummy = int((pupil_size-phase_size)/2)
+pupil = pupil[dummy:-dummy,dummy:-dummy]
+target_phase *= pupil
+
+xpos0 = wao.supervisor.config.p_dms[0]._xpos.copy() # actus positions
+ypos0 = wao.supervisor.config.p_dms[0]._ypos.copy()
+xpos0 -= (xpos0.mean()-phase_size/2)
+ypos0 -= (ypos0.mean()-phase_size/2)
+
+plt.scatter(xpos0, ypos0, marker='.', color="red")
+plt.imshow(target_phase)
+plt.show()
+
