@@ -110,7 +110,7 @@ if __name__ == "__main__":
     np.save('calib_mat/M2V_DM1.npy', M2V_DM1)
     np.save('calib_mat/M_DM0_2_M_DM1.npy', M_DM0_2_M_DM1)
     np.save('calib_mat/V_DM0_2_V_DM1.npy', V_DM0_2_V_DM1)
-    pfits.writeto('../gendron/tilt.fits', a, overwrite = True)
+    # pfits.writeto('../gendron/tilt.fits', a, overwrite = True)
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname

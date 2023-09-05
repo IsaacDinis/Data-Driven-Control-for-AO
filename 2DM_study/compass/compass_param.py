@@ -15,7 +15,7 @@ import atmosphere
 
 simul_name = "2dm_1wfs"
 
-Ts = 1./1000.
+Ts = 1./4000.
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)         # /?\ number of loops
@@ -24,7 +24,7 @@ p_loop.set_ittime(Ts)
 
 # geom
 p_geom = conf.Param_geom()
-p_geom.set_pupdiam(128)        # /!\ value to get WFS pixsize = 0.361 (SAXO truth = 0.36)
+p_geom.set_pupdiam(400)        # /!\ value to get WFS pixsize = 0.361 (SAXO truth = 0.36)
 p_geom.set_zenithangle(0.)     # /!\ keep it 0 until we know what it does in COMPASS
 
 # tel

@@ -42,7 +42,7 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 1150
+        n_iter = 16000
 
 
     supervisor = Supervisor(config)
@@ -95,9 +95,9 @@ if __name__ == "__main__":
 
     state_mat_DM0 = np.zeros((2,2,n_modes_DM0))
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
+    V_DM1_2_V_DM0 = np.linalg.pinv(V_DM0_2_V_DM1)
 
-
-    bool_DMO = False
+    bool_DMO = True
     rms_stroke = 0;
 
     seeing        = [0.8]  # [arcsec]
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     speedFactor = coherenceTime[0] * 1e-3 / tau0Seeing[i] # rescaling factors for speeds
     for l in range(nscreens): # rescale wind speeds to get the correct tau0  
         supervisor.atmos.set_wind(screen_index = l, windspeed=windSpeed[l]/speedFactor)
-
+    voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
     for i in range(n_iter):
         
         slopes = supervisor.rtc.get_slopes(0)
@@ -124,7 +124,6 @@ if __name__ == "__main__":
         modes_DM1 = np.dot(S2M_DM1,slopes)
         # modes_DM1[0:n_modes_DM0] = 0
 
-        
         modes_DM0 = np.dot(S2M_DM0,slopes)
         state_mat_DM0[1:,:,:] = state_mat_DM0[0:-1,:,:]
         state_mat_DM0[0,0,:] = modes_DM0[0:n_modes_DM0]
@@ -134,20 +133,22 @@ if __name__ == "__main__":
         state_mat_DM0[0,1,:] = command_int_DM0
         voltage_DM0 = -M2V_DM0[:,0:n_modes_DM0] @ command_int_DM0
 
-        # if  i%4==0:
-        voltage_DM0_applied = voltage_DM0
+
+        if  i%4==3:
+
+            voltage_DM0_applied = voltage_DM0
 
         state_mat_DM1[1:,:,:] = state_mat_DM1[0:-1,:,:]
         state_mat_DM1[0,0,:] = modes_DM1[0:n_modes_DM1]
         state_mat_DM1[0,1,:] = 0
         command_int_DM1 = np.dot(b,state_mat_DM1[:,0,:]) - np.dot(a,state_mat_DM1[:,1,:])
-        command_int_DM1 -= np.mean(command_int_DM1)  
         state_mat_DM1[0,1,:] = command_int_DM1
         voltage_DM1 = -M2V_DM1[:,0:n_modes_DM1] @ command_int_DM1
         # voltage_DM1 *= 0
 
         if bool_DMO:
-            voltage_DM1 -= np.dot(V_DM0_2_V_DM1,voltage_DM0_applied)
+            voltage_DM0_applied = V_DM1_2_V_DM0@voltage_DM1
+            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
@@ -161,7 +162,7 @@ if __name__ == "__main__":
         if i%100==0 and i > 200:
             print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
 
-        res_DM0[i] = modes_DM0[0]/557.2036425356519*6
+        # res_DM0[i] = modes_DM0[0]/557.2036425356519*6
         res_DM1[i] = modes_DM1[0]/557.2036425356519*6
 
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)
