@@ -115,16 +115,16 @@ p_dm0.set_unitpervolt(1.)     # /!\
 p_dm0.set_influ_type("gaussian")
 
 p_dm1.set_type("pzt")         # /!\
-# nact = 40
-# p_dm1.set_nact(nact)
-# p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 activectuators
-# p_dm1.set_coupling(0.13)
+nact = 40
+p_dm1.set_nact(nact)
+p_dm1.set_thresh(0.25)        # /!\ to get the SAXO 1377 activectuators
+p_dm1.set_coupling(0.13)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
 # p_dm1.set_influ_type("gaussian")
 # p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
-p_dm1.set_thresh(-0.5)
-p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
+# p_dm1.set_thresh(-0.5)
+# p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
 
 # # tip-tilt
 # p_dm1.set_type("tt")         # /!\
