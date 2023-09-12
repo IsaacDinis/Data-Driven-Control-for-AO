@@ -98,10 +98,11 @@ if __name__ == "__main__":
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
 
-    DM1_plot = phase_plot.phase_plot()
-    DM0_plot = phase_plot.phase_plot()
-
+    DM1_plot = phase_plot.phase_plot("tweeter phase")
+    DM0_plot = phase_plot.phase_plot("woofer phase")
+    target_plot = phase_plot.phase_plot("target phase")
     plt.ion()
+    plt.show()
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
@@ -120,6 +121,7 @@ if __name__ == "__main__":
 
     supervisor.target.reset_strehl(0)
     error_rms = 0
+    
     for i in range(n_iter):
         
         slopes = supervisor.rtc.get_slopes(0)
@@ -152,22 +154,25 @@ if __name__ == "__main__":
         target_phase *= pupil
         error_rms += np.std(target_phase*1e3,where = pupil==1)
 
-        if i%200==0 and i > 200:
-            print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
-            print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
+        target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+        res_tilt[i] = np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid)
+
+        if i%100==0:
+            # print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
+            # print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
 
             DM0_phase = supervisor.dms.get_dm_shape(0)
             DM1_phase = supervisor.dms.get_dm_shape(1)
 
             DM0_plot.plot(DM0_phase)
             DM1_plot.plot(DM1_phase)
-            plt.show()
+            target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
+            
 
         # res_DM0[i] = modes_DM0[0]/557.2036425356519*6
         # res_DM1[i] = modes_DM1[0]/557.2036425356519*6
 
-        target_phase = supervisor.target.get_tar_phase(0,pupil=True)
-        res_tilt[i] = np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid)
+
 
         # res_DM0_all[:,i] = modes_DM0
         # res_DM1_all[:,i] = modes_DM1[:n_modes_DM0]
@@ -180,6 +185,8 @@ if __name__ == "__main__":
 
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
+    print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
+    print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
 
     # pfits.writeto("../data_parallel/res_DM0_proj.fits", res_DM0, overwrite = True)
     # pfits.writeto("../data_parallel/res_DM1_alone.fits", res_DM1, overwrite = True)

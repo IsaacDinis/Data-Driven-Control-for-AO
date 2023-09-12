@@ -24,3 +24,15 @@ w = logspace(log10(0.00001),log10(pi*fs),10000);
 trapz(wout,log(mag))
 [mag,phase,wout] = bode(S2,w);
 trapz(wout,log(mag))
+
+%%
+s = tf('s');
+plop = 1/(s*s);
+% plop = 1/s;
+K3 = c2d(plop,1/fs);
+K3 = K3*0.0001*fs;
+S3 = feedback(1,G*K3);
+S4 = feedback(1,G*K*K*0.1);
+max(abs(eig(S3)))
+figure()
+bodemag(S,S3)
