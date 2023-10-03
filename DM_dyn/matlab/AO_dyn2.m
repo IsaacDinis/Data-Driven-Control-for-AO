@@ -33,13 +33,13 @@ delay = exp(-s*650*1e-6);
 sys = ZOH_c*DM_c*delay*g/(s*Ts);
 sys_no_delay = ZOH_c*DM_c*g/(s*Ts);
 sys_no_DM = ZOH_c*delay*g/(s*Ts);
-sys_no_DM_no_delay
+% sys_no_DM_no_delay
 
 % S1 = feedback(1,K2_c*DM_c*plop);
 S1 = feedback(1,sys);
 S2 = feedback(1,sys_no_delay);
 S3 = feedback(1,sys_no_DM);
-S4 = feedback(1,sys_no_DM_no_delay);
+% S4 = feedback(1,sys_no_DM_no_delay);
 
 % S3 = feedback(1,K2_c);
 figure()

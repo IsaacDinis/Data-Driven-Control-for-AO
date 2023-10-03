@@ -1,5 +1,5 @@
-dist_matrix_path = '../data/single_mode_dist_nonoise_1_4000.mat';
-dist = load(dist_matrix_path).data';
+% dist_matrix_path = '../data/single_mode_dist_nonoise_1_4000.mat';
+% dist = load(dist_matrix_path).data';
 
 %%
 s=tf('s');
@@ -45,7 +45,7 @@ nyquist(sys_ol)
 figure()
 step(sys_cl)
 %%
-t = 0:Ts:size(dist,1)*Ts-Ts;
+% t = 0:Ts:size(dist,1)*Ts-Ts;
 
 % sys = feedback(1,K_sim*)
 
