@@ -23,6 +23,8 @@ from hcipy.mode_basis import make_zernike_basis
 from matplotlib import pyplot as plt
 import controller
 import phase_plot
+import zernike_plot
+import modal_plot
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
@@ -97,10 +99,16 @@ if __name__ == "__main__":
     rms_stroke = 0;
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
+    refresh_rate = 100
+    DM1_plot = phase_plot.phase_plot("tweeter phase",refresh_rate)
+    DM0_plot = phase_plot.phase_plot("woofer phase",refresh_rate)
+    target_plot = phase_plot.phase_plot("target phase",refresh_rate)
 
-    DM1_plot = phase_plot.phase_plot("tweeter phase")
-    DM0_plot = phase_plot.phase_plot("woofer phase")
-    target_plot = phase_plot.phase_plot("target phase")
+    atm_plot = phase_plot.phase_plot("atm phase",refresh_rate)
+    zernike_saxo_plot = zernike_plot.zernike_plot("zernike res", refresh_rate, 200, pupil_diam)
+    modal_DM1_plot = modal_plot.modal_plot("tweeter modal res", refresh_rate, 200)
+    modal_DM0_plot = modal_plot.modal_plot("woofer modal res", refresh_rate, 80)
+
     plt.ion()
     plt.show()
 
@@ -154,21 +162,28 @@ if __name__ == "__main__":
         target_phase *= pupil
         error_rms += np.std(target_phase*1e3,where = pupil==1)
 
-        target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+
         res_tilt[i] = np.sum(np.multiply(target_phase,tilt))/np.sum(pupil_valid)
 
-        if i%100==0:
+
             # print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
             # print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
 
-            DM0_phase = supervisor.dms.get_dm_shape(0)
-            DM1_phase = supervisor.dms.get_dm_shape(1)
+        DM0_phase = supervisor.dms.get_dm_shape(0)
+        DM1_phase = supervisor.dms.get_dm_shape(1)
+        atm_phase = supervisor.atmos.get_atmos_layer(0)
+        target_phase = supervisor.target.get_tar_phase(0,pupil=True)
+        target_phase[target_phase!=0] -= np.mean(target_phase[target_phase!=0])
 
-            DM0_plot.plot(DM0_phase)
-            DM1_plot.plot(DM1_phase)
-            target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
-            
+        DM0_plot.plot(DM0_phase)
+        DM1_plot.plot(DM1_phase)
 
+        target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
+        
+        atm_plot.plot(atm_phase)
+        zernike_saxo_plot.plot(target_phase,i)
+        modal_DM0_plot.plot(DM0_K.res,i)
+        modal_DM1_plot.plot(DM1_K.res[:200],i)
         # res_DM0[i] = modes_DM0[0]/557.2036425356519*6
         # res_DM1[i] = modes_DM1[0]/557.2036425356519*6
 

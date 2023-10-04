@@ -65,7 +65,7 @@ p_wfss = [p_wfs0]
 p_wfs0.set_type("pyrhr")        # /!\ pyramid
 p_wfs0.set_nxsub(40)            #     number of pixels
 p_wfs0.set_fracsub(0.001)       #     threshold on illumination fraction for valid pixel
-p_wfs0.set_Lambda(1)          #     wavelength
+p_wfs0.set_Lambda(1.45)          #     wavelength
 p_wfs0.set_gsmag(6.)
 p_wfs0.set_zerop(1.e11)
 p_wfs0.set_optthroughput(1)
