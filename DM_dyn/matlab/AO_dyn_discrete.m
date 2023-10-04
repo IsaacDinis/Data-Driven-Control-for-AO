@@ -1,5 +1,5 @@
-dist_matrix_path = '../data/single_mode_dist_nonoise_1_4000.mat';
-dist = load(dist_matrix_path).data';
+% dist_matrix_path = '../data/single_mode_dist_nonoise_1_4000.mat';
+% dist = load(dist_matrix_path).data';
 
 %%
 s=tf('s');

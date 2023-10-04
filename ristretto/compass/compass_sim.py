@@ -53,6 +53,7 @@ if __name__ == "__main__":
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(True) 
 
+    pupil = supervisor.get_s_pupil()
     pupil_diam = supervisor.config.p_geom.get_pupdiam()
     pupil_grid = make_pupil_grid(pupil_diam,1.2)
     zernike_basis = make_zernike_basis(800, 1, pupil_grid)
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     n_modes_DM1 = 1000
 
     a = np.array([1.,-1]) 
-    b = np.array([0.5,0])
+    b = np.array([0.62,0])
 
 
     # Load command and influence matrix
@@ -105,7 +106,7 @@ if __name__ == "__main__":
     target_plot = phase_plot.phase_plot("target phase",refresh_rate)
 
     atm_plot = phase_plot.phase_plot("atm phase",refresh_rate)
-    zernike_saxo_plot = zernike_plot.zernike_plot("zernike res", refresh_rate, 200, pupil_diam)
+    zernike_saxo_plot = zernike_plot.zernike_plot("zernike res", refresh_rate, 200, pupil_diam,pupil)
     modal_DM1_plot = modal_plot.modal_plot("tweeter modal res", refresh_rate, 200)
     modal_DM0_plot = modal_plot.modal_plot("woofer modal res", refresh_rate, 80)
 
@@ -140,7 +141,7 @@ if __name__ == "__main__":
 
         voltage_DM1 = DM1_K.update_command(slopes)
         if bool_DMO:
-            # voltage_DM0_applied = V_DM1_2_V_DM0@voltage_DM1
+            voltage_DM0_applied = V_DM1_2_V_DM0@voltage_DM1
             voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:

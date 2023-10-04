@@ -25,6 +25,7 @@ class phase_plot:
             # im = self.ax.imshow(phase)
             self.im.set_data(phase)
             self.im.autoscale()
+
             self.ax.set_title(subtitle)
             self.fig.canvas.draw()
             self.fig.canvas.flush_events()
