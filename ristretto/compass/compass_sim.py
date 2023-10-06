@@ -45,9 +45,9 @@ if __name__ == "__main__":
     if arguments["--niter"]:
         n_iter = (int(arguments["--niter"]))
     else:
-        n_iter = 12000
+        n_iter = 600
 
-    n_bootstrap = 2000
+    n_bootstrap = 200
 
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     n_modes_DM1 = 1000
 
     a = np.array([1.,-1]) 
-    b = np.array([0.62,0])
+    b = np.array([0.5,0])
 
 
     # Load command and influence matrix
@@ -101,14 +101,16 @@ if __name__ == "__main__":
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
     refresh_rate = 100
-    DM1_plot = phase_plot.phase_plot("tweeter phase",refresh_rate)
-    DM0_plot = phase_plot.phase_plot("woofer phase",refresh_rate)
+    DM1_plot = phase_plot.phase_plot("tweeter phase", refresh_rate)
+    DM0_plot = phase_plot.phase_plot("woofer phase", refresh_rate)
     target_plot = phase_plot.phase_plot("target phase",refresh_rate)
+    wfs_image_plot = phase_plot.phase_plot("wfs image", refresh_rate)
+    atm_plot = phase_plot.phase_plot("atm phase", refresh_rate)
 
-    atm_plot = phase_plot.phase_plot("atm phase",refresh_rate)
-    zernike_saxo_plot = zernike_plot.zernike_plot("zernike res", refresh_rate, 200, pupil_diam,pupil)
-    modal_DM1_plot = modal_plot.modal_plot("tweeter modal res", refresh_rate, 200)
-    modal_DM0_plot = modal_plot.modal_plot("woofer modal res", refresh_rate, 80)
+    zernike_saxo_plot = zernike_plot.zernike_plot("zernike res", refresh_rate, 200, pupil_diam,pupil, n_iter)
+    modal_DM1_plot = modal_plot.modal_plot("tweeter modal res", refresh_rate, 200, n_iter)
+    modal_DM0_plot = modal_plot.modal_plot("woofer modal res", refresh_rate, 80, n_iter)
+
 
     plt.ion()
     plt.show()
@@ -141,7 +143,7 @@ if __name__ == "__main__":
 
         voltage_DM1 = DM1_K.update_command(slopes)
         if bool_DMO:
-            voltage_DM0_applied = V_DM1_2_V_DM0@voltage_DM1
+            # voltage_DM0_applied = V_DM1_2_V_DM0@voltage_DM1
             voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
@@ -175,10 +177,11 @@ if __name__ == "__main__":
         atm_phase = supervisor.atmos.get_atmos_layer(0)
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)
         target_phase[target_phase!=0] -= np.mean(target_phase[target_phase!=0])
+        wfs_image = supervisor.wfs.get_wfs_image(0)
 
         DM0_plot.plot(DM0_phase)
         DM1_plot.plot(DM1_phase)
-
+        wfs_image_plot.plot(wfs_image)
         target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
         
         atm_plot.plot(atm_phase)
@@ -198,7 +201,8 @@ if __name__ == "__main__":
 
 
         supervisor.next()
-
+    modal_DM0_plot.plot_psd(0,2000)
+    zernike_saxo_plot.plot_psd(0,2000)
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
     print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))

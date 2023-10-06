@@ -64,8 +64,8 @@ p_wfss = [p_wfs0]
 
 p_wfs0.set_type("pyrhr")        # /!\ pyramid
 p_wfs0.set_nxsub(40)            #     number of pixels
-p_wfs0.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
-p_wfs0.set_Lambda(1.45)          #     wavelength
+p_wfs0.set_fracsub(0.9)       #     threshold on illumination fraction for valid pixel
+p_wfs0.set_Lambda(1)          #     wavelength
 p_wfs0.set_gsmag(6.)
 p_wfs0.set_zerop(1.e11)
 p_wfs0.set_optthroughput(1)
@@ -77,7 +77,8 @@ p_wfs0.set_pyr_ampl(0)
 p_wfs0.set_pyr_npts(1) 
 p_wfs0.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
 p_wfs0.set_fstop("round")
-p_wfs0.set_fssize(1.5)          # Size of the field stop
+# p_wfs0.set_fssize(1.5)          # Size of the field stop
+p_wfs0.set_fssize(3)  
 p_wfs0.set_atmos_seen(1)        # /!\
 
 
