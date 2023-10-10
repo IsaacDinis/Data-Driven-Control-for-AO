@@ -13,7 +13,7 @@ import shesha.config as conf
 import os
 import atmosphere
 import numpy as np
-simul_name = "2dm_1wfs"
+simul_name = "2dm_2wfs"
 
 Ts = 1./2000.
 # loop
@@ -60,7 +60,8 @@ p_target.set_mag(1.)          # /!\
 
 # wfs
 p_wfs0 = conf.Param_wfs(roket=False)
-p_wfss = [p_wfs0]
+p_wfs1 = conf.Param_wfs(roket=False)
+p_wfss = [p_wfs0,p_wfs1]
 
 p_wfs0.set_type("pyrhr")        # /!\ pyramid
 p_wfs0.set_nxsub(40)            #     number of pixels
@@ -81,6 +82,25 @@ p_wfs0.set_fstop("round")
 p_wfs0.set_fssize(3)  
 p_wfs0.set_atmos_seen(1)        # /!\
 
+
+p_wfs1.set_type("pyrhr")        # /!\ pyramid
+p_wfs1.set_nxsub(40)            #     number of pixels
+p_wfs1.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
+p_wfs1.set_Lambda(1)          #     wavelength
+p_wfs1.set_gsmag(6.)
+p_wfs1.set_zerop(1.e11)
+p_wfs1.set_optthroughput(1)
+p_wfs1.set_noise(-1)           #     readout noise
+p_wfs1.set_xpos(0.)             # /!\ On axis
+p_wfs1.set_ypos(0.)             # /!\ On axis
+
+p_wfs1.set_pyr_ampl(0)
+p_wfs1.set_pyr_npts(1) 
+p_wfs1.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
+p_wfs1.set_fstop("round")
+# p_wfs0.set_fssize(1.5)          # Size of the field stop
+p_wfs1.set_fssize(3)  
+p_wfs1.set_atmos_seen(1)        # /!\
 
 p_centroider0 = conf.Param_centroider()
 p_centroiders = [p_centroider0]
