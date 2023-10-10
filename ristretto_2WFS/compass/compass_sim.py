@@ -137,17 +137,18 @@ if __name__ == "__main__":
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
+        slopes_1 = supervisor.rtc.get_slopes(1)
 
-        voltage_DM1 = DM1_K.update_command(slopes)
+        voltage_DM1 = DM1_K.update_command(slopes_1)
 
-        # voltage_DM0 = DM0_K.update_command(slopes)
-        voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
+        voltage_DM0 = DM0_K.update_command(slopes)
+        # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
 
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
@@ -161,16 +162,17 @@ if __name__ == "__main__":
     for i in range(n_iter):
         
         slopes = supervisor.rtc.get_slopes(0)
-        voltage_DM1 = DM1_K.update_command(slopes)
+        slopes_1 = supervisor.rtc.get_slopes(1)
+        voltage_DM1 = DM1_K.update_command(slopes_1)
 
-        # voltage_DM0 = DM0_K.update_command(slopes)
-        voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
+        voltage_DM0 = DM0_K.update_command(slopes)
+        # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
         
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)

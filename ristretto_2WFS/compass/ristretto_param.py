@@ -81,6 +81,7 @@ p_wfs0.set_fstop("round")
 # p_wfs0.set_fssize(1.5)          # Size of the field stop
 p_wfs0.set_fssize(3)  
 p_wfs0.set_atmos_seen(1)        # /!\
+p_wfs0.set_dms_seen(np.zeros(1))        # /!\
 
 
 p_wfs1.set_type("pyrhr")        # /!\ pyramid
@@ -103,10 +104,19 @@ p_wfs1.set_fssize(3)
 p_wfs1.set_atmos_seen(1)        # /!\
 
 p_centroider0 = conf.Param_centroider()
-p_centroiders = [p_centroider0]
+p_centroider1 = conf.Param_centroider()
+p_centroiders = [p_centroider0,p_centroider1]
 
 p_centroider0.set_nwfs(0)           # /!\
 p_centroider0.set_type("maskedpix")
+
+p_centroider1.set_nwfs(1)           # /!\
+p_centroider0.set_type("maskedpix")
+
+
+
+
+
 
 # dm
 p_dm0 = conf.Param_dm()       # /!\

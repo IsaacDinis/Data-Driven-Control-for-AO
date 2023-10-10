@@ -86,7 +86,7 @@ if __name__ == "__main__":
         supervisor.next()
         supervisor.next()
         supervisor.next()
-        slopes = supervisor.rtc.get_slopes(0)/ampli
+        slopes = supervisor.rtc.get_slopes(1)/ampli
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
 
         M2S_DM1[:,mode] = slopes.copy()
