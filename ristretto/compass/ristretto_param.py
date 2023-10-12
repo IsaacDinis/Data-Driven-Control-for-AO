@@ -43,7 +43,7 @@ p_tel.set_t_spiders(0.00625)
 p_atmos = conf.Param_atmos()
 p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1)    # Number of layers
-p_atmos.set_frac([1.])    # Fraction of atmosphere (100% = 1)
+p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
 p_atmos.set_windspeed([9.5]) # wind speed of layer(s) in m/s
 p_atmos.set_winddir([45])  # wind direction in degrees
@@ -55,7 +55,7 @@ p_target = conf.Param_target()
 p_targets = [p_target]
 p_target.set_xpos(0.)         # /!\ On axis
 p_target.set_ypos(0.)         # /!\ On axis
-p_target.set_Lambda(1.4)     # /!\ H Band
+p_target.set_Lambda(0.75)     # /!\ H Band
 p_target.set_mag(1.)          # /!\
 
 # wfs
@@ -64,8 +64,8 @@ p_wfss = [p_wfs0]
 
 p_wfs0.set_type("pyrhr")        # /!\ pyramid
 p_wfs0.set_nxsub(40)            #     number of pixels
-p_wfs0.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
-p_wfs0.set_Lambda(1)          #     wavelength
+p_wfs0.set_fracsub(0.01)       #     threshold on illumination fraction for valid pixel
+p_wfs0.set_Lambda(1.4)          #     wavelength
 p_wfs0.set_gsmag(6.)
 p_wfs0.set_zerop(1.e11)
 p_wfs0.set_optthroughput(1)

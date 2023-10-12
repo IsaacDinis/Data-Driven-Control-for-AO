@@ -55,15 +55,16 @@ if __name__ == "__main__":
     phase_tt_DM = np.zeros((pupil_diam, pupil_diam, 4))
     ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
-    M2S_DM0 = np.zeros((slopes.shape[0], n_modes_DM0))
-    M2S_DM1 = np.zeros((slopes.shape[0], n_modes_DM1))
+    n_slopes = int(slopes.shape[0]/2)
+    M2S_DM0 = np.zeros((n_slopes, n_modes_DM0))
+    M2S_DM1 = np.zeros((n_slopes, n_modes_DM1))
 
     # M2S = np.zeros((slopes.shape[0], nmodes+2))
     supervisor.atmos.enable_atmos(False)
 
     print('N act LODM = {:d} \n'.format(n_actus_DM0))
     print('N act HODM = {:d} \n'.format(n_actus_DM1))
-    print('N slopes = {:d} \n'.format(slopes.shape[0]))
+    print('N slopes = {:d} \n'.format(n_slopes))
     
     #-----------------------------------------------
     # compute the command matrix [nmodes , nslopes]
@@ -74,7 +75,7 @@ if __name__ == "__main__":
         supervisor.next()
         supervisor.next()
         supervisor.next()
-        slopes = supervisor.rtc.get_slopes(0)/ampli
+        slopes = supervisor.rtc.get_slopes(0)[:n_slopes]/ampli
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
 
         M2S_DM0[:,mode] = slopes.copy()
@@ -86,7 +87,7 @@ if __name__ == "__main__":
         supervisor.next()
         supervisor.next()
         supervisor.next()
-        slopes = supervisor.rtc.get_slopes(1)/ampli
+        slopes = supervisor.rtc.get_slopes(0)[n_slopes:]/ampli
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
 
         M2S_DM1[:,mode] = slopes.copy()

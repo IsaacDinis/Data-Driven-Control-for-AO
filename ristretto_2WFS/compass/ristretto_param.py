@@ -55,7 +55,7 @@ p_target = conf.Param_target()
 p_targets = [p_target]
 p_target.set_xpos(0.)         # /!\ On axis
 p_target.set_ypos(0.)         # /!\ On axis
-p_target.set_Lambda(1.4)     # /!\ H Band
+p_target.set_Lambda(0.75)     # /!\ H Band
 p_target.set_mag(1.)          # /!\
 
 # wfs
@@ -66,7 +66,7 @@ p_wfss = [p_wfs0,p_wfs1]
 p_wfs0.set_type("pyrhr")        # /!\ pyramid
 p_wfs0.set_nxsub(40)            #     number of pixels
 p_wfs0.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
-p_wfs0.set_Lambda(1)          #     wavelength
+p_wfs0.set_Lambda(1.4)          #     wavelength
 p_wfs0.set_gsmag(6.)
 p_wfs0.set_zerop(1.e11)
 p_wfs0.set_optthroughput(1)
@@ -87,7 +87,7 @@ p_wfs0.set_dms_seen(np.zeros(1))        # /!\
 p_wfs1.set_type("pyrhr")        # /!\ pyramid
 p_wfs1.set_nxsub(40)            #     number of pixels
 p_wfs1.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
-p_wfs1.set_Lambda(1)          #     wavelength
+p_wfs1.set_Lambda(1.4)          #     wavelength
 p_wfs1.set_gsmag(6.)
 p_wfs1.set_zerop(1.e11)
 p_wfs1.set_optthroughput(1)
@@ -97,7 +97,7 @@ p_wfs1.set_ypos(0.)             # /!\ On axis
 
 p_wfs1.set_pyr_ampl(0)
 p_wfs1.set_pyr_npts(1) 
-p_wfs1.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
+p_wfs1.set_pyr_pup_sep(p_wfs1.nxsub) # separation between the 4 images of the pyramid 
 p_wfs1.set_fstop("round")
 # p_wfs0.set_fssize(1.5)          # Size of the field stop
 p_wfs1.set_fssize(3)  
@@ -111,7 +111,7 @@ p_centroider0.set_nwfs(0)           # /!\
 p_centroider0.set_type("maskedpix")
 
 p_centroider1.set_nwfs(1)           # /!\
-p_centroider0.set_type("maskedpix")
+p_centroider1.set_type("maskedpix")
 
 
 
@@ -149,7 +149,10 @@ p_controller0 = conf.Param_controller()
 p_controllers = [p_controller0]
 
 p_controller0.set_type("generic")
-p_controller0.set_nwfs([0])         # /!\
+p_controller0.set_nwfs([0,1])         # /!\
 p_controller0.set_ndm([0,1])       # /!\
 p_controller0.set_delay(1) # /!\ same delay in ms as in saxo.py
 p_controller0.set_gain(0.5)
+
+
+

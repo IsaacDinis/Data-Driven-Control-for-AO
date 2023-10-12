@@ -44,7 +44,7 @@ class modal_plot:
         n_average = 10
         window_size = int(np.floor(self.n_iter/n_average))
         psd, freq = compute_psd.compute_psd_fft(self.modal_res, n_average, window_size,fs)
-        psd /= np.max(psd)
+        # psd /= np.max(psd)
         psd = np.log10(psd)
         fig, ax = plt.subplots(constrained_layout=True)
         fig.suptitle(title)

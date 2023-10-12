@@ -27,7 +27,7 @@ import modal_plot
 import DM_stroke_plot
 import os
 from datetime import datetime
-from utils import *
+import utils
 
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 3
+    exp_time = 5
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.1
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -119,18 +119,18 @@ if __name__ == "__main__":
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
     refresh_rate = 100
-    DM1_plot = phase_plot.phase_plot("tweeter phase", refresh_rate)
-    DM0_plot = phase_plot.phase_plot("woofer phase", refresh_rate)
-    target_plot = phase_plot.phase_plot("target phase",refresh_rate)
-    wfs_image_plot = phase_plot.phase_plot("wfs image", refresh_rate)
-    atm_plot = phase_plot.phase_plot("atm phase", refresh_rate)
+    DM1_plot = utils.phase_plot("tweeter phase", refresh_rate)
+    DM0_plot = utils.phase_plot("woofer phase", refresh_rate)
+    target_plot = utils.phase_plot("target phase",refresh_rate)
+    wfs_image_plot = utils.phase_plot("wfs image", refresh_rate)
+    atm_plot = utils.phase_plot("atm phase", refresh_rate)
 
-    zernike_saxo_plot = zernike_plot.zernike_plot("zernike res", refresh_rate, 200, pupil_diam,pupil, n_iter)
-    modal_DM1_plot = modal_plot.modal_plot("tweeter modal res", refresh_rate, 1000, n_iter)
-    modal_DM0_plot = modal_plot.modal_plot("woofer modal res", refresh_rate, 80, n_iter)
+    zernike_saxo_plot = utils.zernike_plot("zernike res", refresh_rate, 200, pupil_diam,pupil, n_iter)
+    modal_DM1_plot = utils.modal_plot("tweeter modal res", refresh_rate, 1000, n_iter)
+    modal_DM0_plot = utils.modal_plot("woofer modal res", refresh_rate, 80, n_iter)
 
-    DM0_stroke_plot = DM_stroke_plot.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
-    DM1_stroke_plot = DM_stroke_plot.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
+    DM0_stroke_plot = utils.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
+    DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
 
     plt.ion()
     plt.show()
@@ -230,15 +230,15 @@ if __name__ == "__main__":
 
 
         supervisor.next()
-    # mode = 0
-    # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    # modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    # zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
+    mode = 0
+    modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
 
-    # mode = 1
-    # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    # modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    # zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
+    mode = 1
+    modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
 
     # mode = 2
     # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
     modal_DM0_plot.save(save_path+'LODM_res.py')
     modal_DM1_plot.save(save_path+'HODM_res.py')
-    save_perf(save_path,exp_time,strehl[1],strehl[3])
+    utils.save_perf(save_path,exp_time,strehl[1],error_rms/(i+1))
 
     modal_DM1_plot.save_std_plot(save_path+'HODM_res_std.png')
     modal_DM0_plot.save_std_plot(save_path+'LODM_res_std.png')

@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 3
+    exp_time = 5
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.1
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -80,6 +80,9 @@ if __name__ == "__main__":
 
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
+
+    slopes = supervisor.rtc.get_slopes(0)
+    n_slopes = int(slopes.shape[0]/2)
 
     a = np.array([1.,-1]) 
     b = np.array([0.5,0])
@@ -136,8 +139,8 @@ if __name__ == "__main__":
     plt.show()
 
     for i in range(n_bootstrap):
-        slopes = supervisor.rtc.get_slopes(0)
-        slopes_1 = supervisor.rtc.get_slopes(1)
+        slopes = supervisor.rtc.get_slopes(0)[:n_slopes]
+        slopes_1 = supervisor.rtc.get_slopes(0)[n_slopes:]
 
         voltage_DM1 = DM1_K.update_command(slopes_1)
 
@@ -161,8 +164,8 @@ if __name__ == "__main__":
     
     for i in range(n_iter):
         
-        slopes = supervisor.rtc.get_slopes(0)
-        slopes_1 = supervisor.rtc.get_slopes(1)
+        slopes = supervisor.rtc.get_slopes(0)[:n_slopes]
+        slopes_1 = supervisor.rtc.get_slopes(0)[n_slopes:]
         voltage_DM1 = DM1_K.update_command(slopes_1)
 
         voltage_DM0 = DM0_K.update_command(slopes)
@@ -210,8 +213,9 @@ if __name__ == "__main__":
         DM0_plot.plot(DM0_phase)
         DM1_plot.plot(DM1_phase)
         wfs_image_plot.plot(wfs_image)
-        target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
-        
+        # target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
+        target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], strehl[2]))
+
         atm_plot.plot(atm_phase)
         zernike_saxo_plot.plot(target_phase,i)
         modal_DM0_plot.plot(DM0_K.res,i)
@@ -232,15 +236,15 @@ if __name__ == "__main__":
 
 
         supervisor.next()
-    # mode = 0
-    # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    # modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    # zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
+    mode = 0
+    modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
 
-    # mode = 1
-    # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    # modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    # zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
+    mode = 1
+    modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
 
     # mode = 2
     # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
@@ -265,7 +269,7 @@ if __name__ == "__main__":
 
     modal_DM0_plot.save(save_path+'LODM_res.py')
     modal_DM1_plot.save(save_path+'HODM_res.py')
-    save_perf(save_path,exp_time,strehl[1],strehl[3])
+    save_perf(save_path,exp_time,strehl[1],error_rms/(i+1))
 
     modal_DM1_plot.save_std_plot(save_path+'HODM_res_std.png')
     modal_DM0_plot.save_std_plot(save_path+'LODM_res_std.png')
