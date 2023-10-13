@@ -5,7 +5,7 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     G = tf([1],[1,0,0],Ts); % 2 samples delay
     
     %% Initial controller
-    g = 0.3;
+    g = 0.5;
     K0 = tf([g,0],[1,-1],Ts);
     S0 = feedback(1,G*K0);
     disp(['Eigenvalues closed-loop using initial controller: ', ...
@@ -30,14 +30,14 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     SYS.controller = ctrl;
     SYS.model = G; % Specify model(s)
     
-    w_logspace = utils.logspace2(w(2),w(end),200);
-%     w_logspace = linspace(w(2),w(end),500);
+    % w_logspace = utils.logspace2(w(2),w(end),200);
+    w_logspace = linspace(w(5),w(end),400);
     SYS.W = w_logspace;  
     
     %% Objectives
 
     OBJ.o2.W1 = W1;
-    % OBJ.oinf.W2 = W3;
+    OBJ.oinf.W2 = W3;
 %     OBJ.o2.W3 = W32;
 %     CON.W3 = tf(0.99,1,1/fs);
     %% Solve problem

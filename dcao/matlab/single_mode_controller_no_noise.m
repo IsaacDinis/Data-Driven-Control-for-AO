@@ -2,21 +2,22 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
 
-dist_matrix_path = '../data/tilt_saxo_standalone.fits';
+dist_matrix_path = '../dcao_ol/KL_saxoplus_res.py';
 % dist_matrix_path = '../data/single_mode_dist.mat';
-dist_matrix = fitsread(dist_matrix_path)';
+dist_matrix = fitsread(dist_matrix_path);
+dist_matrix = dist_matrix(:,1);
 %%
 fs = 2760;
-bandwidth = 690;
-order = 7;
-max_control_gain = 0.01;
+bandwidth = 100;
+order = 3;
+max_control_gain = 0.5;
 
 %%
 
@@ -27,6 +28,10 @@ window_size = 200;
 n_average = 10;
 
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
+% psd(1:13) = psd(1:13)/8;
+% psd(1:13) = psd(1:13)/8;
+% psd(1:5) = psd(1:5)/8;
+% psd(1:2) = psd(1:2)/8;
 % [psd, f] = periodogram(dist_matrix,[],[],fs);
 figure()
 semilogx(f,10*log10(psd))
@@ -58,7 +63,7 @@ W3 = tf(max_control_gain,1,1/fs);
 % bodemag(W1,W12,W13,W32)
 % legend()
 
-Kdd =  ao_dd_controller(fs,w,order,W1,W3,[],'yalmip');
+Kdd =  ao_dd_controller(fs,w,order,W1,W3,[],'fusion');
 Kdd_numerator = Kdd.Numerator{1};
 Kdd_denominator = Kdd.Denominator{1};
 
