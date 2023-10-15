@@ -9,15 +9,15 @@ if strlength(path_to_fusion) && ~sum(fusion_chk)
 end 
 %% Load data
 
-dist_matrix_path = '../dcao_ol/KL_saxoplus_res.py';
+dist_matrix_path = '../standalone_ol/KL_saxoplus_res.fits';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = fitsread(dist_matrix_path);
 dist_matrix = dist_matrix(:,1);
 %%
 fs = 2760;
-bandwidth = 100;
+bandwidth = 200;
 order = 3;
-max_control_gain = 0.5;
+max_control_gain = 0.2;
 
 %%
 
@@ -28,7 +28,7 @@ window_size = 200;
 n_average = 10;
 
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
-% psd(1:13) = psd(1:13)/8;
+psd(1:13) = psd(1:13)/8;
 % psd(1:13) = psd(1:13)/8;
 % psd(1:5) = psd(1:5)/8;
 % psd(1:2) = psd(1:2)/8;

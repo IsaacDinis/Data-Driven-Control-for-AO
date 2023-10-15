@@ -62,7 +62,7 @@ class zernike_plot:
         psd, freq = compute_psd.compute_psd_fft(self.zernike_res, n_average, window_size,fs)
         fig, ax = plt.subplots(constrained_layout=True)
         # psd /= np.max(psd)
-        psd = np.log10(psd)
+        psd = 10*np.log10(psd)
         fig.suptitle(title)
         ax.set_title('mode {:d}'.format(mode))
         ax.set_xscale('log')
