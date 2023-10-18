@@ -91,7 +91,8 @@ p_centroider0.set_type("maskedpix")
 # dm
 p_dm0 = conf.Param_dm()       # /!\
 p_dm1 = conf.Param_dm()       # /!\
-p_dms = [p_dm0, p_dm1]        # /!\
+p_dm2 = conf.Param_dm() 
+p_dms = [p_dm0, p_dm1, p_dm2]        # /!\
 # p_dms = [p_dm0]        # /!\
 
 p_dm0.set_type("pzt")         # /!\
@@ -120,12 +121,20 @@ p_dm1.set_unitpervolt(1.)     # /!\
 p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
 p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
 
+p_dm2.set_type("pzt")         # /!\
+# p_dm0.set_thresh(-0.1)        # /!\ to get the SAXO 1377 active actuators
+p_dm2.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
+p_dm2.set_alt(0.)             # /!\
+p_dm2.set_unitpervolt(1.)     # /!\
+p_dm2.set_push4imat(0.180)    #     to displace ~ half a pixel
+p_dm2.set_file_influ_fits("bump.fits") # /!\ to use a custom SAXO HO DM
+
 # controllers
 p_controller0 = conf.Param_controller()
 p_controllers = [p_controller0]
 
 p_controller0.set_type("generic")
 p_controller0.set_nwfs([0])         # /!\
-p_controller0.set_ndm([0,1])       # /!\
+p_controller0.set_ndm([0,1,2])       # /!\
 p_controller0.set_delay(1) # /!\ same delay in ms as in saxo.py
 p_controller0.set_gain(0.5)
