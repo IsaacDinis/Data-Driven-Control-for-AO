@@ -242,6 +242,8 @@ class DM_stroke_plot:
         
         self.stroke[iter_n,:] = np.abs(DM_command)
 
+        self.stroke[iter_n,:] = np.max(np.abs([DM_command[941],DM_command[942],DM_command[980],DM_command[981]]))
+
         self.command_2D[self.act_pos[:,0],self.act_pos[:,1]] = DM_command
         command_2D_roll_axis_0 = np.roll(self.command_2D,1,axis = 0)
         command_2D_roll_axis_1 = np.roll(self.command_2D,1,axis = 1)

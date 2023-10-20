@@ -22,9 +22,10 @@ def H2_opt_1_freq():
     Pc = Y_c+G*X_c
     gamma_2 = cp.Variable((1,1))
     # TODO augment dimension variable en dessous
-    dummy = cp.conj(P) @ Pc #+ cp.conj(Pc) @ P.T - cp.conj(Pc) @ Pc
+    dummy = cp.real(cp.conj(P)@Pc)+cp.real(cp.conj(Pc)@P.T)-cp.real(cp.conj(Pc)@Pc)
+    plop = cp.reshape(dummy,(1,1))
     # cons = np.array([[gamma_2,W1*Y],[cp.conj(0.6*Y),cp.conj(P)*Pc+cp.conj(Pc)*P-cp.conj(Pc)*Pc]])
-    cons = cp.vstack([cp.hstack([gamma_2, W1*Y]), cp.hstack([cp.conj(W1*Y), cp.conj(P)@Pc+cp.conj(Pc)@P.T-cp.conj(Pc)@Pc])])
+    cons = cp.vstack([cp.hstack([gamma_2, W1*Y]), cp.hstack([cp.conj(W1*Y), plop])])
     constraints = [cons >= 0 , gamma_2 >= 0]
     objective = cp.Minimize(cp.abs(gamma_2))
 

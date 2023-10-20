@@ -5,6 +5,7 @@ from hcipy.mode_basis import make_zernike_basis
 from matplotlib import pyplot as plt
 from scipy.spatial import KDTree
 import astropy.io.fits as pfits
+from scipy.spatial import KDTree
 
 # print(wao.supervisor.config.p_dms[0].get_ntotact())
 # print(wao.supervisor.config.p_dms[1].get_ntotact())
@@ -82,7 +83,7 @@ pos_HODM = np.array([wao.supervisor.config.p_dms[1].get_xpos(),wao.supervisor.co
 pos_HODM -= np.min(pos_HODM,axis = 0)
 
 command *= 0
-command[-1] = 1
+command[-1] = -1
 wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
 wao.supervisor.next()
@@ -103,7 +104,7 @@ ypos = p_dm._ypos-p_dm._n1
 middle = (np.max(xpos)-np.min(xpos))/2
 # xpos0 = 240.5 # 960 961
 # ypos0 = 184.5
-xpos0 = 240.0 # 960 961
+xpos0 = 240.0 # 942 942 980 981
 ypos0 = 185.8
 
 plt.scatter(xpos, ypos, marker='.', color="red")
@@ -129,44 +130,110 @@ dm_custom = utils.write_dm_custom_fits(file_name,i10,j10,influ0,xpos0,ypos0,xcen
 
 
 
+# 685 686 606 765
 p_geom = wao.supervisor.config.p_geom
 p_tel =  wao.supervisor.config.p_tel
 p_dm =  wao.supervisor.config.p_dms[1]
 pixsize = wao.supervisor.config.p_geom.get_pixsize()
-diam = p_tel.diam
-
 xpos = p_dm._xpos-p_dm._n1
 ypos = p_dm._ypos-p_dm._n1
 
-# place bump
-xpos0 = 240.0 
+i1 = p_dm._i1.copy()
+j1 = p_dm._j1.copy()
+influ = p_dm._influ.copy()
+
+middle = (np.max(xpos)-np.min(xpos))/2
+# xpos0 = 240.5 # 960 961
+# ypos0 = 184.5
+xpos0 = 240.0 # 960 961
 ypos0 = 185.8
 
-# check bump position
 plt.scatter(xpos, ypos, marker='.', color="red")
 plt.scatter(xpos0, ypos0, marker='.', color="green")
+plt.scatter(xpos[960], ypos[960], marker='.', color="blue")
 
 
-influ = p_dm._influ
+plt.imshow(influ[:,:,800])
 influ0 = p_dm._influ[:,:,0]
 influ0 = np.expand_dims(influ0, axis=2)
 
-i10 = xpos0-p_dm._xpos[0]-p_dm._n1 
-j10 = ypos0-p_dm._xpos[0]-p_dm._n1
+i10 = xpos0-20.5
+j10 = ypos0-20.5 
 
+p_dm._i1
 xcenter = p_geom.cent
 ycenter = p_geom.cent
 
-xpos0 += p_dm._n1
-ypos0 += p_dm._n1
-i10 += p_dm._n1
-j10 += p_dm._n1
+xpos = np.append(xpos,xpos0)
+ypos = np.append(ypos,ypos0)
+
+i1 = np.append(i1,i10)
+j1 = np.append(j1,j10)
+
+influ = np.append(influ,influ0,axis = 2)
+
+xpos += p_dm._n1
+ypos += p_dm._n1
+i1 += p_dm._n1
+j1 += p_dm._n1
 
 file_name = 'bump.fits'
-dm_custom = utils.write_dm_custom_fits(file_name,i10,j10,influ0,xpos0,ypos0,xcenter,ycenter,pixsize,diam)
+dm_custom = utils.write_dm_custom_fits(file_name,i1,j1,influ,xpos,ypos,xcenter,ycenter,pixsize,diam)
+
 
 
 
 
 p_dm._i1
 wao.supervisor.config.p_dms[2].set_n1(331)
+
+
+HODM_act = 700
+pos_LODM = np.array([wao.supervisor.config.p_dms[0].get_xpos(),wao.supervisor.config.p_dms[0].get_ypos()]).T
+pos_HODM = np.array([wao.supervisor.config.p_dms[2].get_xpos(),wao.supervisor.config.p_dms[2].get_ypos()]).T
+kd_tree_LODM = KDTree(pos_LODM)
+
+
+d, i = kd_tree_LODM.query(pos_HODM[950,:], k=4)
+w = 1/d
+w /= np.sum(w)
+
+command *= 0
+# command[-1] = -1
+command[n_act0+n_act1+950] = -1
+command_LODM = np.zeros(n_act0)
+# command_dead_act = np.zeros(n_actus_DM0 + n_actus_DM1)
+for act in range(4):
+    command_LODM[i[act]] = w[act]/0.61707693
+    # command_HODM = -V_DM0_2_V_DM1@command_LODM
+    # command_HODM[command_HODM>-0.0001] = 0
+    # command_dead_act += np.concatenate([command_LODM,command_HODM])
+    command[:n_act0] += command_LODM
+    command_LODM *= 0
+    # command_dead_act[n_actus_DM0+HODM_act] = 0
+
+
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
+
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+print(np.std(target_phase))
+print(np.max(target_phase))
+
+
+
+command *= 0
+command[n_act0+941] = 1
+command[n_act0+942] = 1
+command[n_act0+980] = 1
+command[n_act0+981] = 1
+command[-1] = -np.mean([command[n_act0+941],command[n_act0+942],command[n_act0+980],command[n_act0+981]])*1.7
+# command[-1] = -7
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
+target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+plt.imshow(target_phase)

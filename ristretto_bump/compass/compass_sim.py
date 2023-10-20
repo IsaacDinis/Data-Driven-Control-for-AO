@@ -11,7 +11,7 @@ Options:
   -i, --interactive  keep the script interactive
   -d, --devices devices      Specify the devices
 """
-
+#TODO sauvegarder ecramd de phase toutes les 100 ms
 from shesha.config import ParamConfig
 from docopt import docopt
 import numpy as np
@@ -24,7 +24,7 @@ import controller
 import os
 from datetime import datetime
 import utils
-
+from scipy.spatial import KDTree
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
@@ -67,13 +67,29 @@ if __name__ == "__main__":
 
     n_act_DM0 = supervisor.config.p_dms[0].get_ntotact()
     n_act_DM1 = supervisor.config.p_dms[1].get_ntotact()
+    n_act_bump = supervisor.config.p_dms[2].get_ntotact()
+    voltage_bump = np.zeros(n_act_bump)
+    amp_bump = 1.3
+    # voltage_bump[-1] = amp_bump
+
 
     cross_act_DM0 = supervisor.config.p_dms[0].get_nact()
     # cross_act_DM1 = supervisor.config.p_dms[1].get_nact()
     cross_act_DM1 = 41
+
     pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
+    pos_bump = np.array([supervisor.config.p_dms[2].get_xpos(),supervisor.config.p_dms[2].get_ypos()]).T
 
+    kd_tree_LODM = KDTree(pos_LODM)
+    d, i = kd_tree_LODM.query(pos_bump[950,:], k=4)
+    w = 1/d
+    w /= np.sum(w)
+
+    command_bump_LODM = np.zeros(n_act_DM0)
+    for act in range(4):
+        # command_bump_LODM[i[act]] -= w[act]/0.71811867*amp_bump
+        command_bump_LODM[i[act]] -= w[act]/0.61707693*amp_bump
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
 
@@ -138,15 +154,16 @@ if __name__ == "__main__":
 
         voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
-
+        # voltage_DM0 = command_bump_LODM
+        # voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
 
         if bool_DMO:
             voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
-            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
+            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1, voltage_bump), axis=0)
         else:
-            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
+            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1, voltage_bump), axis=0)
         supervisor.rtc.set_command(0, voltage)
         supervisor.next()
 
@@ -158,18 +175,20 @@ if __name__ == "__main__":
         
         slopes = supervisor.rtc.get_slopes(0)
         voltage_DM1 = DM1_K.update_command(slopes)
+        # voltage_DM1[950]=0
 
         voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
-
+        # voltage_DM0 = command_bump_LODM
+        # voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
         
         if bool_DMO:
             voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
-            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
+            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1, voltage_bump), axis=0)
         else:
-            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
+            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1, voltage_bump), axis=0)
 
         supervisor.rtc.set_command(0, voltage)
 
@@ -212,7 +231,7 @@ if __name__ == "__main__":
         modal_DM0_plot.plot(DM0_K.res,i)
         modal_DM1_plot.plot(DM1_K.res[:1000],i)
 
-        DM0_stroke_plot.plot(voltage_DM0_applied,i)
+        # DM0_stroke_plot.plot(voltage_DM0_applied,i)
         DM1_stroke_plot.plot(voltage_DM1,i)
 
 
