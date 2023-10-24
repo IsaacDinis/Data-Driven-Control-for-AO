@@ -48,7 +48,7 @@ p_atmos.set_alt([0.0])     # Altitude(s) in meters
 p_atmos.set_windspeed([9.5]) # wind speed of layer(s) in m/s
 p_atmos.set_winddir([45])  # wind direction in degrees
 p_atmos.set_L0([22])       # in meters
-
+p_atmos.set_seeds(0)
 
 # target
 p_target = conf.Param_target()

@@ -45,9 +45,9 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 5
+    exp_time = 2
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.1
+    exp_time_bootstrap = 0.2
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
 
-    a = np.array([1.,-1]) 
+    a = np.array([1.,-0.99]) 
     b = np.array([0.5,0])
 
 
@@ -103,6 +103,7 @@ if __name__ == "__main__":
     M2V_DM0 = np.load('calib_mat/M2V_DM0.npy')
     M2V_DM1 = np.load('calib_mat/M2V_DM1.npy')
     V_DM0_2_V_DM1 = np.load('calib_mat/V_DM0_2_V_DM1.npy')
+    V_DM1_2_V_DM0 = np.linalg.pinv(V_DM0_2_V_DM1)
 
     res_DM0 = np.zeros(n_iter)
     res_DM1 = np.zeros(n_iter)
@@ -116,7 +117,8 @@ if __name__ == "__main__":
     #------------------------------------
     # control tilt mode
     #------------------------------------
-    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1)
+    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf)
+    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,np.empty(0),stroke = np.inf)
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
@@ -142,25 +144,25 @@ if __name__ == "__main__":
     modal_DM0_plot = utils.modal_plot("woofer modal res", refresh_rate, 80, n_iter)
 
     DM0_stroke_plot = utils.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
-    DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
-
+    # DM1_stroke_plot = utils.DM_stroke_plot("tweeter bump neighbours actuators stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
+    DM1_stroke_plot = utils.DM_stroke_plot("tweeter bump neighbours actuators stroke", refresh_rate, 1, n_iter,pos_HODM,cross_act_DM1)
     plt.ion()
     plt.show()
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
 
-        voltage_DM1 = DM1_K.update_command(slopes)
-
-        voltage_DM0 = DM0_K.update_command(slopes)
+        voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
+        # voltage_DM1 = DM1_K.update_command(slopes)
+        # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM0 = command_bump_LODM
-        # voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
+        voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
 
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1, voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1, voltage_bump), axis=0)
@@ -168,24 +170,25 @@ if __name__ == "__main__":
         supervisor.next()
 
     supervisor.target.reset_strehl(0)
-
+    supervisor.target.reset_tar_phase(0)
     error_rms = 0
     
     for i in range(n_iter):
         
         slopes = supervisor.rtc.get_slopes(0)
-        voltage_DM1 = DM1_K.update_command(slopes)
+        voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
+        # voltage_DM1 = DM1_K.update_command(slopes)
         # voltage_DM1[950]=0
 
-        voltage_DM0 = DM0_K.update_command(slopes)
+        # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM0 = command_bump_LODM
-        # voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
+        voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
         
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1, voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1, voltage_bump), axis=0)
@@ -266,23 +269,23 @@ if __name__ == "__main__":
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
     print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
     print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
-    zernike_saxo_plot.save(save_path+'zernike_res.py')
+    zernike_saxo_plot.save(save_path+'zernike_res.fits')
 
-    modal_DM0_plot.save(save_path+'LODM_res.py')
-    modal_DM1_plot.save(save_path+'HODM_res.py')
+    modal_DM0_plot.save(save_path+'LODM_res.fits')
+    modal_DM1_plot.save(save_path+'HODM_res.fits')
     utils.save_perf(save_path,exp_time,strehl[1],error_rms/(i+1))
 
     modal_DM1_plot.save_std_plot(save_path+'HODM_res_std.png')
     modal_DM0_plot.save_std_plot(save_path+'LODM_res_std.png')
     zernike_saxo_plot.save_std_plot(save_path+'zernike_std.png')
 
-    DM0_stroke_plot.save(save_path+'LODM_stroke.py')
-    DM1_stroke_plot.save(save_path+'HODM_stroke.py')
+    DM0_stroke_plot.save(save_path+'LODM_stroke.fits')
+    DM1_stroke_plot.save(save_path+'HODM_stroke.fits')
 
     DM0_stroke_plot.save_plot(save_path+'LODM_stroke.png')
     DM1_stroke_plot.save_plot(save_path+'HODM_stroke.png')
 
-
+    pfits.writeto(save_path+'psf.fits', supervisor.target.get_tar_image(0,expo_type='le'), overwrite = True)
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import basename

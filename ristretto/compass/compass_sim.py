@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 5
+    exp_time = 1
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.1
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -77,16 +77,19 @@ if __name__ == "__main__":
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
 
-    a = np.array([1.,-1]) 
+    a = np.array([1.,-0.99]) 
     b = np.array([0.5,0])
 
 
     # Load command and influence matrix
-    S2M_DM0 = np.load('calib_mat/S2M_DM0.npy')
-    S2M_DM1 = np.load('calib_mat/S2M_DM1.npy')
-    M2V_DM0 = np.load('calib_mat/M2V_DM0.npy')
-    M2V_DM1 = np.load('calib_mat/M2V_DM1.npy')
-    V_DM0_2_V_DM1 = np.load('calib_mat/V_DM0_2_V_DM1.npy')
+
+    S2M_DM0 = pfits.getdata('calib_mat/S2M_DM0.fits')
+    S2M_DM1 = pfits.getdata('calib_mat/S2M_DM1.fits')
+    M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
+    M2V_DM1 = pfits.getdata('calib_mat/M2V_DM1.fits')
+    V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
+    M2S_DM0 = np.linalg.pinv(S2M_DM0)
+    V_DM1_2_V_DM0 = np.linalg.pinv(V_DM0_2_V_DM1)
 
     res_DM0 = np.zeros(n_iter)
     res_DM1 = np.zeros(n_iter)
@@ -100,7 +103,7 @@ if __name__ == "__main__":
     #------------------------------------
     # control tilt mode
     #------------------------------------
-    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1)
+    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = 0.6)
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
@@ -108,7 +111,7 @@ if __name__ == "__main__":
 
     state_mat_DM0 = np.zeros((2,2,n_modes_DM0))
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
-    V_DM1_2_V_DM0 = np.linalg.pinv(V_DM0_2_V_DM1)
+
 
     bool_DMO = True
     rms_stroke = 0;
@@ -134,16 +137,15 @@ if __name__ == "__main__":
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
 
-        voltage_DM1 = DM1_K.update_command(slopes)
-
-        voltage_DM0 = DM0_K.update_command(slopes)
+        voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
+        # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
 
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
@@ -157,16 +159,18 @@ if __name__ == "__main__":
     for i in range(n_iter):
         
         slopes = supervisor.rtc.get_slopes(0)
-        voltage_DM1 = DM1_K.update_command(slopes)
+        
 
         voltage_DM0 = DM0_K.update_command(slopes)
+
+        voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
         
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
@@ -247,18 +251,18 @@ if __name__ == "__main__":
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
     print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
     print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
-    zernike_saxo_plot.save(save_path+'zernike_res.py')
+    zernike_saxo_plot.save(save_path+'zernike_res.pfits')
 
-    modal_DM0_plot.save(save_path+'LODM_res.py')
-    modal_DM1_plot.save(save_path+'HODM_res.py')
+    modal_DM0_plot.save(save_path+'LODM_res.pfits')
+    modal_DM1_plot.save(save_path+'HODM_res.pfits')
     utils.save_perf(save_path,exp_time,strehl[1],error_rms/(i+1))
 
     modal_DM1_plot.save_std_plot(save_path+'HODM_res_std.png')
     modal_DM0_plot.save_std_plot(save_path+'LODM_res_std.png')
     zernike_saxo_plot.save_std_plot(save_path+'zernike_std.png')
 
-    DM0_stroke_plot.save(save_path+'LODM_stroke.py')
-    DM1_stroke_plot.save(save_path+'HODM_stroke.py')
+    DM0_stroke_plot.save(save_path+'LODM_stroke.pfits')
+    DM1_stroke_plot.save(save_path+'HODM_stroke.pfits')
 
     DM0_stroke_plot.save_plot(save_path+'LODM_stroke.png')
     DM1_stroke_plot.save_plot(save_path+'HODM_stroke.png')

@@ -209,13 +209,13 @@ class DM_stroke_plot:
         self.inter_stroke = np.zeros(n_iter)
         self.count = 1
         self.line_max_stroke, = self.ax.plot(self.stroke[:,0])
-        self.line_std_stroke, = self.ax.plot(self.stroke[:,0])
-        self.line_inter_stroke, = self.ax.plot(self.inter_stroke)
+        # self.line_std_stroke, = self.ax.plot(self.stroke[:,0])
+        # self.line_inter_stroke, = self.ax.plot(self.inter_stroke)
         self.ax.set_ylabel("[um]")
         self.ax.set_xlabel("iter")
         self.line_max_stroke.set_label('max stroke')
-        self.line_inter_stroke.set_label('max inter actuator stroke')
-        self.line_std_stroke.set_label('std stroke')
+        # self.line_inter_stroke.set_label('max inter actuator stroke')
+        # self.line_std_stroke.set_label('std stroke')
         self.n_iter = n_iter
 
         act_pos -= np.min(act_pos,axis = 0)
@@ -240,10 +240,10 @@ class DM_stroke_plot:
 
     def plot(self, DM_command,iter_n):
         
-        self.stroke[iter_n,:] = np.abs(DM_command)
+        # self.stroke[iter_n,:] = np.abs(DM_command)
 
         self.stroke[iter_n,:] = np.max(np.abs([DM_command[941],DM_command[942],DM_command[980],DM_command[981]]))
-
+        
         self.command_2D[self.act_pos[:,0],self.act_pos[:,1]] = DM_command
         command_2D_roll_axis_0 = np.roll(self.command_2D,1,axis = 0)
         command_2D_roll_axis_1 = np.roll(self.command_2D,1,axis = 1)
@@ -260,15 +260,16 @@ class DM_stroke_plot:
 
 
             self.line_max_stroke.set_ydata(max_stroke)
-            self.line_inter_stroke.set_ydata(self.inter_stroke[:iter_n])
-            self.line_std_stroke.set_ydata(std_stroke)
+            # self.line_inter_stroke.set_ydata(self.inter_stroke[:iter_n])
+            # self.line_std_stroke.set_ydata(std_stroke)
 
-            self.ax.set_ylim(0,np.max(np.array([max_stroke,self.inter_stroke[:iter_n],std_stroke])))
+            # self.ax.set_ylim(0,np.max(np.array([max_stroke,self.inter_stroke[:iter_n],std_stroke])))
+            self.ax.set_ylim(0,np.max(np.array([max_stroke])))
             self.ax.set_xlim(0,iter_n)
 
             self.line_max_stroke.set_xdata(np.arange(iter_n))
-            self.line_std_stroke.set_xdata(np.arange(iter_n))
-            self.line_inter_stroke.set_xdata(np.arange(iter_n))
+            # self.line_std_stroke.set_xdata(np.arange(iter_n))
+            # self.line_inter_stroke.set_xdata(np.arange(iter_n))
 
             self.ax.set_ylabel("[um]")
             self.ax.set_xlabel("iter")

@@ -106,14 +106,15 @@ if __name__ == "__main__":
     V_DM0_2_V_DM1 = M2V_DM1@M_DM0_2_M_DM1@V2M_DM0
     V_DM1_2_V_DM0 = np.linalg.pinv(V_DM0_2_V_DM1)
 
-    np.save('calib_mat/S2M_DM0.npy', S2M_DM0)
-    np.save('calib_mat/S2M_DM1.npy', S2M_DM1)
-    np.save('calib_mat/M2V.npy', M2V)
-    np.save('calib_mat/M2V_DM0.npy', M2V_DM0)
-    np.save('calib_mat/M2V_DM1.npy', M2V_DM1)
-    np.save('calib_mat/M_DM0_2_M_DM1.npy', M_DM0_2_M_DM1)
-    np.save('calib_mat/V_DM0_2_V_DM1.npy', V_DM0_2_V_DM1)
-    np.save('calib_mat/V_DM1_2_V_DM0.npy', V_DM1_2_V_DM0)
+    pfits.writeto('calib_mat/S2M_DM0.fits', S2M_DM0, overwrite = True)
+    pfits.writeto('calib_mat/S2M_DM1.fits', S2M_DM1, overwrite = True)
+    pfits.writeto('calib_mat/M2V.fits', M2V, overwrite = True)
+    pfits.writeto('calib_mat/M2V_DM0.fits', M2V_DM0, overwrite = True)
+    pfits.writeto('calib_mat/M2V_DM1.fits', M2V_DM1, overwrite = True)
+    pfits.writeto('calib_mat/M_DM0_2_M_DM1.fits', M_DM0_2_M_DM1, overwrite = True)
+    pfits.writeto('calib_mat/V_DM0_2_V_DM1.fits', V_DM0_2_V_DM1, overwrite = True)
+    pfits.writeto('calib_mat/V_DM1_2_V_DM0.fits', V_DM1_2_V_DM0, overwrite = True)
+
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

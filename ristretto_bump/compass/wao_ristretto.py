@@ -223,12 +223,15 @@ print(np.std(target_phase))
 print(np.max(target_phase))
 
 
+pos_HODM = np.array([wao.supervisor.config.p_dms[1].get_xpos(),wao.supervisor.config.p_dms[1].get_ypos()]).T
+p_dm =  wao.supervisor.config.p_dms[1]
+p_geom = wao.supervisor.config.p_geom
 
 command *= 0
-command[n_act0+941] = 1
-command[n_act0+942] = 1
-command[n_act0+980] = 1
-command[n_act0+981] = 1
+command[n_act0+941] = 3.5
+command[n_act0+942] = 3.5
+command[n_act0+980] = 3.5
+command[n_act0+981] = 3.5
 command[-1] = -np.mean([command[n_act0+941],command[n_act0+942],command[n_act0+980],command[n_act0+981]])*1.7
 # command[-1] = -7
 wao.supervisor.rtc.set_command(0,command)
@@ -236,4 +239,34 @@ wao.supervisor.next()
 wao.supervisor.next()
 wao.supervisor.next()
 target_phase = wao.supervisor.target.get_tar_phase(0,pupil=True)
+
+
+
+
 plt.imshow(target_phase)
+plt.scatter(pos_HODM[942,1]-p_geom._p1, pos_HODM[942,0]-p_geom._p1, marker='.', color="blue")
+plt.scatter(pos_HODM[941,1]-p_geom._p1, pos_HODM[941,0]-p_geom._p1, marker='.', color="blue")
+plt.scatter(pos_HODM[980,1]-p_geom._p1, pos_HODM[980,0]-p_geom._p1, marker='.', color="blue")
+plt.scatter(pos_HODM[981,1]-p_geom._p1, pos_HODM[981,0]-p_geom._p1, marker='.', color="blue")
+
+m_l = 145
+m_r = 185
+m_u = 200
+m_d = 240
+
+pos_act = np.array([[pos_HODM[942,1]-p_geom._p1-m_l,pos_HODM[942,0]-p_geom._p1-m_u],
+    [pos_HODM[941,1]-p_geom._p1-m_l,pos_HODM[941,0]-p_geom._p1-m_u],
+    [pos_HODM[980,1]-p_geom._p1-m_l,pos_HODM[980,0]-p_geom._p1-m_u],
+    [pos_HODM[981,1]-p_geom._p1-m_l,pos_HODM[981,0]-p_geom._p1-m_u]])
+
+pfits.writeto('../..//Data-Driven-Control-for-AO/ristretto_bump/matlab/pos_act.fits', pos_act, overwrite = True)
+target_phase_croped = target_phase[m_u:m_d,m_l:m_r]
+pfits.writeto('../..//Data-Driven-Control-for-AO/ristretto_bump/matlab/target_phase_croped_35.fits', target_phase_croped, overwrite = True)
+
+plt.imshow(target_phase_croped)
+plt.scatter(pos_HODM[942,1]-p_geom._p1-m_l, pos_HODM[942,0]-p_geom._p1-m_u, marker='.', color="blue")
+plt.scatter(pos_HODM[941,1]-p_geom._p1-m_l, pos_HODM[941,0]-p_geom._p1-m_u, marker='.', color="blue")
+plt.scatter(pos_HODM[980,1]-p_geom._p1-m_l, pos_HODM[980,0]-p_geom._p1-m_u, marker='.', color="blue")
+plt.scatter(pos_HODM[981,1]-p_geom._p1-m_l, pos_HODM[981,0]-p_geom._p1-m_u, marker='.', color="blue")
+
+

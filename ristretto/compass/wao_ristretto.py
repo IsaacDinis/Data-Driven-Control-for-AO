@@ -10,12 +10,12 @@ import astropy.io.fits as pfits
 # print(wao.supervisor.config.p_dms[1].get_ntotact())
 # print(wao.supervisor.rtc.get_slopes(0).shape)
 
-M2V_DM1 = np.load('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/M2V_DM1.npy')
-M2V_DM0 = np.load('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/M2V_DM0.npy')
-S2M_DM0 = np.load('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/S2M_DM0.npy')
-S2M_DM1 = np.load('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/S2M_DM1.npy')
+M2V_DM1 = pfits.getdata('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/M2V_DM1.fits')
+M2V_DM0 = pfits.getdata('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/M2V_DM0.fits')
+S2M_DM0 = pfits.getdata('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/S2M_DM0.fits')
+S2M_DM1 = pfits.getdata('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/S2M_DM1.fits')
 command = wao.supervisor.rtc.get_command(0)
-M2V = np.load('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/M2V.npy')
+M2V = pfits.getdata('../../Data-Driven-Control-for-AO/ristretto/compass/calib_mat/M2V.fits')
 n_act0 = wao.supervisor.config.p_dms[0].get_ntotact()
 
 n_modes = 500
@@ -118,3 +118,20 @@ i10 += p_dm._n1
 j10 += p_dm._n1
 file_name = 'bump.fits'
 dm_custom = utils.write_dm_custom_fits(file_name,i10,j10,influ0,xpos0,ypos0,xcenter,ycenter,pixsize,diam)
+
+command *= 0
+command[679] = 1
+
+V2M_DM1 = np.linalg.pinv(M2V_DM1)
+invert_command = V2M_DM1@command[n_act0:]
+
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
+
+command[n_act0:] -= M2V_DM1@invert_command
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
