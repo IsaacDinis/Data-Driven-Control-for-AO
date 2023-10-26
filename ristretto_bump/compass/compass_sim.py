@@ -93,7 +93,7 @@ if __name__ == "__main__":
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
 
-    a = np.array([1.,-0.99]) 
+    a = np.array([1.,-1]) 
     b = np.array([0.5,0])
 
 
@@ -171,6 +171,7 @@ if __name__ == "__main__":
 
     supervisor.target.reset_strehl(0)
     supervisor.target.reset_tar_phase(0)
+    supervisor.corono.reset()
     error_rms = 0
     
     for i in range(n_iter):
@@ -284,6 +285,24 @@ if __name__ == "__main__":
 
     DM0_stroke_plot.save_plot(save_path+'LODM_stroke.png')
     DM1_stroke_plot.save_plot(save_path+'HODM_stroke.png')
+
+
+    coroimg = supervisor.corono.get_image(coro_index=0) \
+        / np.max(supervisor.corono.get_psf(coro_index=0))
+    coroimgSampl = 1./supervisor.config.p_coronos[0].get_image_sampling()
+
+    plt.figure()
+    nimg = np.shape(coroimg)[0]
+    coroX = np.arange(-nimg//2 * coroimgSampl,
+                      nimg//2 * coroimgSampl, coroimgSampl)
+    im=plt.pcolormesh(coroX, coroX, coroimg)
+    plt.colorbar(im)
+    plt.xlabel(r'x [$\lambda$ / D]'+'\n Image after the coronograph')   
+    plt.ylabel(r'y [$\lambda$ / D]')
+    # plt.title(stageLeg+ ' \n'+SrLeg, loc='left')
+    # plt.title(outputstitle, loc='right')
+    # plt.savefig(.outputsDir+'coroImages/'+stageLeg+'.png')
+
 
     pfits.writeto(save_path+'psf.fits', supervisor.target.get_tar_image(0,expo_type='le'), overwrite = True)
     if arguments["--interactive"]:

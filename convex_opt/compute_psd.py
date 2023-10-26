@@ -31,10 +31,10 @@ def compute_psd_fft(data, n_average, window_size,fs):
             data_w = data[i*window_size:(i+1)*window_size, mode]
             psd[:, mode] = psd[:, mode] + np.abs((np.fft.fft(data_w)/data_w.size))**2
 
-    freq = np.fft.fftfreq(psd.size,1/fs)
+    freq = np.fft.fftfreq(psd.shape[0],1/fs)
 
     # remove frequencies above nyquist
-    psd = psd[:int(psd.size / 2)]
+    psd = psd[:int(psd.shape[0] / 2),:]
     freq = freq[:int(freq.size/2)]
 
     psd *= 2/n_average # normalize energy because of removing negative parts and number of averages
@@ -83,8 +83,8 @@ if __name__ == '__main__':
     print(np.std(signal) ** 2)
     print(np.sum(psd_xcorr))
     print(np.sum(psd_fft))
-
+    plt.figure()
     plt.plot(freq_xcorr, psd_xcorr)
-    plt.show()
+    plt.figure()
     plt.plot(freq_fft, psd_fft)
     plt.show()

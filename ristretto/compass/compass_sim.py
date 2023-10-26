@@ -77,7 +77,7 @@ if __name__ == "__main__":
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
 
-    a = np.array([1.,-0.99]) 
+    a = np.array([1.,-1]) 
     b = np.array([0.5,0])
 
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     #------------------------------------
     # control tilt mode
     #------------------------------------
-    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = 0.6)
+    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf)
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
@@ -141,8 +141,8 @@ if __name__ == "__main__":
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
-        if  i%4==0:
-            voltage_DM0_applied = voltage_DM0
+        # if  i%4==0:
+        voltage_DM0_applied = voltage_DM0
 
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
@@ -153,6 +153,7 @@ if __name__ == "__main__":
         supervisor.next()
 
     supervisor.target.reset_strehl(0)
+    supervisor.target.reset_tar_phase(0)
 
     error_rms = 0
     
@@ -161,13 +162,13 @@ if __name__ == "__main__":
         slopes = supervisor.rtc.get_slopes(0)
         
 
-        voltage_DM0 = DM0_K.update_command(slopes)
+        # voltage_DM0 = DM0_K.update_command(slopes)
 
         voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
-        if  i%4==0:
-            voltage_DM0_applied = voltage_DM0
+        # if  i%4==0:
+        voltage_DM0_applied = voltage_DM0
         
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
@@ -210,6 +211,13 @@ if __name__ == "__main__":
         wfs_image_plot.plot(wfs_image)
         target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
         
+        
+        atm_phase_size = atm_phase.shape[0]
+
+        dummy = int((atm_phase_size-phase_size)/2)
+        atm_phase = atm_phase[dummy:-dummy,dummy:-dummy]
+        atm_phase *= -pupil
+        atm_phase[atm_phase!=0] -= np.mean(atm_phase[atm_phase!=0])
         atm_plot.plot(atm_phase)
         zernike_saxo_plot.plot(target_phase,i)
 
@@ -251,18 +259,18 @@ if __name__ == "__main__":
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
     print('s.e = {:.5f} l.e = {:.5f} \n'.format(strehl[0], strehl[1]))
     print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
-    zernike_saxo_plot.save(save_path+'zernike_res.pfits')
+    zernike_saxo_plot.save(save_path+'zernike_res.fits')
 
-    modal_DM0_plot.save(save_path+'LODM_res.pfits')
-    modal_DM1_plot.save(save_path+'HODM_res.pfits')
+    modal_DM0_plot.save(save_path+'LODM_res.fits')
+    modal_DM1_plot.save(save_path+'HODM_res.fits')
     utils.save_perf(save_path,exp_time,strehl[1],error_rms/(i+1))
 
     modal_DM1_plot.save_std_plot(save_path+'HODM_res_std.png')
     modal_DM0_plot.save_std_plot(save_path+'LODM_res_std.png')
     zernike_saxo_plot.save_std_plot(save_path+'zernike_std.png')
 
-    DM0_stroke_plot.save(save_path+'LODM_stroke.pfits')
-    DM1_stroke_plot.save(save_path+'HODM_stroke.pfits')
+    DM0_stroke_plot.save(save_path+'LODM_stroke.fits')
+    DM1_stroke_plot.save(save_path+'HODM_stroke.fits')
 
     DM0_stroke_plot.save_plot(save_path+'LODM_stroke.png')
     DM1_stroke_plot.save_plot(save_path+'HODM_stroke.png')

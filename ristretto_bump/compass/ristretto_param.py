@@ -138,3 +138,11 @@ p_controller0.set_nwfs([0])         # /!\
 p_controller0.set_ndm([0,1,2])       # /!\
 p_controller0.set_delay(1) # /!\ same delay in ms as in saxo.py
 p_controller0.set_gain(0.5)
+
+p_corono0 = conf.Param_corono()
+p_coronos = [p_corono0]
+
+p_corono0.set_type('perfect')
+p_corono0.set_dim_image(400)       # size of the science image in pixel
+p_corono0.set_wavelength_0(0.75)  # coronagraph wavelength in microns
+p_corono0.set_image_sampling(8)  # size of lambda/D in pixel
