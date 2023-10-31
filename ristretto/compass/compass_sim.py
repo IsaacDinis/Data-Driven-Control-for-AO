@@ -134,6 +134,10 @@ if __name__ == "__main__":
     plt.ion()
     plt.show()
 
+    # flat = pfits.getdata('calib_mat/flat.fits')
+    # flat_record = np.dstack([flat])
+    # supervisor.tel.set_input_phase(flat_record)
+
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
 
@@ -207,7 +211,7 @@ if __name__ == "__main__":
         wfs_image = supervisor.wfs.get_wfs_image(0)
 
         DM0_plot.plot(DM0_phase)
-        DM1_plot.plot(DM1_phase)
+        DM1_plot.plot(DM1_phase,'max = {:.5f} '.format(np.max(DM1_phase)))
         wfs_image_plot.plot(wfs_image)
         target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
         

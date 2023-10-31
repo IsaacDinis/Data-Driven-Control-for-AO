@@ -118,7 +118,8 @@ p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
 p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
-p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
+p_dm1.set_file_influ_fits("ristretto_43.fits") # /!\ to use a custom SAXO HO DM
+# p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
 
 # controllers
 p_controller0 = conf.Param_controller()

@@ -45,9 +45,9 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 2
+    exp_time = 5
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.2
+    exp_time_bootstrap = 0.5
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -153,11 +153,12 @@ if __name__ == "__main__":
         slopes = supervisor.rtc.get_slopes(0)
 
         voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
+        # voltage_DM1 += 2
         # voltage_DM1 = DM1_K.update_command(slopes)
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM0 = command_bump_LODM
-        voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
+        # voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
 
@@ -178,13 +179,14 @@ if __name__ == "__main__":
         
         slopes = supervisor.rtc.get_slopes(0)
         voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
+        # voltage_DM1 += 2
         # voltage_DM1 = DM1_K.update_command(slopes)
         # voltage_DM1[950]=0
 
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM0 = command_bump_LODM
-        voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
+        # voltage_bump[-1] = -np.mean([voltage_DM1[941],voltage_DM1[942],voltage_DM1[980],voltage_DM1[981]])*1.7
         if  i%4==0:
             voltage_DM0_applied = voltage_DM0
         
@@ -290,6 +292,7 @@ if __name__ == "__main__":
     coroimg = supervisor.corono.get_image(coro_index=0) \
         / np.max(supervisor.corono.get_psf(coro_index=0))
     coroimgSampl = 1./supervisor.config.p_coronos[0].get_image_sampling()
+    pfits.writeto(save_path+'corono.fits', coroimg, overwrite = True)
 
     plt.figure()
     nimg = np.shape(coroimg)[0]
@@ -297,11 +300,10 @@ if __name__ == "__main__":
                       nimg//2 * coroimgSampl, coroimgSampl)
     im=plt.pcolormesh(coroX, coroX, coroimg)
     plt.colorbar(im)
-    plt.xlabel(r'x [$\lambda$ / D]'+'\n Image after the coronograph')   
+    plt.xlabel(r'x [$\lambda$ / D]')   
     plt.ylabel(r'y [$\lambda$ / D]')
-    # plt.title(stageLeg+ ' \n'+SrLeg, loc='left')
-    # plt.title(outputstitle, loc='right')
-    # plt.savefig(.outputsDir+'coroImages/'+stageLeg+'.png')
+    plt.title('corono image')
+    plt.savefig(save_path+'corono.png')
 
 
     pfits.writeto(save_path+'psf.fits', supervisor.target.get_tar_image(0,expo_type='le'), overwrite = True)
