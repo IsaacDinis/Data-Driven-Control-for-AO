@@ -17,14 +17,14 @@ class zernike_plot:
         transform_matrix = np.linalg.pinv(transform_matrix)
         transform_matrix /= np.std(transform_matrix[1,:],where = transform_matrix[1,:]!=0)
         transform_matrix /= np.sum(pupil)
-        # self.order = order
+
         self.transform_matrix = transform_matrix[1:,:]
         self.fig, self.ax = plt.subplots(constrained_layout=True)
         self.fig.suptitle(title)
         self.refresh_rate = refresh_rate
         self.count = 0
         
-        # self.line, = self.ax.plot(self.zernike_res)
+
         self.ax.stem(np.zeros(order-1))
         self.ax.set_ylabel("[nm]")
         self.ax.set_xlabel("order")
@@ -43,7 +43,6 @@ class zernike_plot:
         subtitle = 'tot = {:.3f}'.format((np.sqrt(np.sum(np.square(zernike_res)))))
 
         if self.count == 0:
-            # self.line.set_ydata(zernike_rms)
             self.ax.cla()
             self.ax.stem(np.abs(zernike_res))
             self.ax.set_ylim(0,np.max(np.abs(zernike_res)))
@@ -109,11 +108,9 @@ class phase_plot:
         self.opd_rms = 0
 
     def plot(self, phase, subtitle = "", iter_n = 0):
-        # self.opd += np.sum(np.square(phase)/np.sum([phase!=0]))
         if np.sum([phase!=0]) !=0:
             self.opd += np.sum(np.abs(phase)/np.sum([phase!=0]))
         iter_n += 1
-        # self.opd_rms = np.sqrt(self.opd/iter_n)*1e3
         self.opd_rms = (self.opd/iter_n)*1e3
 
         if self.count == 0:
@@ -240,7 +237,7 @@ class DM_stroke_plot:
 
     def plot(self, DM_command,iter_n):
         
-        self.stroke[iter_n,:] = np.abs(DM_command)
+        self.stroke[iter_n,:] = DM_command
 
         self.command_2D[self.act_pos[:,0],self.act_pos[:,1]] = DM_command
         command_2D_roll_axis_0 = np.roll(self.command_2D,1,axis = 0)
@@ -253,7 +250,8 @@ class DM_stroke_plot:
         self.inter_stroke[iter_n] = np.max(np.abs(inter_stroke))
 
         if self.count == 0:
-            max_stroke = np.max(self.stroke[:iter_n,:],axis = 1)
+            # max_stroke = np.max(self.stroke[:iter_n,:],axis = 1)
+            max_stroke = np.max(self.stroke[:iter_n,:],axis = 1)-np.min(self.stroke[:iter_n,:],axis = 1)
             std_stroke = np.std(self.stroke[:iter_n,:],axis = 1)
 
 
@@ -286,6 +284,49 @@ class DM_stroke_plot:
 
     def load(self,path_name):
         self.stroke = pfits.getdata(path_name)
+        
+    def save_plot(self, path_name):
+        self.fig.savefig(path_name) 
+
+class deformation_plot:
+    def __init__(self,title,refresh_rate,n_iter):
+
+        self.fig, self.ax = plt.subplots(constrained_layout=True)
+        self.fig.suptitle(title)
+        self.refresh_rate = refresh_rate
+        self.deformation = np.zeros(n_iter)
+        self.count = 1
+        self.line_stroke, = self.ax.plot(self.deformation)
+        self.ax.set_ylabel("[um]")
+        self.ax.set_xlabel("iter")
+        self.n_iter = n_iter
+
+
+    def plot(self, deformation,iter_n):
+        
+        self.deformation[iter_n] = deformation
+
+        if self.count == 0:
+            self.line_stroke.set_ydata(self.deformation[:iter_n])
+            self.ax.set_ylim(0,np.max(self.deformation[:iter_n]))
+            self.ax.set_xlim(0,iter_n)
+            self.line_stroke.set_xdata(np.arange(iter_n))
+            self.ax.set_ylabel("[um]")
+            self.ax.set_xlabel("iter")
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
+        self.count += 1
+        if self.count == self.refresh_rate:
+            self.count = 0
+
+    def reset(self):
+        self.deformation *= 0
+
+    def save(self, path_name):
+        pfits.writeto(path_name, self.deformation, overwrite = True)
+
+    def load(self,path_name):
+        self.deformation = pfits.getdata(path_name)
         
     def save_plot(self, path_name):
         self.fig.savefig(path_name) 

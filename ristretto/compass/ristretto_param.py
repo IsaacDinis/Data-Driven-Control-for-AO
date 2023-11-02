@@ -24,7 +24,7 @@ p_loop.set_ittime(Ts)
 
 # geom
 p_geom = conf.Param_geom()
-p_geom.set_pupdiam(250)        # /!\ value to get WFS pixsize = 0.361 (SAXO truth = 0.36)
+p_geom.set_pupdiam(400)        # /!\ value to get WFS pixsize = 0.361 (SAXO truth = 0.36)
 p_geom.set_zenithangle(0.)     # /!\ keep it 0 until we know what it does in COMPASS
 
 # tel
@@ -41,14 +41,16 @@ p_tel.set_t_spiders(0.00625)
 
 # atmos
 p_atmos = conf.Param_atmos()
-p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm
+# p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm 0.75 arcs
+p_atmos.set_r0(0.2)       # Fried parameters @ 500 nm 0.75 arcs
+# p_atmos.set_r0(500e-9/(4.85e-6*1.3))       # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
 p_atmos.set_windspeed([9.5]) # wind speed of layer(s) in m/s
 p_atmos.set_winddir([45])  # wind direction in degrees
 p_atmos.set_L0([22])       # in meters
-p_atmos.set_seeds(0)
+p_atmos.set_seeds(123)
 
 # target
 p_target = conf.Param_target()
@@ -63,7 +65,7 @@ p_wfs0 = conf.Param_wfs(roket=False)
 p_wfss = [p_wfs0]
 
 p_wfs0.set_type("pyrhr")        # /!\ pyramid
-p_wfs0.set_nxsub(40)            #     number of pixels
+p_wfs0.set_nxsub(45)            #     number of pixels
 p_wfs0.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
 p_wfs0.set_Lambda(1.4)          #     wavelength
 p_wfs0.set_gsmag(6.)
@@ -80,6 +82,7 @@ p_wfs0.set_fstop("round")
 # p_wfs0.set_fssize(1.5)          # Size of the field stop
 p_wfs0.set_fssize(3)  
 p_wfs0.set_atmos_seen(1)        # /!\
+
 
 
 p_centroider0 = conf.Param_centroider()
@@ -104,22 +107,22 @@ p_dm0.set_unitpervolt(1.)     # /!\
 # p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
 p_dm0.set_influ_type("gaussian")
 
-# p_dm1.set_type("pzt")         # /!\
-# nact = 41
-# p_dm1.set_nact(nact)
-# p_dm1.set_thresh(0.50)        # /!\ to get the 1324 activectuators
-# p_dm1.set_coupling(0.13)
-# p_dm1.set_alt(0.)             # /!\
-# p_dm1.set_unitpervolt(1.)     # /!\
-
 p_dm1.set_type("pzt")         # /!\
-# p_dm0.set_thresh(-0.1)        # /!\ to get the SAXO 1377 active actuators
-p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
+nact = 41
+p_dm1.set_nact(nact)
+p_dm1.set_thresh(0.80)        # /!\ to get the 1324 activectuators
+p_dm1.set_coupling(0.13)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
-p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
-p_dm1.set_file_influ_fits("ristretto_43.fits") # /!\ to use a custom SAXO HO DM
-# p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
+
+# p_dm1.set_type("pzt")         # /!\
+# # p_dm0.set_thresh(-0.1)        # /!\ to get the SAXO 1377 active actuators
+# p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
+# p_dm1.set_alt(0.)             # /!\
+# p_dm1.set_unitpervolt(1.)     # /!\
+# p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
+# p_dm1.set_file_influ_fits("ristretto_43.fits") # /!\ to use a custom SAXO HO DM
+# # p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
 
 # controllers
 p_controller0 = conf.Param_controller()

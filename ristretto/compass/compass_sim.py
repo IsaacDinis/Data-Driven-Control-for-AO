@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 1
+    exp_time = 2
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.1
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -60,24 +60,30 @@ if __name__ == "__main__":
 
     pupil = supervisor.get_s_pupil()
     pupil_diam = supervisor.config.p_geom.get_pupdiam()
-    pupil_grid = make_pupil_grid(pupil_diam,1.2)
+    pupil_grid = make_pupil_grid(pupil_diam,1)
     zernike_basis = make_zernike_basis(800, 1, pupil_grid)
     tilt = zernike_basis[2].shaped
     pupil_valid = zernike_basis[0].shaped
+
+    DM1_phase_size = supervisor.dms.get_dm_shape(1).shape[0]
+    pupil_grid_DM1 = make_pupil_grid(DM1_phase_size,1)
+    zernike_basis_DM1 = make_zernike_basis(1, 0.8, pupil_grid_DM1)
+    pupil_valid_DM1 = zernike_basis_DM1[0].shaped
+
 
     n_act_DM0 = supervisor.config.p_dms[0].get_ntotact()
     n_act_DM1 = supervisor.config.p_dms[1].get_ntotact()
 
     cross_act_DM0 = supervisor.config.p_dms[0].get_nact()
-    # cross_act_DM1 = supervisor.config.p_dms[1].get_nact()
-    cross_act_DM1 = 41
+    cross_act_DM1 = supervisor.config.p_dms[1].get_nact()+1
+    # cross_act_DM1 = 41
     pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
 
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
 
-    a = np.array([1.,-1]) 
+    a = np.array([1.,-0.99]) 
     b = np.array([0.5,0])
 
 
@@ -125,18 +131,19 @@ if __name__ == "__main__":
     atm_plot = utils.phase_plot("atm phase", refresh_rate)
 
     zernike_saxo_plot = utils.zernike_plot("zernike res", refresh_rate, 200, pupil_diam,pupil, n_iter)
-    modal_DM1_plot = utils.modal_plot("tweeter modal res", refresh_rate, 1000, n_iter)
+    modal_DM1_plot = utils.modal_plot("tweeter modal res", refresh_rate, n_modes_DM1, n_iter)
+    modal_command_DM1_plot = utils.modal_plot("tweeter modal command", refresh_rate, n_modes_DM1, n_iter)
     modal_DM0_plot = utils.modal_plot("woofer modal res", refresh_rate, 80, n_iter)
 
     DM0_stroke_plot = utils.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
     DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
-
+    DM1_deformation_plot = utils.deformation_plot("DM1 phase stroke", refresh_rate, n_iter)
     plt.ion()
     plt.show()
 
-    # flat = pfits.getdata('calib_mat/flat.fits')
-    # flat_record = np.dstack([flat])
-    # supervisor.tel.set_input_phase(flat_record)
+    flat = pfits.getdata('calib_mat/flat.fits')
+    flat_record = np.dstack([flat])
+    supervisor.tel.set_input_phase(flat_record)
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
@@ -204,7 +211,7 @@ if __name__ == "__main__":
             # print('error rms = {:.5f} \n'.format(error_rms/(i+1)))
 
         DM0_phase = supervisor.dms.get_dm_shape(0)
-        DM1_phase = supervisor.dms.get_dm_shape(1)
+        DM1_phase = supervisor.dms.get_dm_shape(1)#*pupil_valid_DM1
         atm_phase = supervisor.atmos.get_atmos_layer(0)
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)
         target_phase[target_phase!=0] -= np.mean(target_phase[target_phase!=0])
@@ -226,11 +233,12 @@ if __name__ == "__main__":
         zernike_saxo_plot.plot(target_phase,i)
 
         modal_DM0_plot.plot(DM0_K.res,i)
-        modal_DM1_plot.plot(DM1_K.res[:1000],i)
+        modal_DM1_plot.plot(DM1_K.res[:n_modes_DM1],i)
+        modal_command_DM1_plot.plot(DM1_K.state_mat[0,1,:],i)
 
         DM0_stroke_plot.plot(voltage_DM0_applied,i)
         DM1_stroke_plot.plot(voltage_DM1,i)
-
+        DM1_deformation_plot.plot(np.max(DM1_phase)-np.min(DM1_phase),i)
 
 
         supervisor.next()
