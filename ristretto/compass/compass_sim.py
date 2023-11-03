@@ -47,7 +47,7 @@ if __name__ == "__main__":
     fs = 1/Ts
     exp_time = 2
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.1
+    exp_time_bootstrap = 0.
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     n_act_DM1 = supervisor.config.p_dms[1].get_ntotact()
 
     cross_act_DM0 = supervisor.config.p_dms[0].get_nact()
-    cross_act_DM1 = supervisor.config.p_dms[1].get_nact()+1
+    cross_act_DM1 = supervisor.config.p_dms[1].get_nact()+2
     # cross_act_DM1 = 41
     pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
@@ -93,6 +93,9 @@ if __name__ == "__main__":
     S2M_DM1 = pfits.getdata('calib_mat/S2M_DM1.fits')
     M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
     M2V_DM1 = pfits.getdata('calib_mat/M2V_DM1.fits')
+    # P2M_DM1 = pfits.getdata('calib_mat/P2M_DM1.fits')
+    # P2M_DM0 = pfits.getdata('calib_mat/P2M_DM0.fits')
+
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
     M2S_DM0 = np.linalg.pinv(S2M_DM0)
     V_DM1_2_V_DM0 = np.linalg.pinv(V_DM0_2_V_DM1)
@@ -171,7 +174,7 @@ if __name__ == "__main__":
     for i in range(n_iter):
         
         slopes = supervisor.rtc.get_slopes(0)
-        
+        # phase  = np.ndarray.flatten(supervisor.target.get_tar_phase(0,pupil=True))
 
         # voltage_DM0 = DM0_K.update_command(slopes)
 
@@ -236,8 +239,8 @@ if __name__ == "__main__":
         modal_DM1_plot.plot(DM1_K.res[:n_modes_DM1],i)
         modal_command_DM1_plot.plot(DM1_K.state_mat[0,1,:],i)
 
-        DM0_stroke_plot.plot(voltage_DM0_applied,i)
-        DM1_stroke_plot.plot(voltage_DM1,i)
+        # DM0_stroke_plot.plot(voltage_DM0_applied,i)
+        # DM1_stroke_plot.plot(voltage_DM1,i)
         DM1_deformation_plot.plot(np.max(DM1_phase)-np.min(DM1_phase),i)
 
 

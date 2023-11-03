@@ -41,8 +41,8 @@ p_tel.set_t_spiders(0.00625)
 
 # atmos
 p_atmos = conf.Param_atmos()
-# p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm 0.75 arcs
-p_atmos.set_r0(0.2)       # Fried parameters @ 500 nm 0.75 arcs
+p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm 0.75 arcs
+# p_atmos.set_r0(0.2)       # Fried parameters @ 500 nm 0.75 arcs
 # p_atmos.set_r0(500e-9/(4.85e-6*1.3))       # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
@@ -79,17 +79,18 @@ p_wfs0.set_pyr_ampl(0)
 p_wfs0.set_pyr_npts(1) 
 p_wfs0.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
 p_wfs0.set_fstop("round")
-# p_wfs0.set_fssize(1.5)          # Size of the field stop
 p_wfs0.set_fssize(3)  
 p_wfs0.set_atmos_seen(1)        # /!\
-
-
 
 p_centroider0 = conf.Param_centroider()
 p_centroiders = [p_centroider0]
 
 p_centroider0.set_nwfs(0)           # /!\
 p_centroider0.set_type("maskedpix")
+
+
+
+
 
 # dm
 p_dm0 = conf.Param_dm()       # /!\
@@ -110,7 +111,7 @@ p_dm0.set_influ_type("gaussian")
 p_dm1.set_type("pzt")         # /!\
 nact = 41
 p_dm1.set_nact(nact)
-p_dm1.set_thresh(0.80)        # /!\ to get the 1324 activectuators
+p_dm1.set_thresh(0.5)        # /!\ to get the 1324 activectuators
 p_dm1.set_coupling(0.13)
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\

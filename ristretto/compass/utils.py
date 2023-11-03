@@ -6,8 +6,8 @@ import compute_psd
 import astropy.io.fits as pfits
 
 def save_perf(path,exposure_time,strehl,phase_rms):
-	with open(path+'perf.txt', 'w') as f:
-	    f.write('exp time = {:.1f}s, strehl = {:.3f}, phase rms = {:.3f}um'.format(exposure_time,strehl,phase_rms))
+    with open(path+'perf.txt', 'w') as f:
+        f.write('exp time = {:.1f}s, strehl = {:.3f}, phase rms = {:.3f}um'.format(exposure_time,strehl,phase_rms))
 
 class zernike_plot:
     def __init__(self, title, refresh_rate, order, pup_diam, pupil, n_iter):
@@ -19,7 +19,7 @@ class zernike_plot:
         transform_matrix /= np.sum(pupil)
 
         self.transform_matrix = transform_matrix[1:,:]
-        self.fig, self.ax = plt.subplots(constrained_layout=True)
+        self.fig, self.ax = plt.subplots(constrained_layout=True, num = title)
         self.fig.suptitle(title)
         self.refresh_rate = refresh_rate
         self.count = 0
@@ -63,7 +63,7 @@ class zernike_plot:
         n_average = 10
         window_size = int(np.floor(self.n_iter/n_average))
         psd, freq = compute_psd.compute_psd_fft(self.zernike_res, n_average, window_size,fs)
-        fig, ax = plt.subplots(constrained_layout=True)
+        fig, ax = plt.subplots(constrained_layout=True, num = title)
         # psd /= np.max(psd)
         psd = 10*np.log10(psd)
         fig.suptitle(title)
@@ -97,7 +97,7 @@ class zernike_plot:
 
 class phase_plot:
     def __init__(self, title, refresh_rate):
-        self.fig, self.ax = plt.subplots(constrained_layout=True)
+        self.fig, self.ax = plt.subplots(constrained_layout=True, num = title)
         self.im = self.ax.imshow(np.zeros((8,8)))
         self.cbar = self.fig.colorbar(self.im, ax=self.ax)
         self.cbar.set_label(label="[um]", size=12)
@@ -105,16 +105,17 @@ class phase_plot:
         self.refresh_rate = refresh_rate
         self.count = 0
         self.opd = 0
-        self.opd_rms = 0
+
 
     def plot(self, phase, subtitle = "", iter_n = 0):
         if np.sum([phase!=0]) !=0:
-            self.opd += np.sum(np.abs(phase)/np.sum([phase!=0]))
+            # self.opd = np.sum(np.abs(phase)/np.sum([phase!=0]))
+            self.opd = np.std(phase, where = phase!=0)
         iter_n += 1
-        self.opd_rms = (self.opd/iter_n)*1e3
+
 
         if self.count == 0:
-            # im = self.ax.imshow(phase)
+
             self.im.set_data(phase)
             self.im.autoscale()
 
@@ -127,16 +128,15 @@ class phase_plot:
 
     def reset(self):
         self.opd = 0
-        self.opd_rms = 0
+
 
 class modal_plot:
     def __init__(self, title, refresh_rate, order, n_iter):
 
-        self.fig, self.ax = plt.subplots(constrained_layout=True)
+        self.fig, self.ax = plt.subplots(constrained_layout=True, num = title)
         self.fig.suptitle(title)
         self.refresh_rate = refresh_rate
         self.count = 0
-        # self.line, = self.ax.plot(self.modal_res)
         self.ax.stem(np.zeros(order))
         self.ax.set_ylabel("[au]")
         self.ax.set_xlabel("order")
@@ -172,7 +172,7 @@ class modal_plot:
         psd, freq = compute_psd.compute_psd_fft(self.modal_res, n_average, window_size,fs)
         # psd /= np.max(psd)
         psd = 10*np.log10(psd)
-        fig, ax = plt.subplots(constrained_layout=True)
+        fig, ax = plt.subplots(constrained_layout=True, num = title)
         fig.suptitle(title)
         ax.set_title('mode {:d}'.format(mode))
         ax.set_xscale('log')
@@ -199,7 +199,7 @@ class DM_stroke_plot:
 
         # self.order = order
 
-        self.fig, self.ax = plt.subplots(constrained_layout=True)
+        self.fig, self.ax = plt.subplots(constrained_layout=True, num = title)
         self.fig.suptitle(title)
         self.refresh_rate = refresh_rate
         self.stroke = np.zeros((n_iter,n_act))
@@ -291,7 +291,7 @@ class DM_stroke_plot:
 class deformation_plot:
     def __init__(self,title,refresh_rate,n_iter):
 
-        self.fig, self.ax = plt.subplots(constrained_layout=True)
+        self.fig, self.ax = plt.subplots(constrained_layout=True, num = title)
         self.fig.suptitle(title)
         self.refresh_rate = refresh_rate
         self.deformation = np.zeros(n_iter)
@@ -330,75 +330,3 @@ class deformation_plot:
         
     def save_plot(self, path_name):
         self.fig.savefig(path_name) 
-
-def write_dm_custom_fits(file_name, i1, j1, influ_cube, xpos, ypos, xcenter, ycenter,pixsize,pupm, *,pitchm=None):
-    """Write a custom_dm fits file based on user provided data (see args)
-
-    Args:
-        file_name : (string) : name of the custom dm fits file
-
-        i1 : (np.ndarray) : x coordinate of the first pixel for each of the 2D maps
-
-        j1 : (np.ndarray) : y coordinate of the first pixel for each of the 2D maps
-
-        influ_cube : (np.ndarray) : 2D maps of the influence functions
-
-        xpos : (np.ndarray) : x coordinate of the physical location of the actuator
-
-        ypos : (np.ndarray) : y coordinate of the physical location of the actuator
-
-        xcenter : (float) : x coordinate of the centre of the pupil, expressed in pixels
-
-        ycenter : (float) : y coordinate of the centre of the pupil, expressed in pixels
-
-        pixsize : (float) : size of the pixels on the maps in meters
-
-        pupm : (float) : diameter of pupil stop (meters)
-
-    Kwargs:
-        pitchm : (float) : size of the DM pitch in meters. Defaults to None.
-
-    Returns:
-        (HDUList) : custom_dm data
-    """
-    dm_fits_content="""The DM FITS file is compatible with COMPASS DM database.
-    The primary header contains the keywords:
-    * PIXSIZE : the size of the pixels on the maps in meters.
-
-    * XCENTER, YCENTER are the coordinates of the centre of the pupil, expressed in pixels, in a reference frame conformable to (i,j) coords. The translation from pixels to meters can be done using:
-        meters = (pixels - XCENTER) * PIXSIZE
-
-    * PUPM is the diameter of pupil stop (meters).
-
-    * Additionally the header provides the user with:
-        PITCHM is the size of the DM pitch in meters (may be handy is some cases and useful when using this file with COMPASS software)
-
-    This FITS file contains 3 extensions:
-    * Extension 'I1_J1' are the coordinate (i,j) of the first pixel for each of the 2D maps (see Extension 2), so that they can be inserted in a larger map.
-
-    * Extension 'INFLU' are the 2D maps of the influence functions.
-
-    * Extension 'XPOS_YPOS' are the coordinates (xpos, ypos) of the  physical location of the actuator, in pixels. This data is provided for information only and does not directly participate to build the DM. The present coordinates are positions in M1 space, i.e. include the distorsion due to telescope optics.
-    """
-
-    fits_version=1.2
-    primary_hdu = pfits.PrimaryHDU()
-    primary_hdu.header['VERSION'] = (fits_version,'file format version')
-    primary_hdu.header['XCENTER'] = (xcenter     ,'DM centre along X in pixels')
-    primary_hdu.header['YCENTER'] = (ycenter     ,'DM centre along Y in pixels')
-    primary_hdu.header['PIXSIZE'] = (pixsize     ,'pixel size (meters)')
-    primary_hdu.header['PUPM']    = (pupm        ,'nominal pupil diameter (meters)')
-    if(pitchm is not None):
-        primary_hdu.header['PITCHM'] = (pitchm,'DM pitch (meters)')
-
-    for line in dm_fits_content.splitlines():
-        primary_hdu.header.add_comment(line)
-
-    image_hdu = pfits.ImageHDU(np.c_[i1 , j1 ].T, name="I1_J1")
-    image_hdu2 = pfits.ImageHDU(influ_cube, name="INFLU")
-    image_hdu3 = pfits.ImageHDU(np.c_[xpos, ypos].T, name="XPOS_YPOS")
-
-    dm_custom = pfits.HDUList([primary_hdu, image_hdu, image_hdu2, image_hdu3])
-
-    dm_custom.writeto(file_name,overwrite=1)
-    return dm_custom

@@ -20,6 +20,7 @@ from shesha.config import ParamConfig
 from docopt import docopt
 import numpy as np
 import astropy.io.fits as pfits
+from matplotlib import pyplot as plt
 
 if __name__ == "__main__":
     arguments = docopt(__doc__)
@@ -50,8 +51,8 @@ if __name__ == "__main__":
     n_modes_DM1 = 1000
  
     pupil_diam = supervisor.config.p_geom.get_pupdiam()
-    phase_mode_DMO = np.zeros((pupil_diam, pupil_diam, n_modes_DM0))
-    phase_mode_DM1 = np.zeros((pupil_diam, pupil_diam, n_modes_DM1))
+    M2P_DM0 = np.zeros((pupil_diam*pupil_diam, n_modes_DM0))
+    M2P_DM1 = np.zeros((pupil_diam*pupil_diam, n_modes_DM1))
     phase_tt_DM = np.zeros((pupil_diam, pupil_diam, 4))
     ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
@@ -75,10 +76,10 @@ if __name__ == "__main__":
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
-        target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
+        target_phase = np.ndarray.flatten(supervisor.target.get_tar_phase(0,pupil=True)/ampli)
 
         M2S_DM0[:,mode] = slopes.copy()
-        phase_mode_DMO[:,:,mode] = target_phase.copy()
+        M2P_DM0[:,mode] = target_phase.copy()
 
     for mode in range(n_modes_DM1):
         supervisor.rtc.set_command(0, M2V[:,n_actus_DM0+mode]*ampli) 
@@ -87,13 +88,15 @@ if __name__ == "__main__":
         supervisor.next()
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
-        target_phase = supervisor.target.get_tar_phase(0,pupil=True)/ampli
+        target_phase = np.ndarray.flatten(supervisor.target.get_tar_phase(0,pupil=True)/ampli)
 
         M2S_DM1[:,mode] = slopes.copy()
-        phase_mode_DM1[:,:,mode] = target_phase.copy()
+        M2P_DM1[:,mode] = target_phase.copy()
 
     S2M_DM0 = np.linalg.pinv(M2S_DM0) # [nmodes , nslopes]
     S2M_DM1 = np.linalg.pinv(M2S_DM1) # [nmodes , nslopes
+    # P2M_DM0 = np.linalg.pinv(M2P_DM0) # [nmodes , nslopes]
+    # P2M_DM1 = np.linalg.pinv(M2P_DM1) # [nmodes , nslopes
 
 
 
@@ -114,8 +117,13 @@ if __name__ == "__main__":
     pfits.writeto('calib_mat/M_DM0_2_M_DM1.fits', M_DM0_2_M_DM1, overwrite = True)
     pfits.writeto('calib_mat/V_DM0_2_V_DM1.fits', V_DM0_2_V_DM1, overwrite = True)
     pfits.writeto('calib_mat/V_DM1_2_V_DM0.fits', V_DM1_2_V_DM0, overwrite = True)
+    # pfits.writeto('calib_mat/P2M_DM0.fits', P2M_DM0, overwrite = True)
+    # pfits.writeto('calib_mat/P2M_DM1.fits', P2M_DM1, overwrite = True)
 
-
+    p_geom = supervisor.config.p_geom
+    pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
+    plt.imshow(M2P_DM1[:,0].reshape((360,360)))
+    plt.scatter(pos_HODM[:,0]-p_geom.get_p1(),pos_HODM[:,1]-p_geom.get_p1(), marker='.', color="blue")
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname
