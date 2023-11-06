@@ -74,7 +74,7 @@ if __name__ == "__main__":
     n_act_DM0 = supervisor.config.p_dms[0].get_ntotact()
     n_act_DM1 = supervisor.config.p_dms[1].get_ntotact()
 
-    cross_act_DM0 = supervisor.config.p_dms[0].get_nact()
+    cross_act_DM0 = supervisor.config.p_dms[0].get_nact()+2
     cross_act_DM1 = supervisor.config.p_dms[1].get_nact()+2
     # cross_act_DM1 = 41
     pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
@@ -83,8 +83,8 @@ if __name__ == "__main__":
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
 
-    a = np.array([1.,-0.99]) 
-    b = np.array([0.5,0])
+    a = np.array([1.,-1]) 
+    b = np.array([0.3,0])
 
 
     # Load command and influence matrix
