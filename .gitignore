@@ -10,3 +10,4 @@ results/
 *.autosave
 *.fits
 *.fig
+__pycache__/

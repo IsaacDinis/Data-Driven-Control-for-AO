@@ -34,14 +34,14 @@ act_pos = np.array([dummy[0].flatten(),dummy[1].flatten()]).T
 
 act_pos = act_pos[np.hypot((act_pos[:,0]-pupil_diam/2),(act_pos[:,1]-pupil_diam/2))<385] #385 to get 2040 actuators
 act_index = np.arange(act_pos.shape[0])
-# plt.figure()
-# plt.imshow(flat)
+plt.figure()
+plt.imshow(flat)
 # plt.scatter(act_pos[:,0],act_pos[:,1],marker='.', color="red")
 # plt.scatter(act_pos[1092,0],act_pos[1092,1],marker='.', color="blue")
-# plt.ylim((0,pupil_diam))
-# plt.xlim((0,pupil_diam))
-# plt.ylim(max(plt.ylim()), min(plt.ylim()))
-# plt.show()
+plt.ylim((0,pupil_diam))
+plt.xlim((0,pupil_diam))
+plt.ylim(max(plt.ylim()), min(plt.ylim()))
+plt.show()
 
 #######################################################################################################
 n_act_cut = 43

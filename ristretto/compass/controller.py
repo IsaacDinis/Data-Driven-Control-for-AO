@@ -40,7 +40,7 @@ class K:
             u_tot = u+u_offload_HODM
         else:
             u_tot = u
-
+            
         self.state_mat[0,1,:] = -self.V2M@u_tot
         # self.state_mat[0,1,:] = modal_u
         if (self.offload_mat.any()):

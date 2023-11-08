@@ -135,3 +135,25 @@ wao.supervisor.rtc.set_command(0,command)
 wao.supervisor.next()
 wao.supervisor.next()
 wao.supervisor.next()
+
+command *= 0
+command[n_act0] = 1
+wao.supervisor.rtc.set_command(0,command)
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
+slopes = wao.supervisor.rtc.get_slopes(0)
+# print(np.max(slopes))
+v =M2V_DM1@S2M_DM1@slopes
+print(v[0])
+
+wao.supervisor.rtc.set_command(0,np.concatenate((M2V_DM0[:,0]*0, M2V_DM1[:,n_modes]), axis=0))
+wao.supervisor.next()
+wao.supervisor.next()
+wao.supervisor.next()
+
+
+
+
+print(M2V_DM1[0,:])
+np.std(M2V_DM1[0,:])
