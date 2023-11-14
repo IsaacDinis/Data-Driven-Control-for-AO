@@ -354,9 +354,6 @@ xcenter = p_geom.cent
 ycenter = p_geom.cent
 
 
-
-
-
 influ = np.append(influ,influ[:,:,:xpos43.shape[0]-xpos.shape[0]],axis = 2)
 
 xpos43 += p_dm._n1

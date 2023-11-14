@@ -1,43 +1,102 @@
-p_geom = wao.supervisor.config.p_geom
-p_tel =  wao.supervisor.config.p_tel
-p_dm =  wao.supervisor.config.p_dms[1]
-pixsize = wao.supervisor.config.p_geom.get_pixsize()
-diam = p_tel.diam
+"""
+script to generate the command matrix
 
-xpos = p_dm._xpos-p_dm._n1
-ypos = p_dm._ypos-p_dm._n1
+Usage:
+  generate_command_matrix.py <parameters_filename> [options]
 
-i1 = p_dm._i1.copy()
-j1 = p_dm._j1.copy()
-influ = p_dm._influ.copy()
+with 'parameters_filename' the path to the parameters file
 
-# place bump
-xpos0 = 240.0 
-ypos0 = 185.8
+Options:
+  -h  --help          Show this help message and exit
+  -i, --interactive  keep the script interactive
+  -d, --devices devices      Specify the devices
+"""
+
+from shesha.config import ParamConfig
+from docopt import docopt 
+import numpy as np
+from shesha.util.slopesCovariance import KLmodes
+import astropy.io.fits as pfits
+from matplotlib import pyplot as plt
+import utils
+if __name__ == "__main__":
+    arguments = docopt(__doc__)
+
+    param_file = arguments["<parameters_filename>"]
+
+    # Get parameters from file
+    config = ParamConfig(param_file)
+
+    from shesha.supervisor.compassSupervisor import CompassSupervisor as Supervisor
+
+    if arguments["--devices"]:
+        config.p_loop.set_devices([
+                int(device) for device in arguments["--devices"].split(",")
+        ])
+
+    supervisor = Supervisor(config)
+    supervisor.rtc.open_loop(0) # disable implemented controller
+    pupil = supervisor.get_s_pupil()
 
 
-influ0 = p_dm._influ[:,:,0]
-influ0 = np.expand_dims(influ0, axis=2)
+    
+    p_geom = supervisor.config.p_geom
+    p_tel =  supervisor.config.p_tel
+    p_dm =  supervisor.config.p_dms[1]
+    pixsize = supervisor.config.p_geom.get_pixsize()
+    diam = p_tel.diam
 
-i10 = xpos0-20.5
-j10 = ypos0-20.5 
+    pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
+    
+    plt.imshow(pupil)
+    plt.scatter(pos_HODM[:,0]-p_geom.get_p1(),pos_HODM[:,1]-p_geom.get_p1(), marker='.', color="blue")
+    plt.scatter(pos_HODM[375:377,0]-p_geom.get_p1(),pos_HODM[375:377,1]-p_geom.get_p1(), marker='.', color="red")
+    plt.scatter(pos_HODM[416:418,0]-p_geom.get_p1(),pos_HODM[416:418,1]-p_geom.get_p1(), marker='.', color="red")
 
-p_dm._i1
-xcenter = p_geom.cent
-ycenter = p_geom.cent
+    xpos0 = 0.6 * pos_HODM[375,0] + 0.4 * pos_HODM[376,0]
+    ypos0 = 0.7 * pos_HODM[375,1] + 0.3 * pos_HODM[416,1]
 
-xpos = np.append(xpos,xpos0)
-ypos = np.append(ypos,ypos0)
+    plt.scatter(xpos0-p_geom.get_p1(),ypos0-p_geom.get_p1(), marker='.', color="green")
+   
+    xpos = p_dm._xpos-p_dm._n1
+    ypos = p_dm._ypos-p_dm._n1
+    xpos0 -= p_dm._n1
+    ypos0 -= p_dm._n1
+    i1 = p_dm._i1.copy()
+    j1 = p_dm._j1.copy()
+    influ = p_dm._influ.copy()
 
-i1 = np.append(i1,i10)
-j1 = np.append(j1,j10)
+    # place bump
 
-influ = np.append(influ,influ0,axis = 2)
+    influ0 = p_dm._influ[:,:,0]
+    influ0 = np.expand_dims(influ0, axis=2)
 
-xpos += p_dm._n1
-ypos += p_dm._n1
-i1 += p_dm._n1
-j1 += p_dm._n1
+    i10 = xpos0-26
+    j10 = ypos0-26
 
-file_name = 'bump.fits'
-dm_custom = utils.write_dm_custom_fits(file_name,i1,j1,influ,xpos,ypos,xcenter,ycenter,pixsize,diam)
+    # p_dm._i1
+    xcenter = p_geom.cent
+    ycenter = p_geom.cent
+
+    xpos = np.append(xpos,xpos0)
+    ypos = np.append(ypos,ypos0)
+
+    i1 = np.append(i1,i10)
+    j1 = np.append(j1,j10)
+
+    influ = np.append(influ,influ0,axis = 2)
+
+    xpos += p_dm._n1
+    ypos += p_dm._n1
+    # i1 = xpos - 26
+    # j1 = ypos - 26
+    i1 += p_dm._n1
+    j1 += p_dm._n1
+
+    file_name = 'bump.fits'
+    dm_custom = utils.write_dm_custom_fits(file_name,i1,j1,influ,xpos,ypos,xcenter,ycenter,pixsize,diam)
+
+    if arguments["--interactive"]:
+        from shesha.util.ipython_embed import embed
+        from os.path import inf_matname
+        embed(inf_matname(__file__), locals())
