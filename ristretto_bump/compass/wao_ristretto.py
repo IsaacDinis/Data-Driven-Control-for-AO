@@ -1,4 +1,4 @@
-#ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/ristretto_bump/compass/ristretto_param.py
+#ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/ristretto_true_dm/compass/ristretto_param.py
 
 from hcipy.field import make_pupil_grid 
 from hcipy.mode_basis import make_zernike_basis 

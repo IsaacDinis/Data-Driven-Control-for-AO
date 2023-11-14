@@ -124,6 +124,8 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
     plt.imshow(M2P_DM1[:,0].reshape((400,400)))
     plt.scatter(pos_HODM[:,0]-p_geom.get_p1(),pos_HODM[:,1]-p_geom.get_p1(), marker='.', color="blue")
+    zbra = 0
+    plt.scatter(pos_HODM[zbra,0]-p_geom.get_p1(),pos_HODM[zbra,1]-p_geom.get_p1(), marker='.', color="red")
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname

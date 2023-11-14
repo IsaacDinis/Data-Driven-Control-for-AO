@@ -36,8 +36,13 @@ act_pos = act_pos[np.hypot((act_pos[:,0]-pupil_diam/2),(act_pos[:,1]-pupil_diam/
 act_index = np.arange(act_pos.shape[0])
 plt.figure()
 plt.imshow(flat)
+<<<<<<< HEAD
 plt.scatter(act_pos[:,0],act_pos[:,1],marker='.', color="red")
 plt.scatter(act_pos[648,0],act_pos[648,1],marker='.', color="blue")
+=======
+# plt.scatter(act_pos[:,0],act_pos[:,1],marker='.', color="red")
+# plt.scatter(act_pos[1092,0],act_pos[1092,1],marker='.', color="blue")
+>>>>>>> dd06ecc48d9a42e0946a245ad99c5c161cc2cc78
 plt.ylim((0,pupil_diam))
 plt.xlim((0,pupil_diam))
 plt.ylim(max(plt.ylim()), min(plt.ylim()))

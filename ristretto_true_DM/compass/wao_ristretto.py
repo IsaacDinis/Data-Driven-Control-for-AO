@@ -7,7 +7,7 @@ from scipy.spatial import KDTree
 import astropy.io.fits as pfits
 from scipy.spatial import KDTree
 from scipy.interpolate import interpn
-
+import utils
 # print(wao.supervisor.config.p_dms[0].get_ntotact())
 # print(wao.supervisor.config.p_dms[1].get_ntotact())
 # print(wao.supervisor.rtc.get_slopes(0).shape)
@@ -342,12 +342,10 @@ plt.scatter(xpos43, ypos43, marker='.', color="blue")
 
 
 plt.imshow(influ[:,:,800])
-influ0 = p_dm._influ[:,:,0]
-influ0 = np.expand_dims(influ0, axis=2)
 
 
-i1 = xpos43 + 16.5
-j1 = ypos43 + 16.5
+i1 = xpos43 - 16.5
+j1 = ypos43 - 16.5
 
 
 xcenter = p_geom.cent

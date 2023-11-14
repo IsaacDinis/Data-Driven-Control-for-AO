@@ -45,9 +45,9 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 2
+    exp_time = 1
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.
+    exp_time_bootstrap = 0.2
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -73,10 +73,10 @@ if __name__ == "__main__":
 
     n_act_DM0 = supervisor.config.p_dms[0].get_ntotact()
     n_act_DM1 = supervisor.config.p_dms[1].get_ntotact()
-
+    
     cross_act_DM0 = supervisor.config.p_dms[0].get_nact()+2
-    cross_act_DM1 = supervisor.config.p_dms[1].get_nact()+2
-    # cross_act_DM1 = 41
+    # cross_act_DM1 = supervisor.config.p_dms[1].get_nact()+2
+    cross_act_DM1 = 43
     pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     n_modes_DM1 = 1000
 
     a = np.array([1.,-1]) 
-    b = np.array([0.3,0])
+    b = np.array([0.5,0])
 
 
     # Load command and influence matrix
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     DM0_stroke_plot = utils.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
     DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
-    DM1_deformation_plot = utils.deformation_plot("DM1 phase stroke", refresh_rate, n_iter)
+    DM1_deformation_plot = utils.deformation_plot("tweeter phase stroke", refresh_rate, n_iter)
     plt.ion()
     plt.show()
 
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
-
+        voltage_DM1[0] = 0
         # if  i%4==0:
         voltage_DM0_applied = voltage_DM0
 
@@ -179,6 +179,7 @@ if __name__ == "__main__":
         # voltage_DM0 = DM0_K.update_command(slopes)
 
         voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
+        voltage_DM1[0] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
         # if  i%4==0:
@@ -221,7 +222,7 @@ if __name__ == "__main__":
         wfs_image = supervisor.wfs.get_wfs_image(0)
 
         DM0_plot.plot(DM0_phase)
-        DM1_plot.plot(DM1_phase,'max = {:.5f} '.format(np.max(DM1_phase)))
+        DM1_plot.plot(DM1_phase,'bad act = {:.5f} '.format(voltage_DM1[0]))
         wfs_image_plot.plot(wfs_image)
         target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
         
