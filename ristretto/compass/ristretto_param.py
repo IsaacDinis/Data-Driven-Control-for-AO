@@ -41,14 +41,14 @@ p_tel.set_t_spiders(0.00625)
 
 # atmos
 p_atmos = conf.Param_atmos()
-# p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm 0.75 arcs
+p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm 0.75 arcs
 # p_atmos.set_r0(0.2)       # Fried parameters @ 500 nm 0.75 arcs
-p_atmos.set_r0(500e-9/(4.85e-6*1.3))       # Fried parameters @ 500 nm
+# p_atmos.set_r0(500e-9/(4.85e-6*1.3))       # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
 p_atmos.set_windspeed([9.5]) # wind speed of layer(s) in m/s
-p_atmos.set_winddir([45])  # wind direction in degrees
+p_atmos.set_winddir([0])  # wind direction in degrees
 p_atmos.set_L0([22])       # in meters
 p_atmos.set_seeds(123)
 
@@ -75,12 +75,17 @@ p_wfs0.set_noise(-1)           #     readout noise
 p_wfs0.set_xpos(0.)             # /!\ On axis
 p_wfs0.set_ypos(0.)             # /!\ On axis
 
-p_wfs0.set_pyr_ampl(0)
-p_wfs0.set_pyr_npts(1) 
+# p_wfs0.set_pyr_ampl(0)
+# p_wfs0.set_pyr_npts(1) 
 p_wfs0.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
 p_wfs0.set_fstop("round")
 p_wfs0.set_fssize(3)  
 p_wfs0.set_atmos_seen(1)        # /!\
+
+rMod = 3.                       # Modulation radius, in lam/D units
+p_wfs0.set_pyr_ampl(rMod)
+nbPtMod = int(np.ceil(int(rMod * 2 * 3.141592653589793) / 4.) * 4)
+p_wfs0.set_pyr_npts(nbPtMod) 
 
 p_centroider0 = conf.Param_centroider()
 p_centroiders = [p_centroider0]
@@ -118,7 +123,7 @@ p_dm0.set_influ_type("gaussian")
 
 p_dm1.set_type("pzt")         # /!\
 # p_dm0.set_thresh(-0.1)        # /!\ to get the SAXO 1377 active actuators
-p_dm1.set_thresh(0.8)        # /!\ to get the SAXO 1377 active actuators
+p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
 p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel

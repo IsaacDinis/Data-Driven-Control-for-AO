@@ -59,7 +59,7 @@ if __name__ == "__main__":
     n_modes_DM0 = 80
     n_modes_DM1 = 1000
     M2V_DM1 = M2V_DM1[:,:n_modes_DM1]
- 
+    M2V_DM0 = M2V_DM0[:,:n_modes_DM0]
     ampli = 0.01
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
@@ -104,12 +104,13 @@ if __name__ == "__main__":
     M_DM0_2_M_DM1 = S2M_DM1@M2S_DM0
     V_DM0_2_V_DM1 = M2V_DM1@M_DM0_2_M_DM1@V2M_DM0
 
-    np.save('calib_mat/S2M_DM0.npy', S2M_DM0)
-    np.save('calib_mat/S2M_DM1.npy', S2M_DM1)
-    np.save('calib_mat/M2V_DM0.npy', M2V_DM0)
-    np.save('calib_mat/M2V_DM1.npy', M2V_DM1)
-    np.save('calib_mat/M_DM0_2_M_DM1.npy', M_DM0_2_M_DM1)
-    np.save('calib_mat/V_DM0_2_V_DM1.npy', V_DM0_2_V_DM1)
+    pfits.writeto('calib_mat/S2M_DM0.fits', S2M_DM0, overwrite = True)
+    pfits.writeto('calib_mat/S2M_DM1.fits', S2M_DM1, overwrite = True)
+    pfits.writeto('calib_mat/M2V_DM0.fits', M2V_DM0, overwrite = True)
+    pfits.writeto('calib_mat/M2V_DM1.fits', M2V_DM1, overwrite = True)
+    pfits.writeto('calib_mat/M_DM0_2_M_DM1.fits', M_DM0_2_M_DM1, overwrite = True)
+    pfits.writeto('calib_mat/V_DM0_2_V_DM1.fits', V_DM0_2_V_DM1, overwrite = True)
+    # pfits.writeto('calib_mat/V_DM1_2_V_DM0.fits', V_DM1_2_V_DM0, overwrite = True)
     # pfits.writeto('../gendron/tilt.fits', a, overwrite = True)
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

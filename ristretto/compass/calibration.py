@@ -107,6 +107,7 @@ if __name__ == "__main__":
 
     M_DM0_2_M_DM1 = S2M_DM1@M2S_DM0
     V_DM0_2_V_DM1 = M2V_DM1@M_DM0_2_M_DM1@V2M_DM0
+    
     V_DM1_2_V_DM0 = np.linalg.pinv(V_DM0_2_V_DM1)
 
     pfits.writeto('calib_mat/S2M_DM0.fits', S2M_DM0, overwrite = True)
@@ -116,16 +117,18 @@ if __name__ == "__main__":
     pfits.writeto('calib_mat/M2V_DM1.fits', M2V_DM1, overwrite = True)
     pfits.writeto('calib_mat/M_DM0_2_M_DM1.fits', M_DM0_2_M_DM1, overwrite = True)
     pfits.writeto('calib_mat/V_DM0_2_V_DM1.fits', V_DM0_2_V_DM1, overwrite = True)
-    pfits.writeto('calib_mat/V_DM1_2_V_DM0.fits', V_DM1_2_V_DM0, overwrite = True)
+    # pfits.writeto('calib_mat/V_DM1_2_V_DM0.fits', V_DM1_2_V_DM0, overwrite = True)
     # pfits.writeto('calib_mat/P2M_DM0.fits', P2M_DM0, overwrite = True)
     # pfits.writeto('calib_mat/P2M_DM1.fits', P2M_DM1, overwrite = True)
 
     p_geom = supervisor.config.p_geom
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
     plt.imshow(M2P_DM1[:,0].reshape((400,400)))
+    # plt.xlim(max(plt.xlim()), min(plt.xlim()))
     plt.scatter(pos_HODM[:,0]-p_geom.get_p1(),pos_HODM[:,1]-p_geom.get_p1(), marker='.', color="blue")
-    zbra = 0
+    zbra = 14
     plt.scatter(pos_HODM[zbra,0]-p_geom.get_p1(),pos_HODM[zbra,1]-p_geom.get_p1(), marker='.', color="red")
+    plt.scatter(pos_HODM[0,0]-p_geom.get_p1(),pos_HODM[0,1]-p_geom.get_p1(), marker='.', color="red")
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname

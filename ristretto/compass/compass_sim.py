@@ -154,7 +154,8 @@ if __name__ == "__main__":
         voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
-        voltage_DM1[0] = 0
+        # voltage_DM1[0] = 0
+        # voltage_DM1[14] = 0
         # if  i%4==0:
         voltage_DM0_applied = voltage_DM0
 
@@ -179,7 +180,8 @@ if __name__ == "__main__":
         # voltage_DM0 = DM0_K.update_command(slopes)
 
         voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
-        voltage_DM1[0] = 0
+        # voltage_DM1[0] = 0
+        # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
         # if  i%4==0:

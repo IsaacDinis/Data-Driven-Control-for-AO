@@ -118,7 +118,7 @@ if __name__ == "__main__":
     plt.imshow(pupil)
     
     plt.scatter(pos_HODM[:,0]-p_geom.get_p1(),pos_HODM[:,1]-p_geom.get_p1(), marker='.', color="blue")
-    plt.scatter(pos_HODM[375,0]-p_geom.get_p1(),pos_HODM[375,1]-p_geom.get_p1(), marker='.', color="red")
+    plt.scatter(pos_HODM[376,0]-p_geom.get_p1(),pos_HODM[376,1]-p_geom.get_p1(), marker='.', color="red")
     plt.scatter(pos_bump[:,0]-p_geom.get_p1(),pos_bump[:,1]-p_geom.get_p1(), marker='.', color="green")
 
     
