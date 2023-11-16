@@ -56,11 +56,18 @@ if __name__ == "__main__":
     command[n_actus_DM0+416]  = ampli3
     command[n_actus_DM0+417]  = ampli4
     mean_ampli = (0.6*ampli1+0.4*ampli2+0.7*ampli3+0.3*ampli4)/2
-    if  mean_ampli*2 > 1.8:
-        command[-1] = -1.95*mean_ampli+1.8
+
+    # if  mean_ampli*2 > 1.8:
+    #     command[-1] = -1.95*mean_ampli+1.8
+    # else:
+    #     command[-1] = 0
+
+    if  phase[301,140] > 1.8:
+        command[-1] = -phase[301,140]+1.8
     else:
         command[-1] = 0
 
+    # command[-1] = -phase[301,140]
     supervisor.rtc.set_perturbation_voltage(0, "tmp", command)
     supervisor.next()
     supervisor.next()
