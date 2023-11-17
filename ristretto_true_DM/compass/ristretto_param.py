@@ -41,7 +41,8 @@ p_tel.set_t_spiders(0.00625)
 
 # atmos
 p_atmos = conf.Param_atmos()
-p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm
+# p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm
+p_atmos.set_r0(500e-9/(4.85e-6*0.75))       # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
@@ -109,7 +110,7 @@ p_dm1.set_type("pzt")         # /!\
 
 # p_dm1.set_nact(43)
 # p_dm1.set_thresh(0.235)        # /!\ to get the SAXO 1377 active actuators
-p_dm1.set_thresh(-0.5)        # /!\ to get the SAXO 1377 active actuators
+p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
 p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel

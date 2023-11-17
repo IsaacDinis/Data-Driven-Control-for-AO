@@ -45,10 +45,10 @@ if __name__ == "__main__":
     n_actus_bump = supervisor.config.p_dms[2].get_ntotact()
 
     command = supervisor.rtc.get_command(0)
-    ampli1 = 1
-    ampli2 = 1
-    ampli3 = 1
-    ampli4 = 1
+    ampli1 = -2
+    ampli2 = -2
+    ampli3 = -2
+    ampli4 = -2
 
     command[n_actus_DM0:n_actus_DM0+n_actus_DM1] = 0
     command[n_actus_DM0+376]  = ampli1
@@ -61,21 +61,26 @@ if __name__ == "__main__":
     #     command[-1] = -1.95*mean_ampli+1.8
     # else:
     #     command[-1] = 0
-
-    if  phase[301,140] > 1.8:
-        command[-1] = -phase[301,140]+1.8
+    DM_phase = supervisor.dms.get_dm_shape(1)
+    if  np.max(DM_phase) - DM_phase[323,162] > 1.8:
+        command[-1] = np.max(DM_phase) - DM_phase[323,162]-1.8
     else:
         command[-1] = 0
 
-    # command[-1] = -phase[301,140]
+    # command[-1] = 0
+    # command[-1] = -DM_phase[301,140]
     supervisor.rtc.set_perturbation_voltage(0, "tmp", command)
     supervisor.next()
     supervisor.next()
 
     phase = supervisor.target.get_tar_phase(0, pupil = True)
+    
     plt.imshow(phase)
     print(phase[301,140])
 
+    print(DM_phase[323,162])
+
+    # np.unravel_index(DM_phase.argmax(), DM_phase.shape)
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
         from os.path import inf_matname
