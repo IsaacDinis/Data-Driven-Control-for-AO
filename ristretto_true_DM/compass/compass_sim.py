@@ -146,9 +146,9 @@ if __name__ == "__main__":
     plt.ion()
     plt.show()
 
-    flat = pfits.getdata('calib_mat/flat.fits')
-    flat_record = np.dstack([flat])
-    supervisor.tel.set_input_phase(flat_record)
+    # flat = pfits.getdata('calib_mat/flat.fits')
+    # flat_record = np.dstack([flat])
+    # supervisor.tel.set_input_phase(flat_record)
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
@@ -171,7 +171,7 @@ if __name__ == "__main__":
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
-        supervisor.rtc.set_command(0, voltage)
+        # supervisor.rtc.set_command(0, voltage)
         supervisor.next()
 
     supervisor.target.reset_strehl(0)

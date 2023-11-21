@@ -39,6 +39,7 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
 
     OBJ.o2.W1 = W1;
     OBJ.oinf.W2 = W3;
+    OBJ.oinf.W1 = W32;
 %     OBJ.o2.W3 = W32;
 %     CON.W3 = tf(0.99,1,1/fs);
     %% Solve problem
