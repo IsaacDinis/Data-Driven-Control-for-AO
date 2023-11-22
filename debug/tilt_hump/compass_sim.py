@@ -143,7 +143,6 @@ if __name__ == "__main__":
     DM0_stroke_plot = utils.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
     DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
     DM1_deformation_plot = utils.deformation_plot("tweeter phase stroke", refresh_rate, n_iter)
-    hump_deformation_plot = utils.deformation_plot("hump phase stroke", refresh_rate, n_iter)
     plt.ion()
     plt.show()
 
@@ -260,7 +259,6 @@ if __name__ == "__main__":
         # DM0_stroke_plot.plot(voltage_DM0_applied,i)
         # DM1_stroke_plot.plot(voltage_DM1,i)
         DM1_deformation_plot.plot(np.max(DM1_phase)-np.min(DM1_phase),i)
-        hump_deformation_plot.plot(np.max(DM1_phase)- DM1_phase[323,162],i)
 
 
         supervisor.next()
