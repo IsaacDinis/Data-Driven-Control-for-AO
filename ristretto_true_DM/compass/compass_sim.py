@@ -168,7 +168,8 @@ if __name__ == "__main__":
             voltage_bump[-1] =  -DM1_phase[323,162]-0.1
         else:
             voltage_bump[-1] = 0
-        voltage_bump[-1] = 0
+        # voltage_bump[-1] = 0
+        
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
@@ -179,7 +180,7 @@ if __name__ == "__main__":
 
     supervisor.target.reset_strehl(0)
     supervisor.target.reset_tar_phase(0)
-
+    supervisor.corono.reset()
     error_rms = 0
     
     for i in range(n_iter):
@@ -207,7 +208,7 @@ if __name__ == "__main__":
         else:
             voltage_bump[-1] = 0
             
-        voltage_bump[-1] = 0
+        # voltage_bump[-1] = 0
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
@@ -266,8 +267,8 @@ if __name__ == "__main__":
         # DM0_stroke_plot.plot(voltage_DM0_applied,i)
         # DM1_stroke_plot.plot(voltage_DM1,i)
         DM1_deformation_plot.plot(np.max(DM1_phase)-np.min(DM1_phase),i)
-        hump_deformation_plot.plot(np.max(DM1_phase)- DM1_phase[323,162],i)
-
+        # hump_deformation_plot.plot(np.max(DM1_phase)- DM1_phase[323,162],i)
+        hump_deformation_plot.plot(DM1_phase[323,162],i)
 
         supervisor.next()
     mode = 0
@@ -315,6 +316,21 @@ if __name__ == "__main__":
     DM0_stroke_plot.save_plot(save_path+'LODM_stroke.png')
     DM1_stroke_plot.save_plot(save_path+'HODM_stroke.png')
 
+    coroimg = supervisor.corono.get_image(coro_index=0) \
+        / np.max(supervisor.corono.get_psf(coro_index=0))
+    coroimgSampl = 1./supervisor.config.p_coronos[0].get_image_sampling()
+    pfits.writeto(save_path+'corono.fits', coroimg, overwrite = True)
+
+    plt.figure()
+    nimg = np.shape(coroimg)[0]
+    coroX = np.arange(-nimg//2 * coroimgSampl,
+                      nimg//2 * coroimgSampl, coroimgSampl)
+    im=plt.pcolormesh(coroX, coroX, coroimg)
+    plt.colorbar(im)
+    plt.xlabel(r'x [$\lambda$ / D]')   
+    plt.ylabel(r'y [$\lambda$ / D]')
+    plt.title('corono image')
+    plt.savefig(save_path+'corono.png')
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

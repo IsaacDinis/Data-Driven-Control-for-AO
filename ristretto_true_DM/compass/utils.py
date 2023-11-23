@@ -308,7 +308,12 @@ class deformation_plot:
 
         if self.count == 0:
             self.line_stroke.set_ydata(self.deformation[:iter_n])
-            self.ax.set_ylim(0,np.max(self.deformation[:iter_n]))
+            if np.min(self.deformation[:iter_n]) > 0:
+                low_bound = 0
+            else :
+                low_bound = np.min(self.deformation[:iter_n])
+                
+            self.ax.set_ylim(low_bound,np.max(self.deformation[:iter_n]))
             self.ax.set_xlim(0,iter_n)
             self.line_stroke.set_xdata(np.arange(iter_n))
             self.ax.set_ylabel("[um]")

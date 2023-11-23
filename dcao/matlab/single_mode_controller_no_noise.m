@@ -2,14 +2,14 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
 
-dist_matrix_path = '../standalone_ol/KL_saxoplus_res.fits';
+dist_matrix_path = '../dcao_ol/KL_saxoplus_res.fits';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = fitsread(dist_matrix_path);
 dist_matrix = dist_matrix(:,1);
@@ -28,11 +28,9 @@ window_size = 200;
 n_average = 10;
 
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
-psd(1:13) = psd(1:13)/8;
+% [psd, f] =  pwelch(dist_matrix,400,200,400,fs);
 % psd(1:13) = psd(1:13)/8;
-% psd(1:5) = psd(1:5)/8;
-% psd(1:2) = psd(1:2)/8;
-% [psd, f] = periodogram(dist_matrix,[],[],fs);
+
 figure()
 semilogx(f,10*log10(psd))
 % psd(1:4) = psd(5);
@@ -73,7 +71,7 @@ Kdd_matrix(:,1,:) = Kdd_numerator;
 Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
-g = 0.5;
+g = 0.25;
 K0 = tf([g,0],[1,-1],1/fs);
 
 sys_dd = feedback(1,Kdd*G);
