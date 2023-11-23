@@ -11,7 +11,6 @@ Created on Friday 16th of September 2022
 
 import shesha.config as conf
 import os
-import atmosphere
 import numpy as np
 simul_name = "2dm_1wfs"
 
@@ -42,7 +41,7 @@ p_tel.set_t_spiders(0.00625)
 # atmos
 p_atmos = conf.Param_atmos()
 # p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm
-p_atmos.set_r0(500e-9/(4.85e-6*1.25))       # Fried parameters @ 500 nm
+p_atmos.set_r0(500e-9/(4.85e-6*0.75))       # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
@@ -81,7 +80,7 @@ p_wfs0.set_fstop("round")
 # p_wfs0.set_fssize(1.5)          # Size of the field stop
 p_wfs0.set_fssize(3)  
 p_wfs0.set_atmos_seen(1)        # /!\
-
+p_wfs0.set_dms_seen(np.zeros(1))        # /!\
 
 p_centroider0 = conf.Param_centroider()
 p_centroiders = [p_centroider0]
@@ -92,55 +91,27 @@ p_centroider0.set_type("maskedpix")
 # dm
 p_dm0 = conf.Param_dm()       # /!\
 p_dm1 = conf.Param_dm()       # /!\
-p_dm2 = conf.Param_dm() 
-p_dms = [p_dm0, p_dm1, p_dm2]        # /!\
-# p_dms = [p_dm0, p_dm1]        # /!\
+p_dms = [p_dm0, p_dm1]        # /!\
+
+
 
 p_dm0.set_type("pzt")         # /!\
-nact = 11
-p_dm0.set_nact(nact)
-p_dm0.set_thresh(0.4)        # /!\ to get 100 active actuators
-p_dm0.set_coupling(0.3)
+
+# p_dm0.set_nact(43)
+# p_dm0.set_thresh(0.235)        # /!\ to get the SAXO 1377 active actuators
+p_dm0.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
 p_dm0.set_alt(0.)             # /!\
 p_dm0.set_unitpervolt(1.)     # /!\
-# p_dm0.set_push4imat(0.001)   #     to displace ~ half a pixel
-p_dm0.set_influ_type("gaussian")
+p_dm0.set_push4imat(0.180)    #     to displace ~ half a pixel
+p_dm0.set_file_influ_fits("ristretto.fits") # /!\ to use a custom SAXO HO DM
 
-p_dm1.set_type("pzt")         # /!\
-
-# p_dm1.set_nact(43)
-# p_dm1.set_thresh(0.235)        # /!\ to get the SAXO 1377 active actuators
-p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
-p_dm1.set_alt(0.)             # /!\
-p_dm1.set_unitpervolt(1.)     # /!\
-p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
-# p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
-p_dm1.set_file_influ_fits("ristretto.fits") # /!\ to use a custom SAXO HO DM
-
-# p_dm1.set_type("pzt")         # /!\
-# nact = 41
-# p_dm1.set_nact(nact)
-# p_dm1.set_thresh(0.50)        # /!\ to get the 1324 activectuators
-# p_dm1.set_coupling(0.13)
-# p_dm1.set_alt(0.)             # /!\
-# p_dm1.set_unitpervolt(1.)     # /!\
-
-# p_dm1.set_type("pzt")         # /!\
-# # p_dm0.set_thresh(-0.1)        # /!\ to get the SAXO 1377 active actuators
-# p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
-# p_dm1.set_alt(0.)             # /!\
-# p_dm1.set_unitpervolt(1.)     # /!\
-# p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
-# p_dm1.set_file_influ_fits("HODM_gauss_fitSPARTA.fits") # /!\ to use a custom SAXO HO DM
+# tip-tilt
+p_dm1.set_type("tt")         # /!\
+p_dm1.set_alt(0.)            # /!\
+p_dm1.set_unitpervolt(1.)    # /!\
+p_dm1.set_push4imat(0.18)    #     to displace about half a pixel
 
 
-p_dm2.set_type("pzt")         # /!\
-p_dm2.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
-# p_dm2.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
-p_dm2.set_alt(0.)             # /!\
-p_dm2.set_unitpervolt(1.)     # /!\
-p_dm2.set_push4imat(0.180)    #     to displace ~ half a pixel
-p_dm2.set_file_influ_fits("bump.fits") # /!\ to use a custom SAXO HO DM
 
 # controllers
 p_controller0 = conf.Param_controller()
@@ -148,7 +119,7 @@ p_controllers = [p_controller0]
 
 p_controller0.set_type("generic")
 p_controller0.set_nwfs([0])         # /!\
-p_controller0.set_ndm([0,1,2])       # /!\
+p_controller0.set_ndm([0,1])       # /!\
 # p_controller0.set_ndm([0,1])       # /!\
 p_controller0.set_delay(1) # /!\ same delay in ms as in saxo.py
 p_controller0.set_gain(0.5)
