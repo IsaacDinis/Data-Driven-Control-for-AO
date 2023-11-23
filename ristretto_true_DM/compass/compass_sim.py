@@ -161,8 +161,10 @@ if __name__ == "__main__":
         # if  i%4==0:
         voltage_DM0_applied = voltage_DM0
         DM1_phase = supervisor.dms.get_dm_shape(1)
-        if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
-            voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
+        # if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
+        #     voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
+        if  DM1_phase[323,162] < -0.1 :
+            voltage_bump[-1] =  -DM1_phase[323,162]-0.1
         else:
             voltage_bump[-1] = 0
         voltage_bump[-1] = 0
@@ -171,7 +173,7 @@ if __name__ == "__main__":
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
-        # supervisor.rtc.set_command(0, voltage)
+        supervisor.rtc.set_command(0, voltage)
         supervisor.next()
 
     supervisor.target.reset_strehl(0)
@@ -196,10 +198,14 @@ if __name__ == "__main__":
 
         DM1_phase = supervisor.dms.get_dm_shape(1)
 
-        if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
-            voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
+        if  DM1_phase[323,162] < -0.1 :
+            voltage_bump[-1] =  -DM1_phase[323,162]-0.1
+
+        # if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
+        #     voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
         else:
             voltage_bump[-1] = 0
+            
         voltage_bump[-1] = 0
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
@@ -207,7 +213,7 @@ if __name__ == "__main__":
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
 
-        # supervisor.rtc.set_command(0, voltage)
+        supervisor.rtc.set_command(0, voltage)
 
         strehl = supervisor.target.get_strehl(0)
 
