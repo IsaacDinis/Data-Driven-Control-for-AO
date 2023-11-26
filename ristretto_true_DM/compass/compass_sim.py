@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 2
+    exp_time = 5
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.1
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -144,6 +144,7 @@ if __name__ == "__main__":
     DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
     DM1_deformation_plot = utils.deformation_plot("tweeter phase stroke", refresh_rate, n_iter)
     hump_deformation_plot = utils.deformation_plot("hump phase stroke", refresh_rate, n_iter)
+    hump2_deformation_plot = utils.deformation_plot("hump DM2 phase stroke", refresh_rate, n_iter)
     plt.ion()
     plt.show()
 
@@ -168,7 +169,7 @@ if __name__ == "__main__":
             voltage_bump[-1] =  -DM1_phase[323,162]-0.1
         else:
             voltage_bump[-1] = 0
-        # voltage_bump[-1] = 0
+        voltage_bump[-1] = 0
         
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
@@ -207,8 +208,8 @@ if __name__ == "__main__":
         #     voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
         else:
             voltage_bump[-1] = 0
-            
-        # voltage_bump[-1] = 0
+        voltage_bump[-1] = 0
+
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
@@ -240,6 +241,7 @@ if __name__ == "__main__":
 
         DM0_phase = supervisor.dms.get_dm_shape(0)
         DM1_phase = supervisor.dms.get_dm_shape(1)#*pupil_valid_DM1
+        DM2_phase = supervisor.dms.get_dm_shape(2)#*pupil_valid_DM1
         atm_phase = supervisor.atmos.get_atmos_layer(0)
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)
         target_phase[target_phase!=0] -= np.mean(target_phase[target_phase!=0])
@@ -269,6 +271,7 @@ if __name__ == "__main__":
         DM1_deformation_plot.plot(np.max(DM1_phase)-np.min(DM1_phase),i)
         # hump_deformation_plot.plot(np.max(DM1_phase)- DM1_phase[323,162],i)
         hump_deformation_plot.plot(DM1_phase[323,162],i)
+        hump2_deformation_plot.plot(DM2_phase[323,162],i)
 
         supervisor.next()
     mode = 0
