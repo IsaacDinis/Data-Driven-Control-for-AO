@@ -275,14 +275,14 @@ if __name__ == "__main__":
 
         supervisor.next()
     mode = 0
-    modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
+    modal_DM0_plot.plot_psd(mode,fs,'LODM KL {:d} res'.format(mode),save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,fs,'HODM KL {:d} res'.format(mode),save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,fs,'Zernike {:d} psd'.format(mode),save_path+'Zernike_{:d}_psd.png'.format(mode))
 
     mode = 1
-    modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
+    modal_DM0_plot.plot_psd(mode,fs,'LODM KL {:d} res'.format(mode),save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,fs,'HODM KL {:d} res'.format(mode),save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,fs,'Zernike {:d} psd'.format(mode),save_path+'Zernike_{:d}_psd.png'.format(mode))
 
     # mode = 2
     # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
