@@ -135,7 +135,7 @@ p_dm1.set_file_influ_fits("ristretto.fits") # /!\ to use a custom SAXO HO DM
 
 
 p_dm2.set_type("pzt")         # /!\
-p_dm2.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
+p_dm2.set_thresh(-0.5)        # /!\ to get the SAXO 1377 active actuators
 # p_dm2.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
 p_dm2.set_alt(0.)             # /!\
 p_dm2.set_unitpervolt(1.)     # /!\

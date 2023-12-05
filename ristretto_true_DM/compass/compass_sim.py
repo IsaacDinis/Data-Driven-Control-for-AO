@@ -45,9 +45,9 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 5
+    exp_time = 1
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.1
+    exp_time_bootstrap = 0.2
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -114,8 +114,10 @@ if __name__ == "__main__":
     #------------------------------------
     # control tilt mode
     #------------------------------------
-    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf)
+    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf)
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
+    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1)
+
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
     # single_mode_res = np.empty(n_iter)
@@ -125,7 +127,13 @@ if __name__ == "__main__":
 
 
     bool_DMO = True
+    bool_hump = False
+    n_hump = 7
+    hump_offset_HODM = 22
+    hump_offset_hump_DM = 8
+    hump_pos = np.array([[279,267,315,304,292,279,225],[141,152,46,91,109,392,415]])
     rms_stroke = 0;
+    hump_amp = np.zeros(n_hump)
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
     refresh_rate = 100
@@ -145,6 +153,7 @@ if __name__ == "__main__":
     DM1_deformation_plot = utils.deformation_plot("tweeter phase stroke", refresh_rate, n_iter)
     hump_deformation_plot = utils.deformation_plot("hump phase stroke", refresh_rate, n_iter)
     hump2_deformation_plot = utils.deformation_plot("hump DM2 phase stroke", refresh_rate, n_iter)
+    hump_plot = utils.dummy_plot(n_hump,"hump plot",refresh_rate,n_iter)
     plt.ion()
     plt.show()
 
@@ -155,24 +164,31 @@ if __name__ == "__main__":
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
 
-        voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
-        # voltage_DM0 = DM0_K.update_command(slopes)
+        voltage_DM1 = DM1_K.update_command(slopes)
+        voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
-        # if  i%4==0:
-        voltage_DM0_applied = voltage_DM0
+        if  i%4==0:
+            voltage_DM0_applied = voltage_DM0
         DM1_phase = supervisor.dms.get_dm_shape(1)
+        hump_phase = supervisor.dms.get_dm_shape(2)
         # if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
         #     voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
-        if  DM1_phase[323,162] < -0.1 :
-            voltage_bump[-1] =  -DM1_phase[323,162]-0.1
+        if bool_hump:
+            for j in range(n_hump):
+                if  DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)] < -0.1 :
+                    voltage_bump[j] =  -DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]-0.1
+                else:
+                    voltage_bump[j] = 0
         else:
-            voltage_bump[-1] = 0
-        voltage_bump[-1] = 0
-        
+            voltage_bump *= 0
+
+        for j in range(n_hump):
+            hump_amp[j] = DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]+hump_phase[tuple(hump_pos[:,j]+hump_offset_hump_DM)]
+
         if bool_DMO:
-            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
@@ -189,29 +205,43 @@ if __name__ == "__main__":
         slopes = supervisor.rtc.get_slopes(0)
         # phase  = np.ndarray.flatten(supervisor.target.get_tar_phase(0,pupil=True))
 
-        # voltage_DM0 = DM0_K.update_command(slopes)
+        voltage_DM0 = DM0_K.update_command(slopes)
 
-        voltage_DM1, voltage_DM0 = DM1_K.update_command(slopes)
+        voltage_DM1 = DM1_K.update_command(slopes)
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
-        # if  i%4==0:
-        voltage_DM0_applied = voltage_DM0
+        if  i%4==0:
+            voltage_DM0_applied = voltage_DM0
 
         DM1_phase = supervisor.dms.get_dm_shape(1)
+        hump_phase = supervisor.dms.get_dm_shape(2)
 
         if  DM1_phase[323,162] < -0.1 :
             voltage_bump[-1] =  -DM1_phase[323,162]-0.1
 
         # if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
         #     voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
+        # else:
+        #     voltage_bump[-1] = 0
+        # voltage_bump[-1] = 0
+        if bool_hump:
+            for j in range(n_hump):
+                if  DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)] < -0.1 :
+                    voltage_bump[j] =  -DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]-0.1
+                else:
+                    voltage_bump[j] = 0
+                
         else:
-            voltage_bump[-1] = 0
-        voltage_bump[-1] = 0
+            voltage_bump *= 0
+
+        for j in range(n_hump):
+            hump_amp[j] = DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]+hump_phase[tuple(hump_pos[:,j]+hump_offset_hump_DM)]
+
 
         if bool_DMO:
-            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
@@ -270,9 +300,9 @@ if __name__ == "__main__":
         # DM1_stroke_plot.plot(voltage_DM1,i)
         DM1_deformation_plot.plot(np.max(DM1_phase)-np.min(DM1_phase),i)
         # hump_deformation_plot.plot(np.max(DM1_phase)- DM1_phase[323,162],i)
-        hump_deformation_plot.plot(DM1_phase[323,162],i)
-        hump2_deformation_plot.plot(DM2_phase[323,162],i)
-
+        hump_deformation_plot.plot(DM1_phase[225+22,415+22],i)
+        hump2_deformation_plot.plot(DM2_phase[225+8,415+8],i)
+        hump_plot.plot(hump_amp,i)
         supervisor.next()
     mode = 0
     modal_DM0_plot.plot_psd(mode,fs,'LODM KL {:d} res'.format(mode),save_path+'LODM_{:d}_psd.png'.format(mode))

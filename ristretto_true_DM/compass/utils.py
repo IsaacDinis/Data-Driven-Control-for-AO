@@ -335,3 +335,105 @@ class deformation_plot:
         
     def save_plot(self, path_name):
         self.fig.savefig(path_name) 
+
+class dummy_plot:
+    def __init__(self,dim,title,refresh_rate,n_iter):
+
+        self.fig, self.ax = plt.subplots(constrained_layout=True, num = title)
+        self.fig.suptitle(title)
+        self.refresh_rate = refresh_rate
+        self.data = np.zeros((n_iter, dim))
+        self.count = 1
+        self.ax.set_ylabel("[um]")
+        self.ax.set_xlabel("iter")
+        self.n_iter = n_iter
+
+
+    def plot(self, data,iter_n):
+        
+        self.data[iter_n,:] = data
+
+        if self.count == 0:
+
+            for i in range(self.data.shape[1]):
+                self.ax.plot(self.data[:iter_n,i])
+            if np.min(self.data[:iter_n,:]) > 0:
+                low_bound = 0
+            else :
+                low_bound = np.min(self.data[:iter_n,:])
+                
+            self.ax.set_ylim(low_bound,np.max(self.data[:iter_n,:]))
+            self.ax.set_xlim(0,iter_n)
+            
+            self.ax.set_ylabel("[um]")
+            self.ax.set_xlabel("iter")
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
+        self.count += 1
+        if self.count == self.refresh_rate:
+            self.count = 0
+
+    def reset(self):
+        self.data *= 0
+
+    def save(self, path_name):
+        pfits.writeto(path_name, self.data, overwrite = True)
+
+    def load(self,path_name):
+        self.data = pfits.getdata(path_name)
+        
+    def save_plot(self, path_name):
+        self.fig.savefig(path_name) 
+
+
+
+def write_dm_custom_fits(file_name, i1, j1, influ_cube, xpos, ypos, xcenter, ycenter,pixsize,pupm, *,pitchm=None):
+    """Write a custom_dm fits file based on user provided data (see args)
+
+    Args:
+        file_name : (string) : name of the custom dm fits file
+
+        i1 : (np.ndarray) : x coordinate of the first pixel for each of the 2D maps
+
+        j1 : (np.ndarray) : y coordinate of the first pixel for each of the 2D maps
+
+        influ_cube : (np.ndarray) : 2D maps of the influence functions
+
+        xpos : (np.ndarray) : x coordinate of the physical location of the actuator
+
+        ypos : (np.ndarray) : y coordinate of the physical location of the actuator
+
+        xcenter : (float) : x coordinate of the centre of the pupil, expressed in pixels
+
+        ycenter : (float) : y coordinate of the centre of the pupil, expressed in pixels
+
+        pixsize : (float) : size of the pixels on the maps in meters
+
+        pupm : (float) : diameter of pupil stop (meters)
+
+    Kwargs:
+        pitchm : (float) : size of the DM pitch in meters. Defaults to None.
+
+    Returns:
+        (HDUList) : custom_dm data
+    """
+    fits_version=1.2
+    primary_hdu = pfits.PrimaryHDU()
+    primary_hdu.header['VERSION'] = (fits_version,'file format version')
+    primary_hdu.header['XCENTER'] = (xcenter     ,'DM centre along X in pixels')
+    primary_hdu.header['YCENTER'] = (ycenter     ,'DM centre along Y in pixels')
+    primary_hdu.header['PIXSIZE'] = (pixsize     ,'pixel size (meters)')
+    primary_hdu.header['PUPM']    = (pupm        ,'nominal pupil diameter (meters)')
+    if(pitchm is not None):
+        primary_hdu.header['PITCHM'] = (pitchm,'DM pitch (meters)')
+
+
+    image_hdu = pfits.ImageHDU(np.c_[i1 , j1 ].T, name="I1_J1")
+    image_hdu2 = pfits.ImageHDU(influ_cube, name="INFLU")
+    image_hdu3 = pfits.ImageHDU(np.c_[xpos, ypos].T, name="XPOS_YPOS")
+
+    dm_custom = pfits.HDUList([primary_hdu, image_hdu, image_hdu2, image_hdu3])
+
+    dm_custom.writeto(file_name,overwrite=1)
+    return dm_custom
+

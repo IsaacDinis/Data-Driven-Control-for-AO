@@ -14,6 +14,7 @@ class K:
         self.V2M = np.linalg.pinv(M2V)
         self.stroke = stroke
         self.offload_mat = offload_mat
+        self.count = 0
         if (offload_mat.any()):   
             self.offload_mat_T = np.linalg.pinv(offload_mat)
 
