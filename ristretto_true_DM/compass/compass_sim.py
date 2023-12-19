@@ -114,9 +114,9 @@ if __name__ == "__main__":
     #------------------------------------
     # control tilt mode
     #------------------------------------
-    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf)
+    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
-    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1)
+    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,np.inf)
 
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
 
     bool_DMO = True
-    bool_hump = False
+    bool_hump = True
     n_hump = 7
     hump_offset_HODM = 22
     hump_offset_hump_DM = 8
@@ -164,13 +164,13 @@ if __name__ == "__main__":
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
 
-        voltage_DM1 = DM1_K.update_command(slopes)
-        voltage_DM0 = DM0_K.update_command(slopes)
+        voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
+        # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
-        if  i%4==0:
-            voltage_DM0_applied = voltage_DM0
+        # if  i%4==0:
+        #     voltage_DM0_applied = voltage_DM0
         DM1_phase = supervisor.dms.get_dm_shape(1)
         hump_phase = supervisor.dms.get_dm_shape(2)
         # if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
@@ -188,7 +188,7 @@ if __name__ == "__main__":
             hump_amp[j] = DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]+hump_phase[tuple(hump_pos[:,j]+hump_offset_hump_DM)]
 
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
@@ -205,21 +205,21 @@ if __name__ == "__main__":
         slopes = supervisor.rtc.get_slopes(0)
         # phase  = np.ndarray.flatten(supervisor.target.get_tar_phase(0,pupil=True))
 
-        voltage_DM0 = DM0_K.update_command(slopes)
+        # voltage_DM0 = DM0_K.update_command(slopes)
 
-        voltage_DM1 = DM1_K.update_command(slopes)
+        voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
 
-        if  i%4==0:
-            voltage_DM0_applied = voltage_DM0
+        # if  i%4==0:
+        #     voltage_DM0_applied = voltage_DM0
 
         DM1_phase = supervisor.dms.get_dm_shape(1)
         hump_phase = supervisor.dms.get_dm_shape(2)
 
-        if  DM1_phase[323,162] < -0.1 :
-            voltage_bump[-1] =  -DM1_phase[323,162]-0.1
+        # if  DM1_phase[323,162] < -0.1 :
+        #     voltage_bump[-1] =  -DM1_phase[323,162]-0.1
 
         # if  np.max(DM1_phase) - DM1_phase[323,162] > 1.8:
         #     voltage_bump[-1] = np.max(DM1_phase) - DM1_phase[323,162]-1.8
@@ -241,7 +241,7 @@ if __name__ == "__main__":
 
 
         if bool_DMO:
-            voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
+            # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
             voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
         else:
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
@@ -304,30 +304,21 @@ if __name__ == "__main__":
         hump2_deformation_plot.plot(DM2_phase[225+8,415+8],i)
         hump_plot.plot(hump_amp,i)
         supervisor.next()
+
+    modal_DM0_plot.compute_res_psd(fs)
+    modal_DM1_plot.compute_res_psd(fs)
+    zernike_saxo_plot.compute_res_psd(fs)
+
     mode = 0
-    modal_DM0_plot.plot_psd(mode,fs,'LODM KL {:d} res'.format(mode),save_path+'LODM_{:d}_psd.png'.format(mode))
-    modal_DM1_plot.plot_psd(mode,fs,'HODM KL {:d} res'.format(mode),save_path+'HODM_{:d}_psd.png'.format(mode))
-    zernike_saxo_plot.plot_psd(mode,fs,'Zernike {:d} psd'.format(mode),save_path+'Zernike_{:d}_psd.png'.format(mode))
+    modal_DM0_plot.plot_psd(mode,'LODM KL {:d} res'.format(mode),save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,'HODM KL {:d} res'.format(mode),save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,'Zernike {:d} psd'.format(mode),save_path+'Zernike_{:d}_psd.png'.format(mode))
 
     mode = 1
-    modal_DM0_plot.plot_psd(mode,fs,'LODM KL {:d} res'.format(mode),save_path+'LODM_{:d}_psd.png'.format(mode))
-    modal_DM1_plot.plot_psd(mode,fs,'HODM KL {:d} res'.format(mode),save_path+'HODM_{:d}_psd.png'.format(mode))
-    zernike_saxo_plot.plot_psd(mode,fs,'Zernike {:d} psd'.format(mode),save_path+'Zernike_{:d}_psd.png'.format(mode))
+    modal_DM0_plot.plot_psd(mode,'LODM KL {:d} res'.format(mode),save_path+'LODM_{:d}_psd.png'.format(mode))
+    modal_DM1_plot.plot_psd(mode,'HODM KL {:d} res'.format(mode),save_path+'HODM_{:d}_psd.png'.format(mode))
+    zernike_saxo_plot.plot_psd(mode,'Zernike {:d} psd'.format(mode),save_path+'Zernike_{:d}_psd.png'.format(mode))
 
-    # mode = 2
-    # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    # modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    # zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
-
-    # mode = 3
-    # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    # modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    # zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
-
-    # mode = 50
-    # modal_DM0_plot.plot_psd(mode,fs,'LODM KL res',save_path+'LODM_{:d}_psd.png'.format(mode))
-    # modal_DM1_plot.plot_psd(mode,fs,'HODM KL res',save_path+'HODM_{:d}_psd.png'.format(mode))
-    # zernike_saxo_plot.plot_psd(mode,fs,'Zernike psd',save_path+'Zernike_{:d}_psd.png'.format(mode))
 
     rms_stroke /= n_iter
     print('rms_stroke = {:.5f} \n'.format(rms_stroke))
@@ -342,6 +333,10 @@ if __name__ == "__main__":
     modal_DM1_plot.save_std_plot(save_path+'HODM_res_std.png')
     modal_DM0_plot.save_std_plot(save_path+'LODM_res_std.png')
     zernike_saxo_plot.save_std_plot(save_path+'zernike_std.png')
+
+    modal_DM0_plot.save_psd(save_path+"LODM_res_psd.fits")
+    modal_DM1_plot.save_psd(save_path+"HODM_res_psd.fits")
+    zernike_saxo_plot.save_psd(save_path+"zernike_res_psd.fits")
 
     DM0_stroke_plot.save(save_path+'LODM_stroke.fits')
     DM1_stroke_plot.save(save_path+'HODM_stroke.fits')

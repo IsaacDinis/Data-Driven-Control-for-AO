@@ -59,21 +59,25 @@ class zernike_plot:
         self.zernike_res *= 0
 
 
-    def plot_psd(self,mode,fs,title,path_name = ''):
-        n_average = 10
-        window_size = int(np.floor(self.n_iter/n_average))
-        psd, freq = compute_psd.compute_psd_fft(self.zernike_res, n_average, window_size,fs)
+    def plot_psd(self,mode,title,path_name = ''):
         fig, ax = plt.subplots(constrained_layout=True, num = title)
-        # psd /= np.max(psd)
-        psd = 10*np.log10(psd)
+        psd = 10*np.log10(self.psd[:,mode])
         fig.suptitle(title)
         ax.set_title('mode {:d}'.format(mode))
         ax.set_xscale('log')
         ax.set_ylabel("mag. [dB]")
         ax.set_xlabel("freq. [Hz]")
-        ax.plot(freq,psd[:,mode])
+        ax.plot(self.freq,psd)
         if (path_name != ''):
             fig.savefig(path_name) 
+
+    def compute_res_psd(self,fs):
+        n_average = 10
+        window_size = int(np.floor(self.n_iter/n_average))
+        self.psd, self.freq = compute_psd.compute_psd_fft(self.zernike_res, n_average, window_size,fs)
+
+    def save_psd(self,path_name):
+        pfits.writeto(path_name,  np.column_stack((self.freq,self.psd)), overwrite = True)
 
     def save(self, path_name):
         pfits.writeto(path_name, self.zernike_res, overwrite = True)
@@ -166,21 +170,25 @@ class modal_plot:
     def reset(self):
         self.modal_res *= 0
 
-    def plot_psd(self,mode,fs,title,path_name = ''):
-        n_average = 10
-        window_size = int(np.floor(self.n_iter/n_average))
-        psd, freq = compute_psd.compute_psd_fft(self.modal_res, n_average, window_size,fs)
-        # psd /= np.max(psd)
-        psd = 10*np.log10(psd)
+    def plot_psd(self,mode,title,path_name = ''):
         fig, ax = plt.subplots(constrained_layout=True, num = title)
+        psd = 10*np.log10(self.psd[:,mode])
         fig.suptitle(title)
         ax.set_title('mode {:d}'.format(mode))
         ax.set_xscale('log')
         ax.set_ylabel("mag. [dB]")
         ax.set_xlabel("freq. [Hz]")
-        ax.plot(freq,psd[:,mode])
+        ax.plot(self.freq,psd)
         if (path_name != ''):
             fig.savefig(path_name) 
+
+    def compute_res_psd(self,fs):
+        n_average = 10
+        window_size = int(np.floor(self.n_iter/n_average))
+        self.psd, self.freq = compute_psd.compute_psd_fft(self.modal_res, n_average, window_size,fs)
+
+    def save_psd(self,path_name):
+        pfits.writeto(path_name, np.column_stack((self.freq,self.psd)), overwrite = True)
 
     def save(self, path_name):
         pfits.writeto(path_name, self.modal_res, overwrite = True)
@@ -354,7 +362,7 @@ class dummy_plot:
         self.data[iter_n,:] = data
 
         if self.count == 0:
-
+            self.ax.cla()
             for i in range(self.data.shape[1]):
                 self.ax.plot(self.data[:iter_n,i])
             if np.min(self.data[:iter_n,:]) > 0:

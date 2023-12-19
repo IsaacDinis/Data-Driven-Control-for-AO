@@ -1,11 +1,16 @@
-fs = 2760;
-mode = 3;
+fs = 2000;
+mode = 3
 
-dist_matrix_path = 'results/standalone/bright1_s0_3_t2_g3/saxoplus_KL_res_psd.fits';
+dist_matrix_path = 'results/plop/zernike_res_psd';
 KL_standalone_psd_g3 = fitsread(dist_matrix_path);
 f = KL_standalone_psd_g3(:,1);
 KL_standalone_psd_g3 = KL_standalone_psd_g3(:,mode);
-rms_standalone_g3 = sqrt(sum(KL_standalone_psd_g3)*f(2)*275/fs);
+rms_standalone_g3 = sqrt(sum(KL_standalone_psd_g3)/400);
+
+
+plop = fitsread('results/plop/zernike_res.fits');
+plop = plop(:,mode-1);
+rms(plop)
 
 dist_matrix_path = 'results/standalone/bright1_s0_3_t2_g2/saxoplus_KL_res_psd.fits';
 KL_standalone_psd_g2 = fitsread(dist_matrix_path);

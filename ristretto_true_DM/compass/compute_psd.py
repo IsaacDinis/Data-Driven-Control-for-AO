@@ -29,7 +29,7 @@ def compute_psd_fft(data, n_average, window_size,fs):
     for mode in range(n_modes):
         for i in range(n_average):
             data_w = data[i*window_size:(i+1)*window_size, mode]
-            psd[:, mode] = psd[:, mode] + np.abs((np.fft.fft(data_w)/data_w.size))**2
+            psd[:, mode] += np.abs((np.fft.fft(data_w)))**2/data_w.size
 
     freq = np.fft.fftfreq(psd.shape[0],1/fs)
 
@@ -37,7 +37,7 @@ def compute_psd_fft(data, n_average, window_size,fs):
     psd = psd[:int(psd.shape[0] / 2),:]
     freq = freq[:int(freq.size/2)]
 
-    psd *= 2/n_average # normalize energy because of removing negative parts and number of averages
+    psd *= 2/(n_average*fs) # normalize energy because of removing negative parts and number of averages
     return psd, freq
 
 
