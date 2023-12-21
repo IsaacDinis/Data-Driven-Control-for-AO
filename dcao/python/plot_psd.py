@@ -7,32 +7,34 @@ import astropy.io.fits as pfits
 import utils
 from scipy import signal
 
-modal_res = pfits.getdata('../dcao_ol/zernike_saxoplus_res.fits')
+modal_res = pfits.getdata('../dcao_ol/saxoplus_KL_res.fits')
 mode = 0
-fs = 2000
-n_average = 10
+fs = 2760
+n_average = 60
 window_size = 200
-psd, freq = compute_psd.compute_psd_xcorr(modal_res, n_average, window_size,fs)
+# psd, freq = compute_psd.compute_psd_fft(modal_res, n_average, window_size,fs)
+psd, freq, psd_map = compute_psd.compute_psd_welch(modal_res, window_size,fs)
 # psd /= np.max(psd)
-psd = 10*np.log10(psd)
+psd_log = 10*np.log10(psd)
 fig, ax = plt.subplots(constrained_layout=True)
 
 ax.set_title('mode {:d}'.format(mode))
 ax.set_xscale('log')
 ax.set_ylabel("mag. [dB]")
 ax.set_xlabel("freq. [Hz]")
-ax.plot(freq,psd[:,mode])
+ax.plot(freq,psd_log[:,mode])
 
 
-
-f, Pxx_den = signal.periodogram(modal_res[:,0], fs)
-
-plt.plot(f[1:], 10*np.log10(Pxx_den[1:]))
-
-# plt.ylim([1e-3, 1e4])
-
-plt.xlabel('frequency [Hz]')
-
-plt.ylabel('PSD [V**2/Hz]')
-
+# fig1, ax1= plt.subplots(constrained_layout=True)
+#
+# ax1.set_title('mode {:d}'.format(mode))
+# ax1.set_ylabel("freq. [Hz]")
+# ax1.set_xlabel("time")
+# # ax1.set_yscale('log')
+#
+# ax1.imshow(psd_map[:,:,0])
+# #
 plt.show()
+
+pfits.writeto('psd.fits', psd, overwrite = True)
+pfits.writeto('freq.fits', freq, overwrite = True)

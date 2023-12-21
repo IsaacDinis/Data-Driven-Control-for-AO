@@ -2,17 +2,17 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
-
-dist_matrix_path = '../dcao_ol/KL_saxoplus_res.fits';
+mode = 2;
+dist_matrix_path = '../saxoplus_ol/saxoplus_KL_res.fits';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = fitsread(dist_matrix_path);
-dist_matrix = dist_matrix(:,1);
+dist_matrix = dist_matrix(:,mode);
 %%
 fs = 2760;
 bandwidth = 200;
@@ -25,11 +25,18 @@ max_control_gain = 0.2;
 % n_average = 20;
 
 window_size = 200;
-n_average = 10;
+n_average = 60;
 
-[psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
+% [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
 % [psd, f] =  pwelch(dist_matrix,400,200,400,fs);
+
+psd =  fitsread('../python/psd.fits');
+psd = psd(:,mode);
+f =  fitsread('../python/freq.fits');
+f = f(2:end);
+psd = psd(2:end,:);
 % psd(1:13) = psd(1:13)/8;
+%%
 
 figure()
 semilogx(f,10*log10(psd))
@@ -42,10 +49,14 @@ max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
+g = 0.25;
+K0 = tf([g,0],[1,-1],1/fs);
+S_int = feedback(1,G*K0);
 
 tic
 w = f*2*pi;
 W1 = frd(psd,w,1/fs);
+% W1 = frd(psd,w,1/fs)/abs(frd(S_int,w,'rad/s'));
 val = freqresp(W1, bandwidth*2*pi);
 % val = interp1(f,psd,bandwidth);
 W1 = W1/val;
@@ -117,3 +128,8 @@ S_dd = feedback(1,G*Kdd);
 dummy = S_dd*W1*val;
 figure()
 bodemag(dummy,S_dd,W1)
+
+S_int = feedback(1,G*K0);
+dummy = S_int*W1*val;
+figure()
+bodemag(dummy,S_int,W1)
