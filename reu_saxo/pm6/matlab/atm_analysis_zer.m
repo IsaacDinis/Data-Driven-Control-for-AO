@@ -68,7 +68,7 @@ make_it_nicer()
 res_path = '../results/bright1_03_2ms/cao/saxoplus_zernike_res.fits';
 rms_03_02ms_cao = rms(fitsread(res_path));
 
-res_path = '../results/bright1_03_8ms/cao/saxoplus_zernike_res.fits';
+res_path = '../results/bright1_03_8ms/cao/saxoplus_KL_phase_res.fits';
 rms_03_08ms_cao = rms(fitsread(res_path));
 
 res_path = '../results/bright1_09_2ms/cao/saxoplus_zernike_res.fits';

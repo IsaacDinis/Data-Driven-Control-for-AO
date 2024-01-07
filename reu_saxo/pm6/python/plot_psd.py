@@ -6,8 +6,8 @@ import compute_psd
 import astropy.io.fits as pfits
 
 from scipy import signal
-path = '../results/bright1_03_8ms/dcao/'
-modal_res = pfits.getdata(path +'saxoplus_zernike_res.fits')
+path = '../results/bright1_03_8ms/cao_no_noise/'
+modal_res = pfits.getdata(path +'saxoplus_KL_res.fits')
 mode = 1
 fs = 2760
 n_average = 60
@@ -36,5 +36,5 @@ ax.plot(freq,psd_log[:,mode])
 # #
 plt.show()
 
-pfits.writeto(path+'saxoplus_zernike_psd.fits', psd, overwrite = True)
+pfits.writeto(path+'saxoplus_KL_psd.fits', psd, overwrite = True)
 pfits.writeto(path+'freq.fits', freq, overwrite = True)

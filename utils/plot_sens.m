@@ -15,7 +15,8 @@ legend('integrateur simple', 'PI')
 K3 = tf([0.5],[1,-0.99],1/fs);
 % figure()
 % bodemag(K,K3)
-
+figure()
+bodemag(feedback(K,G*K))
 % figure()
 % bodemag(feedback(G*K,G*K),feedback(G*K3,G*K3))
 
