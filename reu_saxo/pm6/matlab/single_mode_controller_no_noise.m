@@ -2,7 +2,7 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -16,7 +16,7 @@ dist_matrix = dist_matrix(:,mode);
 %%
 fs = 2760;
 bandwidth = 140;
-order = 3;
+order = 2;
 max_control_gain = 0.01;
 
 %%
@@ -52,7 +52,7 @@ max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.25;
+g = 0.3;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 

@@ -6,9 +6,9 @@ import compute_psd
 import astropy.io.fits as pfits
 
 from scipy import signal
-path = '../results/bright1_03_8ms/cao_no_noise/'
+path = '../results/bright1_03_8ms/cao_2/'
 modal_res = pfits.getdata(path +'saxoplus_KL_res.fits')
-mode = 1
+mode = 0
 fs = 2760
 n_average = 60
 window_size = 200

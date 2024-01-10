@@ -1,9 +1,9 @@
 fs = 2760;
 
-psd_path = '../results/bright1_03_8ms/cao/saxo_KL_res_psd.fits';
+psd_path = '../results/bright1_03_8ms/cao/saxoplus_KL_psd.fits';
 psd_slope = fitsread(psd_path);
 
-psd_path = '../results/bright1_03_8ms/cao/saxo_zernike_res_psd.fits';
+psd_path = '../results/bright1_03_8ms/cao/saxoplus_KL_phase_psd.fits';
 psd_phase = fitsread(psd_path);
 
 f = fitsread('../results/bright1_03_8ms/dcao/freq.fits');
@@ -27,10 +27,10 @@ xlabel('Frequency (Hz)')
 ylabel('Magnitude (dB)')
 
 %%
-res_path = '../results/bright1_03_8ms/cao/saxo_KL_res.fits';
+res_path = '../results/bright1_03_8ms/cao/saxoplus_KL_res.fits';
 res_slope = fitsread(res_path);
 
-res_path = '../results/bright1_03_8ms/cao/saxo_zernike_res.fits';
+res_path = '../results/bright1_03_8ms/cao/saxoplus_zernike_res.fits';
 res_phase = fitsread(res_path);
 %%
 figure()
