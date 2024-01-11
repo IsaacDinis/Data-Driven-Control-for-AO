@@ -27,17 +27,23 @@ xlabel('Frequency (Hz)')
 ylabel('Magnitude (dB)')
 
 %%
-res_path = '../results/bright1_03_8ms/cao/saxoplus_KL_res.fits';
+% res_path = '../results/bright1_03_8ms/cao/saxoplus_KL_res.fits';
+% res_slope = fitsread(res_path);
+% 
+% res_path = '../results/bright1_03_8ms/cao/saxoplus_KL_phase_res.fits';
+% res_phase = fitsread(res_path);
+
+res_path = '../results/plop/saxoplus_KL_res.fits';
 res_slope = fitsread(res_path);
 
-res_path = '../results/bright1_03_8ms/cao/saxoplus_zernike_res.fits';
+res_path = '../results/plop/saxoplus_KL_phase_res.fits';
 res_phase = fitsread(res_path);
 %%
 figure()
 
-plot(res_slope(:,2))
+plot(res_slope(:,mode))
 hold on;
-plot(-res_phase(:,1))
+plot(res_phase(:,mode))
 
 title('saxo+ standalone 1st KL residual bright 1')
 legend('slopes','phase')

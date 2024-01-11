@@ -5,7 +5,7 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     G = tf([1],[1,0,0],Ts); % 2 samples delay
     
     %% Initial controller
-    g = 0.3;
+    g = 0.21;
     K0 = tf([g,0],[1,-1],Ts);
     S0 = feedback(1,G*K0);
     disp(['Eigenvalues closed-loop using initial controller: ', ...

@@ -2,14 +2,14 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
 mode = 1;
-dist_matrix_path = '../results/bright1_03_8ms/dcao_ol/saxoplus_KL_res.fits';
+dist_matrix_path = '../results/bright1_03_8ms/cao_ol/saxoplus_KL_res.fits';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = fitsread(dist_matrix_path);
 dist_matrix = dist_matrix(:,mode);
@@ -52,7 +52,7 @@ max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.3;
+g = 0.21;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 
