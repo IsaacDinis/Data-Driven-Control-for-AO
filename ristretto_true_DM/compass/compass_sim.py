@@ -116,7 +116,7 @@ if __name__ == "__main__":
     #------------------------------------
     DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
-    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,np.inf)
+    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
 
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
@@ -163,8 +163,11 @@ if __name__ == "__main__":
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
-
-        voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
+        if bool_DMO:
+            voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
+        else:
+            voltage_DM1 = DM1_K.update_command(slopes)
+        voltage_DM1[386] = 2
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM1[0] = 0
@@ -207,7 +210,11 @@ if __name__ == "__main__":
 
         # voltage_DM0 = DM0_K.update_command(slopes)
 
-        voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
+        if bool_DMO:
+            voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
+        else:
+            voltage_DM1 = DM1_K.update_command(slopes)
+        voltage_DM1[386] = 2 
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
@@ -343,6 +350,9 @@ if __name__ == "__main__":
 
     DM0_stroke_plot.save_plot(save_path+'LODM_stroke.png')
     DM1_stroke_plot.save_plot(save_path+'HODM_stroke.png')
+
+    hump_plot.save_plot(save_path+'hump_plot.png')
+    DM1_deformation_plot.save_plot(save_path+'HODM_max_deformation.png')
 
     coroimg = supervisor.corono.get_image(coro_index=0) \
         / np.max(supervisor.corono.get_psf(coro_index=0))
