@@ -8,14 +8,14 @@ if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
-mode = 1;
-dist_matrix_path = '../results/bright1_1_3ms/dcao/saxoplus_KL_u.fits';
+mode = 300;
+dist_matrix_path = '../results/bright1_04_9ms/dcao/saxoplus_KL_u.fits';
 % dist_matrix_path = '../results/red3_05_55ms/dcao/saxoplus_KL_u.fits';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = fitsread(dist_matrix_path);
 dist_matrix = dist_matrix(:,mode);
 %%
-fs = 1200;
+fs = 2760;
 bandwidth = 140;
 order = 3;
 max_control_gain = 0.5;
@@ -26,10 +26,10 @@ max_control_gain = 0.5;
 % n_average = 20;
 
 window_size = 200;
-% n_average = 40;
-n_average = 15;
+n_average = 40;
+% n_average = 15;
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
-psd(10:end) = psd(10);
+psd(20:end) = psd(20);
 % [psd, f] = periodogram(dist_matrix,[],length(dist_matrix),fs);
 % [psd, f] =  pwelch(dist_matrix,400,200,400,fs);
 % 
@@ -45,15 +45,15 @@ psd(10:end) = psd(10);
 figure()
 semilogx(f,10*log10(psd))
 % psd(1:4) = psd(5);
-% G = tf([1],[1,0,0],1/fs); % 1 samples delay
-G = tf([1],[1,0],1/fs); % 1 samples delay
+G = tf([1],[1,0,0],1/fs); % 1 samples delay
+% G = tf([1],[1,0],1/fs); % 1 samples delay
 
 %% Load data
 max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.35;
+g = 0.2;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 
@@ -88,11 +88,11 @@ Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
 
-% dist_matrix_path = '../results/bright1_04_9ms/dcao/saxoplus_KL_u.fits';
-dist_matrix_path = '../results/red3_05_55ms/dcao/saxoplus_KL_u.fits';
+dist_matrix_path = '../results/bright1_1_3ms/dcao/saxoplus_KL_u.fits';
+% dist_matrix_path = '../results/red3_05_55ms/dcao/saxoplus_KL_u.fits';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = fitsread(dist_matrix_path);
-dist_matrix = dist_matrix(:,400);
+dist_matrix = dist_matrix(:,mode);
 
 K0 = tf([g,0],[1,-1],1/fs);
 
