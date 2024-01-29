@@ -24,7 +24,7 @@ p_loop.set_ittime(Ts)
 
 # geom
 p_geom = conf.Param_geom()
-p_geom.set_pupdiam(400)        # /!\ value to get WFS pixsize = 0.361 (SAXO truth = 0.36)
+p_geom.set_pupdiam(150)        # /!\ value to get WFS pixsize = 0.361 (SAXO truth = 0.36)
 p_geom.set_zenithangle(0.)     # /!\ keep it 0 until we know what it does in COMPASS
 
 # tel

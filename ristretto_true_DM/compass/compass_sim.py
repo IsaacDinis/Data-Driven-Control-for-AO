@@ -47,7 +47,7 @@ if __name__ == "__main__":
     fs = 1/Ts
     exp_time = 1
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.2
+    exp_time_bootstrap = 0.0
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -127,7 +127,11 @@ if __name__ == "__main__":
 
 
     bool_DMO = False
+<<<<<<< HEAD
     bool_hump = True
+=======
+    bool_hump = False
+>>>>>>> 73589e8dcf95adc1beff98364c12149557c216a7
     n_hump = 7
     hump_offset_HODM = 22
     hump_offset_hump_DM = 8
@@ -215,7 +219,11 @@ if __name__ == "__main__":
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
         voltage_DM1 *= 0
+<<<<<<< HEAD
         voltage_DM1[386] = 3.5
+=======
+        voltage_DM1[386] = 2 
+>>>>>>> 73589e8dcf95adc1beff98364c12149557c216a7
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
@@ -244,8 +252,8 @@ if __name__ == "__main__":
         else:
             voltage_bump *= 0
 
-        for j in range(n_hump):
-            hump_amp[j] = DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]+hump_phase[tuple(hump_pos[:,j]+hump_offset_hump_DM)]
+        # for j in range(n_hump):
+        #     hump_amp[j] = DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]+hump_phase[tuple(hump_pos[:,j]+hump_offset_hump_DM)]
 
 
         if bool_DMO:
@@ -285,8 +293,8 @@ if __name__ == "__main__":
         target_phase[target_phase!=0] -= np.mean(target_phase[target_phase!=0])
         wfs_image = supervisor.wfs.get_wfs_image(0)
 
-        DM0_plot.plot(DM0_phase,'hump = {:.5f} '.format(target_phase[301,140]))
-        DM1_plot.plot(DM1_phase,'hump = {:.5f} '.format(np.max(DM1_phase) - DM1_phase[323,162]))
+        # DM0_plot.plot(DM0_phase,'hump = {:.5f} '.format(target_phase[301,140]))
+        # DM1_plot.plot(DM1_phase,'hump = {:.5f} '.format(np.max(DM1_phase) - DM1_phase[323,162]))
         wfs_image_plot.plot(wfs_image)
         target_plot.plot(target_phase,'s.e = {:.5f} l.e = {:.5f} \n OPD rms = {:.5f} nm'.format(strehl[0], strehl[1], error_rms/(i+1)))
         
@@ -308,9 +316,9 @@ if __name__ == "__main__":
         # DM1_stroke_plot.plot(voltage_DM1,i)
         DM1_deformation_plot.plot(np.max(DM1_phase)-np.min(DM1_phase),i)
         # hump_deformation_plot.plot(np.max(DM1_phase)- DM1_phase[323,162],i)
-        hump_deformation_plot.plot(DM1_phase[225+22,415+22],i)
-        hump2_deformation_plot.plot(DM2_phase[225+8,415+8],i)
-        hump_plot.plot(hump_amp,i)
+        # hump_deformation_plot.plot(DM1_phase[225+22,415+22],i)
+        # hump2_deformation_plot.plot(DM2_phase[225+8,415+8],i)
+        # hump_plot.plot(hump_amp,i)
         supervisor.next()
 
     modal_DM0_plot.compute_res_psd(fs)
@@ -371,7 +379,11 @@ if __name__ == "__main__":
     plt.title('corono image')
     plt.savefig(save_path+'corono.png')
 
-    psf = supervisor.target.get_tar_image(0,'le')
+
+    psf = supervisor.target.get_tar_image(0, expo_type='le')
+    plt.figure()
+    plt.imshow(np.log10(psf))
+    plt.savefig(save_path+'psf.png')
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
