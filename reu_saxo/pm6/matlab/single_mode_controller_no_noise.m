@@ -9,15 +9,16 @@ if strlength(path_to_fusion) && ~sum(fusion_chk)
 end 
 %% Load data
 mode = 1;
-dist_matrix_path = '../results/bright1_03_8ms/cao_ol/saxoplus_KL_res.fits';
+dist_matrix_path = '../results/bright1_1_3ms/dcao/saxoplus_KL_u.fits';
+% dist_matrix_path = '../results/bright1_1_3ms/dcao/atm_KL_phase.fits';
 % dist_matrix_path = '../data/single_mode_dist.mat';
 dist_matrix = fitsread(dist_matrix_path);
 dist_matrix = dist_matrix(:,mode);
 %%
 fs = 2760;
 bandwidth = 140;
-order = 2;
-max_control_gain = 0.01;
+order = 3;
+max_control_gain = 0.5;
 
 %%
 
@@ -28,7 +29,7 @@ window_size = 200;
 n_average = 60;
 
 [psd, f] = compute_psd(dist_matrix,n_average,window_size,fs);
-psd(25:end) = psd(25);
+psd(20:end) = psd(20);
 % [psd, f] = periodogram(dist_matrix,[],length(dist_matrix),fs);
 % [psd, f] =  pwelch(dist_matrix,400,200,400,fs);
 % 
@@ -52,7 +53,7 @@ max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.21;
+g = 0.48;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 
@@ -86,6 +87,11 @@ Kdd_matrix(:,1,:) = Kdd_numerator;
 Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
+dist_matrix_path = '../results/bright1_1_3ms/dcao/atm_KL_phase.fits';
+% dist_matrix_path = '../results/bright1_04_9ms/dcao/saxoplus_KL_u.fits';
+% dist_matrix_path = '../data/single_mode_dist.mat';
+dist_matrix = fitsread(dist_matrix_path);
+dist_matrix = dist_matrix(:,mode);
 
 K0 = tf([g,0],[1,-1],1/fs);
 

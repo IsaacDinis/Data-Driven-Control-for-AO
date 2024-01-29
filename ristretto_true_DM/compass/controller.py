@@ -10,7 +10,7 @@ class K:
         self.M2V = M2V
         self.res = np.zeros(self.S2M.shape[0])
         
-        self.state_mat = np.zeros((self.order+1,self.order+1,M2V.shape[1]))
+        self.state_mat = np.zeros((self.order+1,s2,M2V.shape[1]))
         self.V2M = np.linalg.pinv(M2V)
         self.stroke = stroke
         self.offload_mat = offload_mat

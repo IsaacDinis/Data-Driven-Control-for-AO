@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     
     supervisor.rtc.open_loop(0) # disable implemented controller
-    supervisor.atmos.enable_atmos(True) 
+    supervisor.atmos.enable_atmos(False) 
 
     pupil = supervisor.get_s_pupil()
     pupil_diam = supervisor.config.p_geom.get_pupdiam()
@@ -114,9 +114,9 @@ if __name__ == "__main__":
     #------------------------------------
     # control tilt mode
     #------------------------------------
-    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
-    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
+    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
 
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
 
 
-    bool_DMO = True
+    bool_DMO = False
     bool_hump = True
     n_hump = 7
     hump_offset_HODM = 22
@@ -214,7 +214,8 @@ if __name__ == "__main__":
             voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
-        voltage_DM1[386] = 2 
+        voltage_DM1 *= 0
+        voltage_DM1[386] = 3.5
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
@@ -369,6 +370,8 @@ if __name__ == "__main__":
     plt.ylabel(r'y [$\lambda$ / D]')
     plt.title('corono image')
     plt.savefig(save_path+'corono.png')
+
+    psf = supervisor.target.get_tar_image(0,'le')
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

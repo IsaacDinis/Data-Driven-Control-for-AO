@@ -130,3 +130,25 @@ ylabel('Magnitude (dB)')
 % legend('int','dd')
 % rms(res_int_cao(:,mode))
 % rms(res_dd_cao(:,mode))
+%%
+res_path = '../results/bright1_1_3ms/cao/saxoplus_KL_res.fits';
+res_int_cao = fitsread(res_path);
+
+res_path = '../results/bright1_04_9ms/dcao/saxoplus_KL_res.fits';
+res_int_dcao = fitsread(res_path);
+
+res_path = '../results/bright1_04_9ms/dcao_dd/saxoplus_KL_res.fits';
+res_dd_dcao = fitsread(res_path);
+
+mode = 1;
+
+
+rms_int_cao = rms(res_int_cao(1:end,mode));
+rms_dd_dcao = rms(res_dd_dcao(1:end,mode));
+rms_int_dcao = rms(res_int_dcao(1:end,mode));
+
+figure()
+plot(res_int_cao(1:1000,mode));
+hold on;
+plot(res_int_dcao(1:1000,mode));
+plot(res_dd_dcao(1:1000,mode));
