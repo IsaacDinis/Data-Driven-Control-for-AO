@@ -24,7 +24,7 @@ import controller
 import os
 from datetime import datetime
 import utils
-
+from scipy.spatial import KDTree
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
@@ -163,6 +163,27 @@ if __name__ == "__main__":
     # flat_record = np.dstack([flat])
     # supervisor.tel.set_input_phase(flat_record)
 
+    pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
+    pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
+    kd_tree_LODM = KDTree(pos_LODM)
+    V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
+    HODM_act = 305
+
+    d, i = kd_tree_LODM.query(pos_HODM[HODM_act,:], k=4)
+    w = 1/d
+    w /= np.sum(w)
+
+    command_LODM = np.zeros(n_act_DM0)
+    command_dead_act = np.zeros(n_act_DM0 + n_act_DM1)
+    for act in range(4):
+        command_LODM[i[act]] = w[act]/0.1
+        command_HODM = -V_DM0_2_V_DM1@command_LODM
+        command_HODM[command_HODM>-0.0001] = 0
+        command_dead_act += np.concatenate([command_LODM,command_HODM])
+        command_LODM *= 0
+    command_dead_act *= -1
+    command_dead_act[n_act_DM0+HODM_act] = 0
+
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
         if bool_DMO:
@@ -218,7 +239,7 @@ if __name__ == "__main__":
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
         # voltage_DM1 *= 0
-        # voltage_DM1[305] = 3.5
+        voltage_DM1[305] = 3.5
 
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
@@ -252,7 +273,7 @@ if __name__ == "__main__":
         else:
             # voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
-
+        voltage += command_dead_act
         supervisor.rtc.set_command(0, voltage)
 
         strehl = supervisor.target.get_strehl(0)
