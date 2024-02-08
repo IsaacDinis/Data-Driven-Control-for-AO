@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 1
+    exp_time = 5
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.1
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -184,6 +184,10 @@ if __name__ == "__main__":
     command_dead_act *= -1
     command_dead_act[n_act_DM0+HODM_act] = 0
 
+    cube_phase_framerate = 200
+    cube_phase_count = 0
+    cube_phase = np.zeros((pupil_diam,pupil_diam,int(np.ceil(exp_time/cube_phase_framerate/Ts))))
+
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
         if bool_DMO:
@@ -239,7 +243,7 @@ if __name__ == "__main__":
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
         # voltage_DM1 *= 0
-        voltage_DM1[305] = 3.5
+        # voltage_DM1[305] = 3.5
 
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
@@ -273,7 +277,7 @@ if __name__ == "__main__":
         else:
             # voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
             voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
-        voltage += command_dead_act
+        # voltage += command_dead_act/2
         supervisor.rtc.set_command(0, voltage)
 
         strehl = supervisor.target.get_strehl(0)
@@ -333,6 +337,9 @@ if __name__ == "__main__":
         # hump_deformation_plot.plot(DM1_phase[225+22,415+22],i)
         # hump2_deformation_plot.plot(DM2_phase[225+8,415+8],i)
         # hump_plot.plot(hump_amp,i)
+        if i%200 == 4:
+            cube_phase[:,:,cube_phase_count] = target_phase
+            cube_phase_count += 1
         supervisor.next()
 
     modal_DM0_plot.compute_res_psd(fs)
@@ -398,6 +405,8 @@ if __name__ == "__main__":
     plt.figure()
     plt.imshow(np.log10(psf))
     plt.savefig(save_path+'psf.png')
+
+    pfits.writeto(save_path+'target_phase_cube.fits', cube_phase, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

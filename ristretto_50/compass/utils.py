@@ -394,6 +394,25 @@ class dummy_plot:
         self.fig.savefig(path_name) 
 
 
+class KL_phase :
+    def __init__(self, order, n_iter, imat):
+        self.count = 0
+        self.modal_res = np.zeros((n_iter,order))
+        self.n_iter = n_iter
+        self.imat = imat[:order,:]
+
+    def update(self, phase,iter_n):
+            modal_res = self.imat@phase
+            self.modal_res[iter_n,:] = modal_res
+
+    def reset(self):
+        self.modal_res *= 0
+
+    def save(self, path_name):
+        pfits.writeto(path_name, self.modal_res, overwrite = True)
+
+    def load(self,path_name):
+        self.modal_res = pfits.getdata(path_name)
 
 def write_dm_custom_fits(file_name, i1, j1, influ_cube, xpos, ypos, xcenter, ycenter,pixsize,pupm, *,pitchm=None):
     """Write a custom_dm fits file based on user provided data (see args)
