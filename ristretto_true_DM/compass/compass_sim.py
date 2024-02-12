@@ -127,11 +127,10 @@ if __name__ == "__main__":
 
 
     bool_DMO = False
-<<<<<<< HEAD
+
     bool_hump = True
-=======
-    bool_hump = False
->>>>>>> 73589e8dcf95adc1beff98364c12149557c216a7
+
+
     n_hump = 7
     hump_offset_HODM = 22
     hump_offset_hump_DM = 8
@@ -219,11 +218,9 @@ if __name__ == "__main__":
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
         voltage_DM1 *= 0
-<<<<<<< HEAD
+
         voltage_DM1[386] = 3.5
-=======
-        voltage_DM1[386] = 2 
->>>>>>> 73589e8dcf95adc1beff98364c12149557c216a7
+
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
