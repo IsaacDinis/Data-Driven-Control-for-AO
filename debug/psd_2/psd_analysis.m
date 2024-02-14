@@ -1,8 +1,8 @@
-phase_ol = fitsread('results/dcao/ol/saxoplus_KL_phase_res.fits');
-slopes_ol = fitsread('results/dcao/ol/saxoplus_KL_res.fits');
-phase_cl = fitsread('results/dcao/cl/saxoplus_KL_phase_res.fits');
-slopes_cl = fitsread('results/dcao/cl/saxoplus_KL_res.fits');
-command_cl = fitsread('results/dcao/cl/saxoplus_KL_u.fits');
+phase_ol = fitsread('results/no_mod/ol/saxoplus_KL_phase_res.fits');
+slopes_ol = fitsread('results/no_mod/ol/saxoplus_KL_res.fits');
+phase_cl = fitsread('results/no_mod/cl/saxoplus_KL_phase_res.fits');
+slopes_cl = fitsread('results/no_mod/cl/saxoplus_KL_res.fits');
+command_cl = fitsread('results/no_mod/cl/saxoplus_KL_u.fits');
 
 mode = 1;
 
