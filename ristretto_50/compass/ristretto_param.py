@@ -15,7 +15,7 @@ import atmosphere
 import numpy as np
 simul_name = "2dm_1wfs"
 
-Ts = 1./2000.
+Ts = 1./4000.
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)         # /?\ number of loops
@@ -42,11 +42,11 @@ p_tel.set_t_spiders(0.)
 # atmos
 p_atmos = conf.Param_atmos()
 # p_atmos.set_r0(0.137)       # Fried parameters @ 500 nm
-p_atmos.set_r0(500e-9/(4.85e-6*0.4))       # Fried parameters @ 500 nm
+p_atmos.set_r0(500e-9/(4.85e-6*0.5))       # Fried parameters @ 500 nm
 p_atmos.set_nscreens(1)    # Number of layers
 p_atmos.set_frac([1.0])    # Fraction of atmosphere (100% = 1)
 p_atmos.set_alt([0.0])     # Altitude(s) in meters
-p_atmos.set_windspeed([9.5]) # wind speed of layer(s) in m/s
+p_atmos.set_windspeed([6]) # wind speed of layer(s) in m/s
 p_atmos.set_winddir([45])  # wind direction in degrees
 p_atmos.set_L0([22])       # in meters
 p_atmos.set_seeds(0)
@@ -92,9 +92,9 @@ p_centroider0.set_type("maskedpix")
 # dm
 p_dm0 = conf.Param_dm()       # /!\
 p_dm1 = conf.Param_dm()       # /!\
-# p_dm2 = conf.Param_dm() 
-# p_dms = [p_dm0, p_dm1, p_dm2]        # /!\
-p_dms = [p_dm0, p_dm1]        # /!\
+p_dm2 = conf.Param_dm() 
+p_dms = [p_dm0, p_dm1, p_dm2]        # /!\
+# p_dms = [p_dm0, p_dm1]        # /!\
 
 p_dm0.set_type("pzt")         # /!\
 nact = 11
@@ -107,9 +107,7 @@ p_dm0.set_unitpervolt(1.)     # /!\
 p_dm0.set_influ_type("gaussian")
 
 p_dm1.set_type("pzt")         # /!\
-
 p_dm1.set_nact(48)
-# p_dm1.set_thresh(0.235)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
@@ -118,6 +116,13 @@ p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
 # dead act = 305
 
 
+p_dm2.set_type("pzt")         # /!\
+p_dm2.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
+p_dm2.set_alt(0.)             # /!\
+p_dm2.set_unitpervolt(1.)     # /!\
+p_dm2.set_push4imat(0.180)    #     to displace ~ half a pixel
+p_dm2.set_file_influ_fits("bump_50.fits") # /!\ to use a custom SAXO HO DM
+
 
 # controllers
 p_controller0 = conf.Param_controller()
@@ -125,9 +130,9 @@ p_controllers = [p_controller0]
 
 p_controller0.set_type("generic")
 p_controller0.set_nwfs([0])         # /!\
-# p_controller0.set_ndm([0,1,2])       # /!\
-p_controller0.set_ndm([0,1])       # /!\
-p_controller0.set_delay(1) # /!\ same delay in ms as in saxo.py
+p_controller0.set_ndm([0,1,2])       # /!\
+# p_controller0.set_ndm([0,1])       # /!\
+p_controller0.set_delay(0) # /!\ same delay in ms as in saxo.py
 p_controller0.set_gain(0.5)
 
 p_corono0 = conf.Param_corono()

@@ -25,6 +25,7 @@ import os
 from datetime import datetime
 import utils
 from scipy.spatial import KDTree
+from rich.progress import track
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 #V2V = np.load('../../saxo-plus/Data-Driven-Control-for-AO/2DM_study/compass/calib_mat/V_DM0_2_V_DM1.npy')
 
@@ -45,9 +46,9 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 5
+    exp_time = 10
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.1
+    exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -83,9 +84,9 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
 
     n_modes_DM0 = 80
-    n_modes_DM1 = 1000
+    n_modes_DM1 = 1200
 
-    a = np.array([1.,-1]) 
+    a = np.array([1.,-0.99]) 
     b = np.array([0.5,0])
 
 
@@ -131,14 +132,13 @@ if __name__ == "__main__":
 
 
     # n_hump = 7
-    # hump_offset_HODM = 22
-    # hump_offset_hump_DM = 8
-    # hump_pos = np.array([[279,267,315,304,292,279,225],[141,152,46,91,109,392,415]])
+    hump_offset_HODM = 9
+    hump_pos = np.array([[101,60,63,63,55,57,63,51],[24,34,30,20,44,41,100,103]])+hump_pos_offset
     rms_stroke = 0;
     # hump_amp = np.zeros(n_hump)
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
-    refresh_rate = 100
+    refresh_rate = 5000
     DM1_plot = utils.phase_plot("tweeter phase", refresh_rate)
     DM0_plot = utils.phase_plot("woofer phase", refresh_rate)
     target_plot = utils.phase_plot("target phase",refresh_rate)
@@ -159,9 +159,9 @@ if __name__ == "__main__":
     plt.ion()
     plt.show()
 
-    # flat = pfits.getdata('calib_mat/flat.fits')
+    flat = pfits.getdata('flat.fits')
     # flat_record = np.dstack([flat])
-    # supervisor.tel.set_input_phase(flat_record)
+    supervisor.tel.set_input_phase(flat)
 
     pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
@@ -184,9 +184,12 @@ if __name__ == "__main__":
     command_dead_act *= -1
     command_dead_act[n_act_DM0+HODM_act] = 0
 
-    cube_phase_framerate = 200
+    cube_phase_framerate = 10
     cube_phase_count = 0
-    cube_phase = np.zeros((pupil_diam,pupil_diam,int(np.ceil(exp_time/cube_phase_framerate/Ts))))
+    cube_phase_target = np.zeros((pupil_diam,pupil_diam,int(np.ceil(exp_time/cube_phase_framerate/Ts))))
+    DM1_phase = supervisor.dms.get_dm_shape(1)
+    DM1_phase_shape = DM1_phase.shape
+    cube_phase_HODM = np.zeros((DM1_phase_shape[0],DM1_phase_shape[1],int(np.ceil(exp_time/cube_phase_framerate/Ts))))
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
@@ -230,8 +233,8 @@ if __name__ == "__main__":
     supervisor.target.reset_tar_phase(0)
     supervisor.corono.reset()
     error_rms = 0
-    
-    for i in range(n_iter):
+    for i in track(range(n_iter), description="long exposure"):
+    # for i in range(n_iter):
         
         slopes = supervisor.rtc.get_slopes(0)
         # phase  = np.ndarray.flatten(supervisor.target.get_tar_phase(0,pupil=True))
@@ -337,8 +340,9 @@ if __name__ == "__main__":
         # hump_deformation_plot.plot(DM1_phase[225+22,415+22],i)
         # hump2_deformation_plot.plot(DM2_phase[225+8,415+8],i)
         # hump_plot.plot(hump_amp,i)
-        if i%200 == 4:
-            cube_phase[:,:,cube_phase_count] = target_phase
+        if i%cube_phase_framerate == 0:
+            cube_phase_target[:,:,cube_phase_count] = target_phase
+            cube_phase_HODM[:,:,cube_phase_count] = DM1_phase
             cube_phase_count += 1
         supervisor.next()
 
@@ -405,8 +409,34 @@ if __name__ == "__main__":
     plt.figure()
     plt.imshow(np.log10(psf))
     plt.savefig(save_path+'psf.png')
+    pfits.writeto(save_path+'psf.fits', psf, overwrite = True)
 
-    pfits.writeto(save_path+'target_phase_cube.fits', cube_phase, overwrite = True)
+    pfits.writeto(save_path+'target_phase_cube.fits', cube_phase_target, overwrite = True)
+    pfits.writeto(save_path+'HODM_phase_cube.fits', cube_phase_HODM, overwrite = True)
+
+    max_stroke_HODM = np.max(cube_phase_HODM,axis = 2)
+    min_stroke_HODM = np.min(cube_phase_HODM,axis = 2)
+    total_stroke_HODM = max_stroke_HODM-min_stroke_HODM
+    pfits.writeto(save_path+'max_stroke_HODM.fits', total_stroke_HODM, overwrite = True)
+
+    plt.figure()
+    plt.imshow(max_stroke_HODM)
+    cbar = plt.colorbar()
+    cbar.set_label(label="[um]", size=12)
+    plt.title('upper stroke')
+
+    plt.figure()
+    plt.imshow(min_stroke_HODM)
+    cbar = plt.colorbar()
+    cbar.set_label(label="[um]", size=12)
+    plt.title('lower stroke')
+
+    plt.figure()
+    plt.imshow(total_stroke_HODM)
+    cbar = plt.colorbar()
+    cbar.set_label(label="[um]", size=12)
+    plt.title('maximum stroke')
+    plt.savefig(save_path+'max_stroke_HODM.png')
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

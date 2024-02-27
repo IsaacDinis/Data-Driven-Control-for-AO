@@ -58,7 +58,7 @@ if __name__ == "__main__":
     n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
     # n_actus_bump = supervisor.config.p_dms[2].get_ntotact()
     n_modes_DM0 = 80
-    n_modes_DM1 = 1000
+    n_modes_DM1 = 1200
 
     M2V_DM1 = M2V_DM1[:,:n_modes_DM1]
     M2V_DM0 = M2V_DM0[:,:n_modes_DM0]

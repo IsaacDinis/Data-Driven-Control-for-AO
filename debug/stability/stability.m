@@ -1,9 +1,9 @@
 
 fs = 1000; % sampling frequency
-gain = 0.5; % integrator gain
-RTC_delai = 1; % number of RTC delay frames 
+gain = 0.1; % integrator gain
+RTC_delai = 7; % number of RTC delay frames 
 
-K = tf([gain,0],[1,-1],1/fs); % integrator transfer function
+K = tf([gain,0],[1,-0.9],1/fs); % integrator transfer function
 
 dummy = zeros(1,1+RTC_delai);
 dummy(1) = 1;
@@ -12,7 +12,8 @@ RTC = tf([1],dummy,1/fs); % RTC transfer function
 WFS = tf([1,1],[2,0],1/fs); % WFS transfer function
 
 
-sys_ol = WFS*RTC*K; % open loop transfer function
+% sys_ol = WFS*RTC*K; % open loop transfer function
+sys_ol = RTC*K; % open loop transfer function
 sys_cl = feedback(1,sys_ol); % closed loop transfer function
 
 disp(['Eigenvalues closed-loop : ',...

@@ -10,4 +10,6 @@ results/
 *.autosave
 *.fits
 *.fig
+!ristretto_50/compass/calib_mat/flat.fits
+!ristretto_50/compass/bump_50.fits
 __pycache__/
