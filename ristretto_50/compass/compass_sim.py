@@ -44,6 +44,12 @@ if __name__ == "__main__":
         ])
     supervisor = Supervisor(config)
 
+    bool_flat = False
+    bool_DMO = True
+    bool_hump = True
+    bool_dead_act = True
+    bool_dead_act_compensation = True
+
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
     exp_time = 10
@@ -74,8 +80,8 @@ if __name__ == "__main__":
 
     n_act_DM0 = supervisor.config.p_dms[0].get_ntotact()
     n_act_DM1 = supervisor.config.p_dms[1].get_ntotact()
-    # n_act_bump = supervisor.config.p_dms[2].get_ntotact()
-    # voltage_bump = np.zeros(n_act_bump)
+    n_act_bump = supervisor.config.p_dms[2].get_ntotact()
+    voltage_bump = np.zeros(n_act_bump)
 
     cross_act_DM0 = supervisor.config.p_dms[0].get_nact()+2
     # cross_act_DM1 = supervisor.config.p_dms[1].get_nact()+2
@@ -115,9 +121,14 @@ if __name__ == "__main__":
     #------------------------------------
     # control tilt mode
     #------------------------------------
-    DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+
+    if bool_DMO:
+        DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+    else:
+        DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
+
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
-    # DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
+
 
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
@@ -127,18 +138,18 @@ if __name__ == "__main__":
     state_mat_DM1 = np.zeros((2,2,n_modes_DM1))
 
 
-    bool_DMO = True
-    bool_hump = False
 
+    max_voltage = 3.5/2
+    voltage_dead_act = max_voltage
 
-    # n_hump = 7
+    n_hump = n_act_bump
     hump_offset_HODM = 9
-    hump_pos = np.array([[101,60,63,63,55,57,63,51],[24,34,30,20,44,41,100,103]])+hump_pos_offset
+    hump_pos = np.array([[101,60,63,63,55,57,63,51],[24,34,30,20,44,41,100,103]])+hump_offset_HODM
     rms_stroke = 0;
-    # hump_amp = np.zeros(n_hump)
+    hump_amp = np.zeros(n_hump)
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
-    refresh_rate = 5000
+    refresh_rate = 100
     DM1_plot = utils.phase_plot("tweeter phase", refresh_rate)
     DM0_plot = utils.phase_plot("woofer phase", refresh_rate)
     target_plot = utils.phase_plot("target phase",refresh_rate)
@@ -159,30 +170,35 @@ if __name__ == "__main__":
     plt.ion()
     plt.show()
 
-    flat = pfits.getdata('flat.fits')
+    flat = pfits.getdata('calib_mat/flat.fits')
     # flat_record = np.dstack([flat])
-    supervisor.tel.set_input_phase(flat)
+    if bool_flat:
+        supervisor.tel.set_input_phase(flat)
 
     pos_LODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
     kd_tree_LODM = KDTree(pos_LODM)
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
-    HODM_act = 305
+    HODM_dead_act = 305
 
-    d, i = kd_tree_LODM.query(pos_HODM[HODM_act,:], k=4)
+    d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
     w = 1/d
     w /= np.sum(w)
 
     command_LODM = np.zeros(n_act_DM0)
     command_dead_act = np.zeros(n_act_DM0 + n_act_DM1)
     for act in range(4):
-        command_LODM[i[act]] = w[act]/0.1
+        command_LODM[i[act]] = w[act]
         command_HODM = -V_DM0_2_V_DM1@command_LODM
         command_HODM[command_HODM>-0.0001] = 0
         command_dead_act += np.concatenate([command_LODM,command_HODM])
         command_LODM *= 0
     command_dead_act *= -1
-    command_dead_act[n_act_DM0+HODM_act] = 0
+    # command_dead_act[command_dead_act>voltage_dead_act] = voltage_dead_act
+    command_dead_act *= voltage_dead_act/command_dead_act[n_act_DM0+HODM_dead_act]
+    # command_dead_act *= DM1_phase[dead_act_pos[0],dead_act_pos[1]]/command_dead_act[n_act_DM0+HODM_dead_act]
+    command_dead_act[n_act_DM0+HODM_dead_act] = 0
+    command_dead_act = np.concatenate((command_dead_act,np.zeros(n_act_bump)), axis=0)
 
     cube_phase_framerate = 10
     cube_phase_count = 0
@@ -197,7 +213,9 @@ if __name__ == "__main__":
             voltage_DM1,voltage_DM0_applied = DM1_K.update_command(slopes)
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
-        # voltage_DM1[305] = 3.5
+        if bool_dead_act :
+            voltage_DM1[305] = voltage_dead_act
+
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM1[0] = 0
@@ -206,27 +224,36 @@ if __name__ == "__main__":
         #     voltage_DM0_applied = voltage_DM0
         DM1_phase = supervisor.dms.get_dm_shape(1)
         # hump_phase = supervisor.dms.get_dm_shape(2)
-  
-        # if bool_hump:
-        #     for j in range(n_hump):
-        #         if  DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)] < -0.1 :
-        #             voltage_bump[j] =  -DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]-0.1
-        #         else:
-        #             voltage_bump[j] = 0
-        # else:
-        #     voltage_bump *= 0
+        
+        if bool_hump:
+            voltage_bump *= 0
+            if DM1_phase[tuple(hump_pos[:,0])] < 0.85 :
+                    voltage_bump[0] =  -DM1_phase[tuple(hump_pos[:,0])]+0.85
+            else:
+                voltage_bump[j] = 0
+            for j in range(1,n_hump):
+                if  DM1_phase[tuple(hump_pos[:,j])] < -0.2 :
+                    voltage_bump[j] =  -DM1_phase[tuple(hump_pos[:,j])]-0.2
+                else:
+                    voltage_bump[j] = 0
+        else:
+            voltage_bump *= 0
 
         # for j in range(n_hump):
         #     hump_amp[j] = DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]+hump_phase[tuple(hump_pos[:,j]+hump_offset_hump_DM)]
 
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
-            # voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
-            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
+            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
+            # voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
-            # voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
-            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
-        supervisor.rtc.set_command(0, voltage)
+            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
+            # voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
+
+        if bool_dead_act_compensation:
+            voltage += command_dead_act
+        voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+        supervisor.rtc.set_command(0,voltage)
         supervisor.next()
 
     supervisor.target.reset_strehl(0)
@@ -246,7 +273,10 @@ if __name__ == "__main__":
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
         # voltage_DM1 *= 0
-        # voltage_DM1[305] = 3.5
+
+        if bool_dead_act :
+            voltage_DM1[305] = voltage_dead_act
+
 
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
@@ -259,29 +289,34 @@ if __name__ == "__main__":
         # hump_phase = supervisor.dms.get_dm_shape(2)
 
 
-        # if bool_hump:
-        #     for j in range(n_hump):
-        #         if  DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)] < -0.1 :
-        #             voltage_bump[j] =  -DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]-0.1
-        #         else:
-        #             voltage_bump[j] = 0
-                
-        # else:
-        #     voltage_bump *= 0
+        if bool_hump:
+            # print(DM1_phase[tuple(hump_pos[:,0])])
+            voltage_bump *= 0
+            if DM1_phase[tuple(hump_pos[:,0])] < 0.85 :
+                    voltage_bump[0] =  -DM1_phase[tuple(hump_pos[:,0])]+0.85
+            else:
+                voltage_bump[j] = 0
+            for j in range(1,n_hump):
+                if  DM1_phase[tuple(hump_pos[:,j])] < -0.2 :
+                    voltage_bump[j] =  -DM1_phase[tuple(hump_pos[:,j])]-0.2
+                else:
+                    voltage_bump[j] = 0
+        else:
+            voltage_bump *= 0
 
-        # for j in range(n_hump):
-        #     hump_amp[j] = DM1_phase[tuple(hump_pos[:,j]+hump_offset_HODM)]+hump_phase[tuple(hump_pos[:,j]+hump_offset_hump_DM)]
 
 
         if bool_DMO:
             # voltage_DM1 -= V_DM0_2_V_DM1@voltage_DM0_applied
-            # voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
-            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
+            voltage = np.concatenate((voltage_DM0_applied, voltage_DM1,voltage_bump), axis=0)
+            # voltage = np.concatenate((voltage_DM0_applied, voltage_DM1), axis=0)
         else:
-            # voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
-            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
-        # voltage += command_dead_act/2
-        supervisor.rtc.set_command(0, voltage)
+            voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1,voltage_bump), axis=0)
+            # voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
+        if bool_dead_act_compensation:
+            voltage += command_dead_act
+        voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+        supervisor.rtc.set_command(0,voltage)
 
         strehl = supervisor.target.get_strehl(0)
 
@@ -414,22 +449,30 @@ if __name__ == "__main__":
     pfits.writeto(save_path+'target_phase_cube.fits', cube_phase_target, overwrite = True)
     pfits.writeto(save_path+'HODM_phase_cube.fits', cube_phase_HODM, overwrite = True)
 
+    mean_phase_res = np.mean(cube_phase_target,axis = 2)
+
     max_stroke_HODM = np.max(cube_phase_HODM,axis = 2)
     min_stroke_HODM = np.min(cube_phase_HODM,axis = 2)
     total_stroke_HODM = max_stroke_HODM-min_stroke_HODM
+
     pfits.writeto(save_path+'max_stroke_HODM.fits', total_stroke_HODM, overwrite = True)
+    pfits.writeto(save_path+'upper_stroke_HODM.fits', max_stroke_HODM, overwrite = True)
+    pfits.writeto(save_path+'lower_stroke_HODM.fits', min_stroke_HODM, overwrite = True)
+    pfits.writeto(save_path+'mean_target_phase_res.fits', mean_phase_res, overwrite = True)
 
     plt.figure()
     plt.imshow(max_stroke_HODM)
     cbar = plt.colorbar()
     cbar.set_label(label="[um]", size=12)
     plt.title('upper stroke')
+    plt.savefig(save_path+'upper_stroke_HODM.png')
 
     plt.figure()
     plt.imshow(min_stroke_HODM)
     cbar = plt.colorbar()
     cbar.set_label(label="[um]", size=12)
     plt.title('lower stroke')
+    plt.savefig(save_path+'lower_stroke_HODM.png')
 
     plt.figure()
     plt.imshow(total_stroke_HODM)
@@ -437,6 +480,13 @@ if __name__ == "__main__":
     cbar.set_label(label="[um]", size=12)
     plt.title('maximum stroke')
     plt.savefig(save_path+'max_stroke_HODM.png')
+
+    plt.figure()
+    plt.imshow(mean_phase_res)
+    cbar = plt.colorbar()
+    cbar.set_label(label="[um]", size=12)
+    plt.savefig(save_path+'mean_target_phase_res.png')
+
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

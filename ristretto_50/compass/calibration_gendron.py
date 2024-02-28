@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()
     n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
-    # n_actus_bump = supervisor.config.p_dms[2].get_ntotact()
+    n_actus_bump = supervisor.config.p_dms[2].get_ntotact()
     n_modes_DM0 = 80
     n_modes_DM1 = 1200
 
@@ -76,8 +76,8 @@ if __name__ == "__main__":
     # compute the command matrix [n_modes , nslopes]
     #-----------------------------------------------
     for mode in range(n_modes_DM0):
-        # command = np.concatenate((M2V_DM0[:,mode]*ampli,np.zeros(n_actus_DM1+n_actus_bump)), axis=0)
-        command = np.concatenate((M2V_DM0[:,mode]*ampli,np.zeros(n_actus_DM1)), axis=0)
+        command = np.concatenate((M2V_DM0[:,mode]*ampli,np.zeros(n_actus_DM1+n_actus_bump)), axis=0)
+        # command = np.concatenate((M2V_DM0[:,mode]*ampli,np.zeros(n_actus_DM1)), axis=0)
         supervisor.rtc.set_command(0, command) 
         supervisor.next()
         supervisor.next()
@@ -87,8 +87,8 @@ if __name__ == "__main__":
         M2S_DM0[:,mode] = slopes.copy()
 
     for mode in range(n_modes_DM1):
-        # command = np.concatenate((np.zeros(n_actus_DM0), M2V_DM1[:,mode]*ampli,np.zeros(n_actus_bump)), axis=0)
-        command = np.concatenate((np.zeros(n_actus_DM0), M2V_DM1[:,mode]*ampli), axis=0)
+        command = np.concatenate((np.zeros(n_actus_DM0), M2V_DM1[:,mode]*ampli,np.zeros(n_actus_bump)), axis=0)
+        # command = np.concatenate((np.zeros(n_actus_DM0), M2V_DM1[:,mode]*ampli), axis=0)
 
         supervisor.rtc.set_command(0, command) 
         supervisor.next()
