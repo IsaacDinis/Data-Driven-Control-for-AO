@@ -38,8 +38,10 @@ if __name__ == "__main__":
     bool_flat = False
     bool_hump = False
     bool_dead_act = True
-    bool_dead_act_compensation = True
+    bool_dead_act_compensation = False
 
+    max_voltage = 2.20
+    piston = max_voltage
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(False)
@@ -52,16 +54,18 @@ if __name__ == "__main__":
 
     voltage_bump = np.zeros(n_act_bump)
     # voltage_DM1 = np.ones(n_act_DM1)*0
-    voltage_DM1 = np.ones(n_act_DM1)*(1.5/2) 
+    voltage_DM1 = np.ones(n_act_DM1)*piston 
     voltage_DM0 = np.zeros(n_act_DM0)
-    max_voltage = 3.5/2
+    
     voltage_dead_act = max_voltage
 
     voltage = np.concatenate((voltage_DM0, voltage_DM1,voltage_bump), axis=0)
     if bool_dead_act :
         voltage[n_act_DM0+305] = voltage_dead_act
+        # voltage[n_act_DM0+305-1] = voltage_dead_act
+        # voltage[n_act_DM0+305+1] = voltage_dead_act
 
-    voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+    # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
     supervisor.rtc.set_command(0,voltage)
     supervisor.next()
     supervisor.next()
@@ -114,7 +118,7 @@ if __name__ == "__main__":
         voltage += command_dead_act
 
    
-    voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+    # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
     supervisor.rtc.set_command(0,voltage)
     supervisor.next()
     supervisor.next()
@@ -126,7 +130,7 @@ if __name__ == "__main__":
         if DM1_phase[tuple(hump_pos[:,0])] < 0.85 :
                 voltage_bump[0] =  -DM1_phase[tuple(hump_pos[:,0])]+0.85
         else:
-            voltage_bump[j] = 0
+            voltage_bump[0] = 0
         for j in range(1,n_hump):
             if  DM1_phase[tuple(hump_pos[:,j])] < -0.2 :
                 voltage_bump[j] =  -DM1_phase[tuple(hump_pos[:,j])]-0.2
@@ -137,7 +141,7 @@ if __name__ == "__main__":
 
     voltage[n_act_DM0+n_act_DM1:] += voltage_bump
 
-    voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+    # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
     supervisor.rtc.set_command(0,voltage)
     supervisor.next()
     supervisor.next()
@@ -149,26 +153,31 @@ if __name__ == "__main__":
 
     target_phase = supervisor.target.get_tar_phase(0,pupil=True)
 
-    plt.figure()
+    plt.figure("LODM phase")
     plt.imshow(DM0_phase)
+    plt.title("LODM phase")
     cbar = plt.colorbar()
     cbar.set_label(label="[um]", size=12)
+
     # plt.savefig(save_path+'mean_target_phase_res.png')
 
-    plt.figure()
+    plt.figure("HODM phase")
     plt.imshow(DM1_phase)
+    plt.title("HODM phase")
     cbar = plt.colorbar()
     cbar.set_label(label="[um]", size=12)
     # plt.savefig(save_path+'mean_target_phase_res.png')
 
-    plt.figure()
+    plt.figure("Bump phase")
     plt.imshow(DM_bump_phase)
+    plt.title("Bump phase")
     cbar = plt.colorbar()
     cbar.set_label(label="[um]", size=12)
     # plt.savefig(save_path+'mean_target_phase_res.png')
 
-    plt.figure()
+    plt.figure("Target phase")
     plt.imshow(target_phase)
+    plt.title("Target phase")
     cbar = plt.colorbar()
     cbar.set_label(label="[um]", size=12)
     # plt.savefig(save_path+'mean_target_phase_res.png')

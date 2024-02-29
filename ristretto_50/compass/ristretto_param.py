@@ -108,11 +108,11 @@ p_dm0.set_influ_type("gaussian")
 
 p_dm1.set_type("pzt")         # /!\
 p_dm1.set_nact(48)
-p_dm1.set_thresh(0.5)        # /!\ to get the SAXO 1377 active actuators
+p_dm1.set_thresh(0.485)        # /!\ to get the SAXO 1377 active actuators
 p_dm1.set_alt(0.)             # /!\
 p_dm1.set_unitpervolt(1.)     # /!\
 p_dm1.set_push4imat(0.180)    #     to displace ~ half a pixel
-
+p_dm1.set_coupling(0.13)
 # dead act = 305
 
 

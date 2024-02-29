@@ -44,11 +44,12 @@ if __name__ == "__main__":
         ])
     supervisor = Supervisor(config)
 
-    bool_flat = False
+    bool_flat = True
     bool_DMO = True
     bool_hump = True
     bool_dead_act = True
     bool_dead_act_compensation = True
+    bool_atm = False
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
@@ -63,7 +64,7 @@ if __name__ == "__main__":
 
     
     supervisor.rtc.open_loop(0) # disable implemented controller
-    supervisor.atmos.enable_atmos(True) 
+    supervisor.atmos.enable_atmos(bool_atm) 
 
     pupil = supervisor.get_s_pupil()
     pupil_diam = supervisor.config.p_geom.get_pupdiam()
