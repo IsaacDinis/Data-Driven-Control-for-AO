@@ -44,16 +44,16 @@ if __name__ == "__main__":
         ])
     supervisor = Supervisor(config)
 
-    bool_flat = True
+    bool_flat = False
     bool_DMO = True
-    bool_hump = True
-    bool_dead_act = True
-    bool_dead_act_compensation = True
-    bool_atm = False
+    bool_hump = False
+    bool_dead_act = False
+    bool_dead_act_compensation = False
+    bool_atm = True
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 10
+    exp_time = 2
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -93,8 +93,8 @@ if __name__ == "__main__":
     n_modes_DM0 = 80
     n_modes_DM1 = 1200
 
-    a = np.array([1.,-0.99]) 
-    b = np.array([0.5,0])
+    a = np.array([0.9,-0.9999]) 
+    b = np.array([1,0])
 
 
     # Load command and influence matrix
@@ -165,6 +165,8 @@ if __name__ == "__main__":
     DM0_stroke_plot = utils.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
     DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
     DM1_deformation_plot = utils.deformation_plot("tweeter phase stroke", refresh_rate, n_iter)
+
+
     # hump_deformation_plot = utils.deformation_plot("hump phase stroke", refresh_rate, n_iter)
     # hump2_deformation_plot = utils.deformation_plot("hump DM2 phase stroke", refresh_rate, n_iter)
     # hump_plot = utils.dummy_plot(n_hump,"hump plot",refresh_rate,n_iter)
@@ -405,6 +407,7 @@ if __name__ == "__main__":
 
     modal_DM0_plot.save(save_path+'LODM_res.fits')
     modal_DM1_plot.save(save_path+'HODM_res.fits')
+    modal_command_DM1_plot.save(save_path+'command.fits')
     utils.save_perf(save_path,exp_time,strehl[1],error_rms/(i+1))
 
     modal_DM1_plot.save_std_plot(save_path+'HODM_res_std.png')

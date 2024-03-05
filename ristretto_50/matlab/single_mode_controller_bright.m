@@ -9,12 +9,12 @@ if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
-mode_train = 350;
+mode_train = 400;
 mode_test = 1;
-RTC_delai = 2;
-case_path = "../results/standalone/";
-slopes_cl = fitsread(case_path+'integrator_02/saxoplus_KL_res.fits');
-command_cl = fitsread(case_path+'integrator_02/saxoplus_KL_u.fits');
+RTC_delai = 1;
+case_path = "results/integrator_05/";
+slopes_cl = fitsread(case_path+'HODM_res.fits');
+command_cl = fitsread(case_path+'command.fits');
 
 slopes_cl = slopes_cl(:,mode_train);
 command_cl = command_cl(:,mode_train);
@@ -22,9 +22,9 @@ dist_matrix = command_cl(1:end-RTC_delai)+slopes_cl(1+RTC_delai:end);
 figure()
 plot(dist_matrix)
 %%
-fs = 2760;
-bandwidth = 100;
-order = 20;
+fs = 4000;
+bandwidth = 650;
+order = 1;
 max_control_gain = 2;
 
 %%
@@ -54,15 +54,15 @@ fft_size = 500;
 figure()
 semilogx(f,10*log10(psd))
 % psd(1:4) = psd(5);
-G = tf([1],[1,0,0],1/fs); % 1 samples delay
-% G = tf([1],[1,0],1/fs); % 1 samples delay
+% G = tf([1],[1,0,0],1/fs); % 1 samples delay
+G = tf([1],[1,0],1/fs); % 1 samples delay
 
 %% Load data
 max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.2;
+g = 0.5;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 

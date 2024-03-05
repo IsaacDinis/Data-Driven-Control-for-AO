@@ -1,9 +1,9 @@
 
 fs = 1000; % sampling frequency
-gain = 0.1; % integrator gain
-RTC_delai = 7; % number of RTC delay frames 
-
-K = tf([gain,0],[1,-0.9],1/fs); % integrator transfer function
+gain = 1; % integrator gain
+RTC_delai = 0; % number of RTC delay frames 
+leak = 0.01;
+K = tf([gain,0],[1,-1+leak],1/fs); % integrator transfer function
 
 dummy = zeros(1,1+RTC_delai);
 dummy(1) = 1;
@@ -37,3 +37,6 @@ title('Closed loop zeros and poles')
 figure()
 nyquist(sys_ol)
 title('Open loop Nyquist')
+
+figure()
+step(sys_cl)
