@@ -58,7 +58,7 @@ if __name__ == "__main__":
     n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
     n_actus_bump = supervisor.config.p_dms[2].get_ntotact()
     n_modes_DM0 = 80
-    n_modes_DM1 = 1200
+    n_modes_DM1 = 100
     print(n_actus_DM1)
     M2V_DM1 = M2V_DM1[:,:n_modes_DM1]
     M2V_DM0 = M2V_DM0[:,:n_modes_DM0]
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM0[:,mode] = slopes.copy()
-
+    ampli = 0.1
     for mode in range(n_modes_DM1):
         command = np.concatenate((np.zeros(n_actus_DM0), M2V_DM1[:,mode]*ampli,np.zeros(n_actus_bump)), axis=0)
         # command = np.concatenate((np.zeros(n_actus_DM0), M2V_DM1[:,mode]*ampli), axis=0)

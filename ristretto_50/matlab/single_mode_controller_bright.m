@@ -2,16 +2,16 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-% path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+% path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
-mode_train = 400;
+mode_train = 1;
 mode_test = 1;
-RTC_delai = 1;
+RTC_delai = 2;
 case_path = "results/integrator_05/";
 slopes_cl = fitsread(case_path+'HODM_res.fits');
 command_cl = fitsread(case_path+'command.fits');
@@ -24,7 +24,7 @@ plot(dist_matrix)
 %%
 fs = 4000;
 bandwidth = 650;
-order = 1;
+order = 5;
 max_control_gain = 2;
 
 %%
@@ -54,8 +54,8 @@ fft_size = 500;
 figure()
 semilogx(f,10*log10(psd))
 % psd(1:4) = psd(5);
-% G = tf([1],[1,0,0],1/fs); % 1 samples delay
-G = tf([1],[1,0],1/fs); % 1 samples delay
+G = tf([1],[1,0,0],1/fs); % 1 samples delay
+% G = tf([1],[1,0],1/fs); % 1 samples delay
 
 %% Load data
 max_order =  max(order);

@@ -21,6 +21,7 @@ from hcipy.field import make_pupil_grid
 from hcipy.mode_basis import make_zernike_basis 
 from matplotlib import pyplot as plt
 import controller
+import controller_dd
 import os
 from datetime import datetime
 import utils
@@ -91,10 +92,10 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
 
     n_modes_DM0 = 80
-    n_modes_DM1 = 1200
+    n_modes_DM1 = 100
 
-    a = np.array([0.9,-0.9999]) 
-    b = np.array([1,0])
+    a = np.array([1,-0.99]) 
+    b = np.array([0.9,0])
 
 
     # Load command and influence matrix
@@ -103,6 +104,7 @@ if __name__ == "__main__":
     S2M_DM1 = pfits.getdata('calib_mat/S2M_DM1.fits')
     M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
     M2V_DM1 = pfits.getdata('calib_mat/M2V_DM1.fits')
+    IIR_filter = pfits.getdata('calib_mat/Kdd_matrix.fits')
     # P2M_DM1 = pfits.getdata('calib_mat/P2M_DM1.fits')
     # P2M_DM0 = pfits.getdata('calib_mat/P2M_DM0.fits')
 
@@ -125,6 +127,7 @@ if __name__ == "__main__":
 
     if bool_DMO:
         DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+        # DM1_K = controller_dd.K_dd(5,IIR_filter,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
     else:
         DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
 

@@ -1,6 +1,6 @@
 %% load libraries
-% path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+% path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -16,13 +16,13 @@ command_cl = fitsread(case_path+'command.fits');
 dist_matrix = command_cl(1:end-RTC_delai,:)+slopes_cl(1+RTC_delai:end,:);
 
 %%
-n_modes = 400;
-dummy_vect = [1,2,3,4,5,6,50,100,200,n_modes+1];
+n_modes = 1200;
+dummy_vect = [1,2,3,4,5,6,50,100,200,500,750,n_modes+1];
 n_controllers = length(dummy_vect);
 
-bandwidth = [100,100,100,100,100,100,100,100,100];
-max_control_gain = [1,1,1,1,1,1,1,1,1];
-order = [5,5,5,5,5,5,5,5,5];
+bandwidth = [650,650,650,650,650,650,650,650,650,650,650];
+max_control_gain = [1,1,1,1,1,1,1,1,1,1,1];
+order = [5,5,5,5,5,5,5,5,5,5,5];
 % order = [1,1,1,1,1,1,1];
 %%
 fs = 4000;
@@ -52,7 +52,8 @@ Kdd_numerator = zeros(max_order+1,n_modes);
 Kdd_denominator = zeros(max_order+1,n_modes);
 tic
 for i = 1:n_controllers-1
-    psd_mat_max = max(psd_mat(:,dummy_vect(i):dummy_vect(i+1)-1),[],2);
+    % psd_mat_max = max(psd_mat(:,dummy_vect(i):dummy_vect(i+1)-1),[],2);
+    psd_mat_max = mean(psd_mat(:,dummy_vect(i):dummy_vect(i+1)-1),2);
     w = f*2*pi;
     W1 = frd(psd_mat_max,w,1/fs);
     val = freqresp(W1, bandwidth(i)*2*pi);
