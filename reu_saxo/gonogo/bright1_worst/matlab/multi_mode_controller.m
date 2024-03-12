@@ -9,9 +9,9 @@ end
 mode_train = 1;
 mode_test = 1;
 RTC_delai = 2;
-case_path = "../results/dcao/integrator_04/";
-slopes_cl = fitsread(case_path+'saxoplus_KL_res.fits');
-command_cl = fitsread(case_path+'saxoplus_KL_u.fits');
+case_path = "../results/standalone/";
+slopes_cl = fitsread(case_path+'integrator_03/saxoplus_KL_res.fits');
+command_cl = fitsread(case_path+'integrator_03/saxoplus_KL_u.fits');
 
 dist_matrix = command_cl(1:end-RTC_delai,:)+slopes_cl(1+RTC_delai:end,:);
 
@@ -20,7 +20,7 @@ n_modes = 400;
 dummy_vect = [1,2,3,4,5,6,50,100,200,n_modes+1];
 n_controllers = length(dummy_vect);
 
-bandwidth = [50,50,50,50,50,50,50,50,50];
+bandwidth = [100,100,100,100,100,100,100,100,100];
 max_control_gain = [1,1,1,1,1,1,1,1,1];
 order = [5,5,5,5,5,5,5,5,5];
 % order = [1,1,1,1,1,1,1,1,1];
@@ -68,7 +68,7 @@ Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
 mode_test = 300;
-g = 0.3;
+g = 0.4;
 
 K0 = tf([g,0],[1,-1],1/fs);
 K = tf(Kdd_matrix(:,1,mode_test)',Kdd_matrix(:,2,mode_test)',1/fs);
