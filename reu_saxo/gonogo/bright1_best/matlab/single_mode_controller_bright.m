@@ -2,40 +2,42 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-% path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+% path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
-mode_train = 2;
-mode_test = 2;
+mode_train = 1;
+mode_test = 1;
 RTC_delai = 2;
-case_path = "../results/standalone/";
-slopes_cl = fitsread(case_path+'integrator_03/saxoplus_KL_res.fits');
-command_cl = fitsread(case_path+'integrator_03/saxoplus_KL_u.fits');
+case_path = "../results/dcao/integrator_04/";
+slopes_cl = fitsread(case_path+'saxoplus_KL_res.fits');
+command_cl = fitsread(case_path+'saxoplus_KL_u.fits');
 
 slopes_cl = slopes_cl(:,mode_train);
 command_cl = command_cl(:,mode_train);
 dist_matrix = command_cl(1:end-RTC_delai)+slopes_cl(1+RTC_delai:end);
+% dist_matrix = command_cl(1:end-RTC_delai);
 figure()
 plot(dist_matrix)
 %%
 fs = 3000;
-bandwidth = 100;
+bandwidth = 200;
 order = 5;
-max_control_gain = 2;
+max_control_gain = 0.1;
 
 %%
 
 % window_size = 550*2*5;
 % n_average = 20;
 
-fft_size = 500;
+fft_size = 1000;
 
 % n_average = 15;
 [psd,f] = compute_psd_fft(dist_matrix,fft_size,fs);
+% f(1) = 1;
 
 % psd(20:end) = psd(20);
 
@@ -62,7 +64,7 @@ max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.2;
+g = 0.4;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 
