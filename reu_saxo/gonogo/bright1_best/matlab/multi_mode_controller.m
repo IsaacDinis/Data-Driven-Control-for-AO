@@ -20,7 +20,7 @@ n_modes = 400;
 dummy_vect = [1,2,3,4,5,6,50,100,200,n_modes+1];
 n_controllers = length(dummy_vect);
 
-bandwidth = [75,75,75,75,75,75,75,75,75];
+bandwidth = [1,1,1,1,1,1,1,1,1]*200;
 max_control_gain = [1,1,1,1,1,1,1,1,1];
 order = [15,15,5,5,5,5,5,5,5];
 % order = [1,1,1,1,1,1,1,1,1];

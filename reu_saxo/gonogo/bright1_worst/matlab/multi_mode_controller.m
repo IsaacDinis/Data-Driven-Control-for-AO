@@ -1,6 +1,6 @@
 %% load libraries
-% path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+% path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -9,21 +9,21 @@ end
 mode_train = 1;
 mode_test = 1;
 RTC_delai = 2;
-case_path = "../results/standalone/";
-slopes_cl = fitsread(case_path+'integrator_03/saxoplus_KL_res.fits');
-command_cl = fitsread(case_path+'integrator_03/saxoplus_KL_u.fits');
+case_path = "../results/dcao/";
+slopes_cl = fitsread(case_path+'integrator_07/saxoplus_KL_res.fits');
+command_cl = fitsread(case_path+'integrator_07/saxoplus_KL_u.fits');
 
 dist_matrix = command_cl(1:end-RTC_delai,:)+slopes_cl(1+RTC_delai:end,:);
 
 %%
 n_modes = 400;
-dummy_vect = [1,2,3,4,5,6,50,100,200,n_modes+1];
+dummy_vect = [1,2,3,4,5,6,50,100,200,300,n_modes+1];
 n_controllers = length(dummy_vect);
 
-bandwidth = [100,100,100,100,100,100,100,100,100];
-max_control_gain = [1,1,1,1,1,1,1,1,1];
-order = [5,5,5,5,5,5,5,5,5];
-% order = [1,1,1,1,1,1,1,1,1];
+bandwidth = [1,1,1,1,1,1,1,1,1,1]*200;
+max_control_gain = [1,1,1,1,1,1,1,1,1,1];
+order = [5,5,5,5,5,5,5,5,5,5];
+% order = [1,1,1,1,1,1,1,1,1,1];
 %%
 fs = 3000;
 
