@@ -20,9 +20,9 @@ n_modes = 400;
 dummy_vect = [1,2,3,4,5,6,50,100,200,n_modes+1];
 n_controllers = length(dummy_vect);
 
-bandwidth = [50,50,50,50,50,50,50,50,50];
+bandwidth = [75,75,75,75,75,75,75,75,75];
 max_control_gain = [1,1,1,1,1,1,1,1,1];
-order = [5,5,5,5,5,5,5,5,5];
+order = [15,15,5,5,5,5,5,5,5];
 % order = [1,1,1,1,1,1,1,1,1];
 %%
 fs = 3000;
@@ -67,7 +67,7 @@ Kdd_matrix(:,1,:) = Kdd_numerator;
 Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
-mode_test = 300;
+mode_test = 1;
 g = 0.3;
 
 K0 = tf([g,0],[1,-1],1/fs);
