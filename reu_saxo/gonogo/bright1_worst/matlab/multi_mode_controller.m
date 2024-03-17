@@ -10,20 +10,20 @@ mode_train = 1;
 mode_test = 1;
 RTC_delai = 2;
 case_path = "../results/dcao/";
-slopes_cl = fitsread(case_path+'integrator_07/saxoplus_KL_res.fits');
-command_cl = fitsread(case_path+'integrator_07/saxoplus_KL_u.fits');
+slopes_cl = fitsread(case_path+'integrator/saxoplus_KL_res.fits');
+command_cl = fitsread(case_path+'integrator/saxoplus_KL_u.fits');
 
 dist_matrix = command_cl(1:end-RTC_delai,:)+slopes_cl(1+RTC_delai:end,:);
 
 %%
-n_modes = 400;
+n_modes = 540;
 dummy_vect = [1,2,3,4,5,6,50,100,200,300,n_modes+1];
 n_controllers = length(dummy_vect);
 
 bandwidth = [1,1,1,1,1,1,1,1,1,1]*200;
 max_control_gain = [1,1,1,1,1,1,1,1,1,1];
-order = [5,5,5,5,5,5,5,5,5,5];
-% order = [1,1,1,1,1,1,1,1,1,1];
+% order = [5,5,5,5,5,5,5,5,5,5];
+order = [1,1,1,1,1,1,1,1,1,1];
 %%
 fs = 3000;
 
@@ -31,7 +31,7 @@ fs = 3000;
 %%
 
 fft_size = 500;
-[psd_mat,f] = compute_psd_fft(dist_matrix,fft_size,fs);
+[psd_mat,f] = compute_psd_welch(dist_matrix,fft_size,fs);
 
 % psd_mat(20:end,:) = repmat(psd_mat(20,:),size(psd_mat(20:end,:),1),1);
 

@@ -12,7 +12,7 @@ end
 mode_train = 1;
 mode_test = 1;
 RTC_delai = 2;
-case_path = "../results/dcao/integrator_04/";
+case_path = "../results/dcao/integrator_03/";
 slopes_cl = fitsread(case_path+'saxoplus_KL_res.fits');
 command_cl = fitsread(case_path+'saxoplus_KL_u.fits');
 
@@ -36,7 +36,7 @@ max_control_gain = 0.1;
 fft_size = 1000;
 
 % n_average = 15;
-[psd,f] = compute_psd_fft(dist_matrix,fft_size,fs);
+[psd,f] = compute_psd_welch(dist_matrix,fft_size,fs);
 % f(1) = 1;
 
 % psd(20:end) = psd(20);

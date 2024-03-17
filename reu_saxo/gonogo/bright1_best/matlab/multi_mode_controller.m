@@ -1,6 +1,6 @@
 %% load libraries
-% path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+% path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -9,7 +9,7 @@ end
 mode_train = 1;
 mode_test = 1;
 RTC_delai = 2;
-case_path = "../results/dcao/integrator_04/";
+case_path = "../results/dcao/integrator/";
 slopes_cl = fitsread(case_path+'saxoplus_KL_res.fits');
 command_cl = fitsread(case_path+'saxoplus_KL_u.fits');
 
@@ -22,8 +22,8 @@ n_controllers = length(dummy_vect);
 
 bandwidth = [1,1,1,1,1,1,1,1,1]*200;
 max_control_gain = [1,1,1,1,1,1,1,1,1];
-order = [15,15,5,5,5,5,5,5,5];
-% order = [1,1,1,1,1,1,1,1,1];
+% order = [5,5,5,5,5,5,5,5,5];
+order = [1,1,1,1,1,1,1,1,1];
 %%
 fs = 3000;
 
@@ -31,7 +31,7 @@ fs = 3000;
 %%
 
 fft_size = 500;
-[psd_mat,f] = compute_psd_fft(dist_matrix,fft_size,fs);
+[psd_mat,f] = compute_psd_welch(dist_matrix,fft_size,fs);
 
 % psd_mat(20:end,:) = repmat(psd_mat(20,:),size(psd_mat(20:end,:),1),1);
 

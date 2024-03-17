@@ -2,8 +2,8 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     %% SYS model
     Ts = 1/fs;
     
-    G = tf([1],[1,0,0],Ts); % 2 samples delay
-    % G = tf([1],[1,0],Ts); % 2 samples delay
+    % G = tf([1],[1,0,0],Ts); % 2 samples delay
+    G = tf([1],[1,0],Ts); % 2 samples delay
     %% Initial controller
     g = 0.2;
     K0 = tf([g,0],[1,-1],Ts);
