@@ -45,16 +45,19 @@ if __name__ == "__main__":
         ])
     supervisor = Supervisor(config)
 
-    bool_flat = False
+    bool_flat = True
     bool_DMO = True
-    bool_hump = False
-    bool_dead_act = False
-    bool_dead_act_compensation = False
+    bool_hump = True
+    bool_dead_act = True
+    bool_dead_act_compensation = True
+    bool_dead_act_2 = True
+    bool_dead_act_compensation_2 = True
     bool_atm = True
+    bool_datadriven = False
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 2
+    exp_time = 10
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -92,10 +95,10 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
 
     n_modes_DM0 = 80
-    n_modes_DM1 = 100
+    n_modes_DM1 = 1200
 
     a = np.array([1,-0.99]) 
-    b = np.array([0.9,0])
+    b = np.array([0.8,0])
 
 
     # Load command and influence matrix
@@ -104,7 +107,8 @@ if __name__ == "__main__":
     S2M_DM1 = pfits.getdata('calib_mat/S2M_DM1.fits')
     M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
     M2V_DM1 = pfits.getdata('calib_mat/M2V_DM1.fits')
-    IIR_filter = pfits.getdata('calib_mat/Kdd_matrix.fits')
+    if bool_datadriven:
+        IIR_filter = pfits.getdata('calib_mat/Kdd_matrix.fits')
     # P2M_DM1 = pfits.getdata('calib_mat/P2M_DM1.fits')
     # P2M_DM0 = pfits.getdata('calib_mat/P2M_DM0.fits')
 
@@ -126,8 +130,10 @@ if __name__ == "__main__":
     #------------------------------------
 
     if bool_DMO:
-        DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
-        # DM1_K = controller_dd.K_dd(5,IIR_filter,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+        if bool_datadriven:
+            DM1_K = controller_dd.K_dd(5,IIR_filter,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+        else:
+            DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
     else:
         DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
 
@@ -143,7 +149,7 @@ if __name__ == "__main__":
 
 
 
-    max_voltage = 3.5/2
+    max_voltage = 2.20
     voltage_dead_act = max_voltage
 
     n_hump = n_act_bump
@@ -153,7 +159,7 @@ if __name__ == "__main__":
     hump_amp = np.zeros(n_hump)
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
-    refresh_rate = 100
+    refresh_rate = 4000
     DM1_plot = utils.phase_plot("tweeter phase", refresh_rate)
     DM0_plot = utils.phase_plot("woofer phase", refresh_rate)
     target_plot = utils.phase_plot("target phase",refresh_rate)
@@ -186,7 +192,8 @@ if __name__ == "__main__":
     kd_tree_LODM = KDTree(pos_LODM)
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
     HODM_dead_act = 305
-
+    HODM_dead_act_2 = 302
+    ############################## 2nd dead act ######################################
     d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
     w = 1/d
     w /= np.sum(w)
@@ -206,6 +213,24 @@ if __name__ == "__main__":
     command_dead_act[n_act_DM0+HODM_dead_act] = 0
     command_dead_act = np.concatenate((command_dead_act,np.zeros(n_act_bump)), axis=0)
 
+   ############################## 2nd dead act ######################################
+    d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act_2,:], k=4)
+    w = 1/d
+    w /= np.sum(w)
+
+    command_LODM = np.zeros(n_act_DM0)
+    command_dead_act_2 = np.zeros(n_act_DM0 + n_act_DM1)
+    for act in range(4):
+        command_LODM[i[act]] = w[act]
+        command_HODM = -V_DM0_2_V_DM1@command_LODM
+        command_HODM[command_HODM>-0.0001] = 0
+        command_dead_act_2 += np.concatenate([command_LODM,command_HODM])
+        command_LODM *= 0
+    command_dead_act_2 *= -1
+    command_dead_act_2 *= voltage_dead_act/command_dead_act_2[n_act_DM0+HODM_dead_act_2]
+
+    command_dead_act_2[n_act_DM0+HODM_dead_act_2] = 0
+    command_dead_act_2 = np.concatenate((command_dead_act_2,np.zeros(n_act_bump)), axis=0)
     cube_phase_framerate = 10
     cube_phase_count = 0
     cube_phase_target = np.zeros((pupil_diam,pupil_diam,int(np.ceil(exp_time/cube_phase_framerate/Ts))))
@@ -220,7 +245,9 @@ if __name__ == "__main__":
         else:
             voltage_DM1 = DM1_K.update_command(slopes)
         if bool_dead_act :
-            voltage_DM1[305] = voltage_dead_act
+            voltage_DM1[HODM_dead_act] = voltage_dead_act
+        if bool_dead_act_2 :
+            voltage_DM1[HODM_dead_act_2] = voltage_dead_act
 
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
@@ -258,6 +285,9 @@ if __name__ == "__main__":
 
         if bool_dead_act_compensation:
             voltage += command_dead_act
+        if bool_dead_act_compensation_2:
+            voltage += command_dead_act_2
+
         voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
         supervisor.rtc.set_command(0,voltage)
         supervisor.next()
@@ -281,7 +311,9 @@ if __name__ == "__main__":
         # voltage_DM1 *= 0
 
         if bool_dead_act :
-            voltage_DM1[305] = voltage_dead_act
+            voltage_DM1[HODM_dead_act] = voltage_dead_act
+        if bool_dead_act_2 :
+            voltage_DM1[HODM_dead_act_2] = voltage_dead_act
 
 
         # voltage_DM1[0] = 0
@@ -321,6 +353,9 @@ if __name__ == "__main__":
             # voltage = np.concatenate((np.zeros(M2V_DM0.shape[0]), voltage_DM1), axis=0)
         if bool_dead_act_compensation:
             voltage += command_dead_act
+        if bool_dead_act_compensation_2:
+            voltage += command_dead_act_2
+
         voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
         supervisor.rtc.set_command(0,voltage)
 

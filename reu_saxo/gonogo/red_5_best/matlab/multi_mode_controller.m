@@ -9,7 +9,7 @@ end
 mode_train = 1;
 mode_test = 1;
 RTC_delai = 1;
-case_path = "../results/standalone/";
+case_path = "../results/dcao/";
 slopes_cl = fitsread(case_path+'integrator/saxoplus_KL_res.fits');
 command_cl = fitsread(case_path+'integrator/saxoplus_KL_u.fits');
 
@@ -30,7 +30,7 @@ fs = 300;
 
 %%
 
-fft_size = 500;
+fft_size = 200;
 [psd_mat,f] = compute_psd_welch(dist_matrix,fft_size,fs);
 
 % psd_mat(20:end,:) = repmat(psd_mat(20,:),size(psd_mat(20:end,:),1),1);

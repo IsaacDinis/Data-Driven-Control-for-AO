@@ -1,6 +1,6 @@
 %% load libraries
-path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-% path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+% path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -9,7 +9,7 @@ end
 mode_train = 1;
 mode_test = 1;
 RTC_delai = 1;
-case_path = "../results/standalone/";
+case_path = "../results/dcao/";
 slopes_cl = fitsread(case_path+'integrator/saxoplus_KL_res.fits');
 command_cl = fitsread(case_path+'integrator/saxoplus_KL_u.fits');
 

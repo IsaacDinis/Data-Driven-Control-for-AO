@@ -39,9 +39,10 @@ if __name__ == "__main__":
     bool_hump = False
     bool_dead_act = True
     bool_dead_act_compensation = False
-
+    bool_dead_act_2 = True
+    bool_dead_act_compensation_2 = False
     max_voltage = 2.20
-    piston = max_voltage
+    piston = -0.1
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
     supervisor.atmos.enable_atmos(False)
@@ -59,11 +60,16 @@ if __name__ == "__main__":
     
     voltage_dead_act = max_voltage
 
+    HODM_dead_act = 305
+    HODM_dead_act_2 = 1000
+
     voltage = np.concatenate((voltage_DM0, voltage_DM1,voltage_bump), axis=0)
     if bool_dead_act :
-        voltage[n_act_DM0+305] = voltage_dead_act
+        voltage[n_act_DM0+HODM_dead_act] = voltage_dead_act
         # voltage[n_act_DM0+305-1] = voltage_dead_act
         # voltage[n_act_DM0+305+1] = voltage_dead_act
+    if bool_dead_act_2 :
+        voltage[n_act_DM0+HODM_dead_act_2] = voltage_dead_act
 
     # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
     supervisor.rtc.set_command(0,voltage)
@@ -91,8 +97,9 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
     kd_tree_LODM = KDTree(pos_LODM)
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
-    HODM_dead_act = 305
+   
 
+    ############################## 1st dead act ######################################
     d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
     w = 1/d
     w /= np.sum(w)
@@ -106,16 +113,36 @@ if __name__ == "__main__":
         command_dead_act += np.concatenate([command_LODM,command_HODM])
         command_LODM *= 0
     command_dead_act *= -1
-    # command_dead_act[command_dead_act>voltage_dead_act] = voltage_dead_act
     command_dead_act *= voltage_dead_act/command_dead_act[n_act_DM0+HODM_dead_act]
-    # command_dead_act *= DM1_phase[dead_act_pos[0],dead_act_pos[1]]/command_dead_act[n_act_DM0+HODM_dead_act]
+
     command_dead_act[n_act_DM0+HODM_dead_act] = 0
     command_dead_act = np.concatenate((command_dead_act,np.zeros(n_act_bump)), axis=0)
+
+   ############################## 2nd dead act ######################################
+    d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act_2,:], k=4)
+    w = 1/d
+    w /= np.sum(w)
+
+    command_LODM = np.zeros(n_act_DM0)
+    command_dead_act_2 = np.zeros(n_act_DM0 + n_act_DM1)
+    for act in range(4):
+        command_LODM[i[act]] = w[act]
+        command_HODM = -V_DM0_2_V_DM1@command_LODM
+        command_HODM[command_HODM>-0.0001] = 0
+        command_dead_act_2 += np.concatenate([command_LODM,command_HODM])
+        command_LODM *= 0
+    command_dead_act_2 *= -1
+    command_dead_act_2 *= voltage_dead_act/command_dead_act_2[n_act_DM0+HODM_dead_act_2]
+
+    command_dead_act_2[n_act_DM0+HODM_dead_act_2] = 0
+    command_dead_act_2 = np.concatenate((command_dead_act_2,np.zeros(n_act_bump)), axis=0)
     
     print(DM1_phase[dead_act_pos[0],dead_act_pos[1]])
 
     if bool_dead_act_compensation:
         voltage += command_dead_act
+    if bool_dead_act_compensation_2:
+        voltage += command_dead_act_2
 
    
     # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
