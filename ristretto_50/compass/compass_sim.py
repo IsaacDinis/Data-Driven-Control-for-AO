@@ -231,6 +231,7 @@ if __name__ == "__main__":
 
     command_dead_act_2[n_act_DM0+HODM_dead_act_2] = 0
     command_dead_act_2 = np.concatenate((command_dead_act_2,np.zeros(n_act_bump)), axis=0)
+    
     cube_phase_framerate = 10
     cube_phase_count = 0
     cube_phase_target = np.zeros((pupil_diam,pupil_diam,int(np.ceil(exp_time/cube_phase_framerate/Ts))))

@@ -1,7 +1,7 @@
 
-fs = 1000; % sampling frequency
-gain = 1; % integrator gain
-RTC_delai = 0; % number of RTC delay frames 
+fs = 4000; % sampling frequency
+gain = 0.8; % integrator gain
+RTC_delai = 1; % number of RTC delay frames 
 leak = 0.01;
 K = tf([gain,0],[1,-1+leak],1/fs); % integrator transfer function
 
