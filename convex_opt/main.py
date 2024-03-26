@@ -26,7 +26,7 @@ def H2_opt_1_freq():
     plop = cp.reshape(dummy,(1,1))
     # cons = np.array([[gamma_2,W1*Y],[cp.conj(0.6*Y),cp.conj(P)*Pc+cp.conj(Pc)*P-cp.conj(Pc)*Pc]])
     cons = cp.vstack([cp.hstack([gamma_2, W1*Y]), cp.hstack([cp.conj(W1*Y), plop])])
-    constraints = [cons >= 0 , gamma_2 >= 0]
+    constraints = [cons >> 0 , gamma_2 >> 0]
     objective = cp.Minimize(cp.abs(gamma_2))
 
     prob = cp.Problem(objective, constraints)

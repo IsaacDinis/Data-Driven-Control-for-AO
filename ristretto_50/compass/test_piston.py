@@ -38,9 +38,9 @@ if __name__ == "__main__":
     bool_flat = False
     bool_hump = False
     bool_dead_act = True
-    bool_dead_act_compensation = False
+    bool_dead_act_compensation = True
     bool_dead_act_2 = True
-    bool_dead_act_compensation_2 = False
+    bool_dead_act_compensation_2 = True
     max_voltage = 2.20
     piston = -0.1
     supervisor = Supervisor(config)
@@ -140,9 +140,9 @@ if __name__ == "__main__":
     print(DM1_phase[dead_act_pos[0],dead_act_pos[1]])
 
     if bool_dead_act_compensation:
-        voltage += command_dead_act
+        voltage += command_dead_act#/7.14*3.9
     if bool_dead_act_compensation_2:
-        voltage += command_dead_act_2
+        voltage += command_dead_act_2#/7.14*3.9
 
    
     # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
@@ -168,7 +168,7 @@ if __name__ == "__main__":
 
     voltage[n_act_DM0+n_act_DM1:] += voltage_bump
 
-    # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+    voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
     supervisor.rtc.set_command(0,voltage)
     supervisor.next()
     supervisor.next()

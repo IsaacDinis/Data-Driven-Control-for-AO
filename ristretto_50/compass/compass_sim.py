@@ -192,7 +192,7 @@ if __name__ == "__main__":
     kd_tree_LODM = KDTree(pos_LODM)
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
     HODM_dead_act = 305
-    HODM_dead_act_2 = 302
+    HODM_dead_act_2 = 1000
     ############################## 2nd dead act ######################################
     d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
     w = 1/d
@@ -471,11 +471,31 @@ if __name__ == "__main__":
     coroimgSampl = 1./supervisor.config.p_coronos[0].get_image_sampling()
     pfits.writeto(save_path+'corono.fits', coroimg, overwrite = True)
 
+    contrastX, contrastAvg, contrastSigma, contrastMin, contrastMax = supervisor.corono.get_contrast(coro_index=0)
+    plt.figure()
+    plt.plot(contrastX, contrastAvg, '-o', label='intensity')
+    plt.plot(contrastX, contrastSigma, '--', label='sigma ')
+    plt.xlabel(r'r [$\lambda$ / D]')
+    plt.title('Contrast curves after perfect coronograph')
+    plt.ylabel('contrast')
+    plt.yscale('log')
+    plt.ylim(5e-7, 1e-2)
+    plt.legend()
+    plt.grid()
+    plt.savefig(save_path+'contrast.png')
+
+    pfits.writeto(save_path+'contrast.fits',np.array([contrastX,
+           contrastAvg,
+           contrastSigma,
+           contrastMin,
+           contrastMax]), overwrite = True)
+
+
     plt.figure()
     nimg = np.shape(coroimg)[0]
     coroX = np.arange(-nimg//2 * coroimgSampl,
                       nimg//2 * coroimgSampl, coroimgSampl)
-    im=plt.pcolormesh(coroX, coroX, coroimg)
+    im=plt.pcolormesh(coroX, coroX, np.log10(coroimg))
     plt.colorbar(im)
     plt.xlabel(r'x [$\lambda$ / D]')   
     plt.ylabel(r'y [$\lambda$ / D]')
