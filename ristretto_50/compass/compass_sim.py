@@ -52,6 +52,8 @@ if __name__ == "__main__":
     bool_dead_act_compensation = True
     bool_dead_act_2 = True
     bool_dead_act_compensation_2 = True
+    bool_dead_act_3 = True
+    bool_dead_act_compensation_3 = True
     bool_atm = True
     bool_datadriven = False
 

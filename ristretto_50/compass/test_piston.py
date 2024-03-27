@@ -38,9 +38,11 @@ if __name__ == "__main__":
     bool_flat = False
     bool_hump = False
     bool_dead_act = True
-    bool_dead_act_compensation = False
+    bool_dead_act_compensation = True
     bool_dead_act_2 = True
-    bool_dead_act_compensation_2 = False
+    bool_dead_act_compensation_2 = True
+    bool_dead_act_3 = True
+    bool_dead_act_compensation_3 = True
     max_voltage = 2.20
     piston = -0.1
     supervisor = Supervisor(config)
@@ -62,6 +64,7 @@ if __name__ == "__main__":
 
     HODM_dead_act = 305
     HODM_dead_act_2 = 1000
+    HODM_dead_act_3 = 500
 
     voltage = np.concatenate((voltage_DM0, voltage_DM1,voltage_bump), axis=0)
     if bool_dead_act :
@@ -70,6 +73,8 @@ if __name__ == "__main__":
         # voltage[n_act_DM0+305+1] = voltage_dead_act
     if bool_dead_act_2 :
         voltage[n_act_DM0+HODM_dead_act_2] = voltage_dead_act
+    if bool_dead_act_3 :
+        voltage[n_act_DM0+HODM_dead_act_3] = voltage_dead_act
 
     # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
     supervisor.rtc.set_command(0,voltage)
@@ -137,12 +142,32 @@ if __name__ == "__main__":
     command_dead_act_2[n_act_DM0+HODM_dead_act_2] = 0
     command_dead_act_2 = np.concatenate((command_dead_act_2,np.zeros(n_act_bump)), axis=0)
     
-    print(DM1_phase[dead_act_pos[0],dead_act_pos[1]])
+    ############################## 3rd dead act ######################################
+    d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act_3,:], k=4)
+    w = 1/d
+    w /= np.sum(w)
+
+    command_LODM = np.zeros(n_act_DM0)
+    command_dead_act_3 = np.zeros(n_act_DM0 + n_act_DM1)
+    for act in range(4):
+        command_LODM[i[act]] = w[act]
+        command_HODM = -V_DM0_2_V_DM1@command_LODM
+        command_HODM[command_HODM>-0.0001] = 0
+        command_dead_act_3 += np.concatenate([command_LODM,command_HODM])
+        command_LODM *= 0
+    command_dead_act_3 *= -1
+    command_dead_act_3 *= voltage_dead_act/command_dead_act_3[n_act_DM0+HODM_dead_act_3]
+
+    command_dead_act_3[n_act_DM0+HODM_dead_act_3] = 0
+    command_dead_act_3 = np.concatenate((command_dead_act_3,np.zeros(n_act_bump)), axis=0)
+
 
     if bool_dead_act_compensation:
         voltage += command_dead_act
     if bool_dead_act_compensation_2:
         voltage += command_dead_act_2
+    if bool_dead_act_compensation_3:
+        voltage += command_dead_act_3
 
    
     # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
