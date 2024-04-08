@@ -43,6 +43,7 @@ if __name__ == "__main__":
     bool_dead_act_compensation_2 = True
     bool_dead_act_3 = True
     bool_dead_act_compensation_3 = True
+
     max_voltage = 2.20
     piston = -0.1
     supervisor = Supervisor(config)
@@ -138,7 +139,6 @@ if __name__ == "__main__":
         command_LODM *= 0
     command_dead_act_2 *= -1
     command_dead_act_2 *= voltage_dead_act/command_dead_act_2[n_act_DM0+HODM_dead_act_2]
-
     command_dead_act_2[n_act_DM0+HODM_dead_act_2] = 0
     command_dead_act_2 = np.concatenate((command_dead_act_2,np.zeros(n_act_bump)), axis=0)
     
@@ -157,17 +157,17 @@ if __name__ == "__main__":
         command_LODM *= 0
     command_dead_act_3 *= -1
     command_dead_act_3 *= voltage_dead_act/command_dead_act_3[n_act_DM0+HODM_dead_act_3]
-
     command_dead_act_3[n_act_DM0+HODM_dead_act_3] = 0
     command_dead_act_3 = np.concatenate((command_dead_act_3,np.zeros(n_act_bump)), axis=0)
 
 
     if bool_dead_act_compensation:
-        voltage += command_dead_act
+        voltage += command_dead_act#/7.14*3.9
     if bool_dead_act_compensation_2:
         voltage += command_dead_act_2
     if bool_dead_act_compensation_3:
         voltage += command_dead_act_3
+
 
    
     # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
     voltage[n_act_DM0+n_act_DM1:] += voltage_bump
 
-    # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+    voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
     supervisor.rtc.set_command(0,voltage)
     supervisor.next()
     supervisor.next()

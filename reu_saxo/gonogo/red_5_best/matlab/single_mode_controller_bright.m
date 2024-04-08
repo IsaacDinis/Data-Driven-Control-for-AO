@@ -13,8 +13,8 @@ mode_train = 2;
 mode_test = 2;
 RTC_delai = 2;
 case_path = "../results/standalone/";
-slopes_cl = fitsread(case_path+'integrator_03/saxoplus_KL_res.fits');
-command_cl = fitsread(case_path+'integrator_03/saxoplus_KL_u.fits');
+slopes_cl = fitsread(case_path+'integrator/saxoplus_KL_res.fits');
+command_cl = fitsread(case_path+'integrator/saxoplus_KL_u.fits');
 
 slopes_cl = slopes_cl(:,mode_train);
 command_cl = command_cl(:,mode_train);
@@ -77,7 +77,6 @@ W1 = W1/val;
 
 
 
-
 % W13 = W1*W12;
 W3 = tf(max_control_gain,1,1/fs);
 
@@ -87,6 +86,7 @@ W3 = tf(max_control_gain,1,1/fs);
 % legend()
 
 Kdd =  ao_dd_controller(fs,w,order,W1,W3,[],'fusion');
+% Kdd =  ao_dd_controller(fs,w,order,W1,W3,[],'sedumi');
 Kdd_numerator = Kdd.Numerator{1};
 Kdd_denominator = Kdd.Denominator{1};
 

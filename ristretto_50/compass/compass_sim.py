@@ -194,7 +194,8 @@ if __name__ == "__main__":
     kd_tree_LODM = KDTree(pos_LODM)
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
     HODM_dead_act = 305
-    HODM_dead_act_2 = 302
+    HODM_dead_act_2 = 1000
+    HODM_dead_act_3 = 500
     ############################## 2nd dead act ######################################
     d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
     w = 1/d
@@ -230,9 +231,27 @@ if __name__ == "__main__":
         command_LODM *= 0
     command_dead_act_2 *= -1
     command_dead_act_2 *= voltage_dead_act/command_dead_act_2[n_act_DM0+HODM_dead_act_2]
-
     command_dead_act_2[n_act_DM0+HODM_dead_act_2] = 0
     command_dead_act_2 = np.concatenate((command_dead_act_2,np.zeros(n_act_bump)), axis=0)
+
+       ##############################  dead act ######################################
+    d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act_3,:], k=4)
+    w = 1/d
+    w /= np.sum(w)
+
+    command_LODM = np.zeros(n_act_DM0)
+    command_dead_act_3 = np.zeros(n_act_DM0 + n_act_DM1)
+    for act in range(4):
+        command_LODM[i[act]] = w[act]
+        command_HODM = -V_DM0_2_V_DM1@command_LODM
+        command_HODM[command_HODM>-0.0001] = 0
+        command_dead_act_3 += np.concatenate([command_LODM,command_HODM])
+        command_LODM *= 0
+    command_dead_act_3 *= -1
+    command_dead_act_3 *= voltage_dead_act/command_dead_act_3[n_act_DM0+HODM_dead_act_3]
+    command_dead_act_3[n_act_DM0+HODM_dead_act_3] = 0
+    command_dead_act_3 = np.concatenate((command_dead_act_3,np.zeros(n_act_bump)), axis=0)
+
     
     cube_phase_framerate = 10
     cube_phase_count = 0
@@ -251,6 +270,8 @@ if __name__ == "__main__":
             voltage_DM1[HODM_dead_act] = voltage_dead_act
         if bool_dead_act_2 :
             voltage_DM1[HODM_dead_act_2] = voltage_dead_act
+        if bool_dead_act_3 :
+            voltage_DM1[HODM_dead_act_3] = voltage_dead_act
 
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
@@ -290,6 +311,8 @@ if __name__ == "__main__":
             voltage += command_dead_act
         if bool_dead_act_compensation_2:
             voltage += command_dead_act_2
+        if bool_dead_act_compensation_3:
+            voltage += command_dead_act_3
 
         voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
         supervisor.rtc.set_command(0,voltage)
@@ -317,7 +340,8 @@ if __name__ == "__main__":
             voltage_DM1[HODM_dead_act] = voltage_dead_act
         if bool_dead_act_2 :
             voltage_DM1[HODM_dead_act_2] = voltage_dead_act
-
+        if bool_dead_act_3 :
+            voltage_DM1[HODM_dead_act_3] = voltage_dead_act
 
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
@@ -358,6 +382,9 @@ if __name__ == "__main__":
             voltage += command_dead_act
         if bool_dead_act_compensation_2:
             voltage += command_dead_act_2
+        if bool_dead_act_compensation_3:
+            voltage += command_dead_act_3
+
 
         voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
         supervisor.rtc.set_command(0,voltage)
@@ -473,11 +500,31 @@ if __name__ == "__main__":
     coroimgSampl = 1./supervisor.config.p_coronos[0].get_image_sampling()
     pfits.writeto(save_path+'corono.fits', coroimg, overwrite = True)
 
+    contrastX, contrastAvg, contrastSigma, contrastMin, contrastMax = supervisor.corono.get_contrast(coro_index=0)
+    plt.figure()
+    plt.plot(contrastX, contrastAvg, '-o', label='intensity')
+    plt.plot(contrastX, contrastSigma, '--', label='sigma ')
+    plt.xlabel(r'r [$\lambda$ / D]')
+    plt.title('Contrast curves after perfect coronograph')
+    plt.ylabel('contrast')
+    plt.yscale('log')
+    plt.ylim(5e-7, 1e-2)
+    plt.legend()
+    plt.grid()
+    plt.savefig(save_path+'contrast.png')
+
+    pfits.writeto(save_path+'contrast.fits',np.array([contrastX,
+           contrastAvg,
+           contrastSigma,
+           contrastMin,
+           contrastMax]), overwrite = True)
+
+
     plt.figure()
     nimg = np.shape(coroimg)[0]
     coroX = np.arange(-nimg//2 * coroimgSampl,
                       nimg//2 * coroimgSampl, coroimgSampl)
-    im=plt.pcolormesh(coroX, coroX, coroimg)
+    im=plt.pcolormesh(coroX, coroX, np.log10(coroimg))
     plt.colorbar(im)
     plt.xlabel(r'x [$\lambda$ / D]')   
     plt.ylabel(r'y [$\lambda$ / D]')
