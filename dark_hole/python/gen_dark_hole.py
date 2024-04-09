@@ -32,7 +32,8 @@ def plot_vapp(vAPP, prop):
     fig.colorbar(im2, cax=cax, orientation='vertical')
     plt.show()
 
-m_size = 404
+# m_size = 404 #saxo
+m_size = 416 #saxo+
 s_size = 400
 pad_size = int((m_size-s_size)/2)
 
@@ -49,7 +50,7 @@ telescope_pupil = aperture(pupil_grid)
 imshow_field(telescope_pupil, cmap='gray')
 plt.show()
 
-contrast_level = 1e-4
+contrast_level = 1e-6
 dark_zone = (make_circular_aperture(12)(focal_grid)).astype(bool)*(focal_grid.x>4)
 contrast = focal_grid.ones()
 contrast[dark_zone] = contrast_level
