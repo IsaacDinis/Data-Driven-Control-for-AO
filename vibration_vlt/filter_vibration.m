@@ -30,3 +30,25 @@ ylabel('tilt mag (dB)')
 title('PSD')
 make_it_nicer()
 sgtitle('Bandpass tilt signal to only keep vibration')
+%%
+fs_sim = 3000;
+tilt_s1_filt_sim = resample(tilt_s1_filt,fs_sim,fs);
+mas2rad = 4.84814e-9;
+rad2um = 1.65/2/pi;
+
+%%
+tilt_ol = fitsread('tilt_ol.fits');
+tilt_s1_filt_sim = tilt_s1_filt_sim(1:length(tilt_ol));
+phase2nm = 2.873136150686732;
+factor = 4;
+full_tilt = tilt_ol+tilt_s1_filt_sim*factor;
+[full_tilt_psd, f] = compute_psd_welch(full_tilt,size_fft,fs_sim);
+[tilt_ol_psd, f] = compute_psd_welch(tilt_ol,size_fft,fs_sim);
+figure()
+semilogx(f,10*log10(full_tilt_psd))
+hold on;
+semilogx(f,10*log10(tilt_ol_psd))
+
+fitswrite(tilt_s1_filt_sim*factor,'tilt_vibration.fits')
+
+% to rad (tanj) *8m 

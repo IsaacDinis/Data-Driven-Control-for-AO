@@ -47,8 +47,8 @@ p_tel.set_cobs(0.14)           # /!\  central obstruction
 p_tel.set_type_ap("VLT")       # /!\  VLT pupil
 # p_tel.set_type_ap("VLT-NoObs")       # /!\  VLT pupil
 # p_tel.set_cobs(0)
-p_tel.set_t_spiders(0.0)   # /!\  spider width = 5 cm
-# p_tel.set_t_spiders(0.00625)   # /!\  spider width = 5 cm
+# p_tel.set_t_spiders(0.0)   # /!\  spider width = 5 cm
+p_tel.set_t_spiders(0.00625)   # /!\  spider width = 5 cm
 
 # atmos
 p_atmos = conf.Param_atmos()  # /!\ Dummy atmosphere for setup of WFS ...
@@ -92,7 +92,7 @@ p_wfs0.set_optthroughput(0.5)   # Not used.
 # background and the dark current will be added, taking duty cycle and excess 
 # noise factor of the camera. This will be added after the actual frequency of 
 # the camera is known.
-p_wfs0.set_noise(0.1)
+p_wfs0.set_noise(-1)
 
 p_wfs0.set_xpos(0.)             # /!\ On axis
 p_wfs0.set_ypos(0.)             # /!\ On axis
@@ -105,6 +105,7 @@ if (rMod==0):                    # generalize parameter file for whatever modula
     nbPtMod = 1
 else:
     nbPtMod = int(np.ceil(int(rMod * 2 * 3.141592653589793) / 4.) * 4)
+    # nbPtMod = 8
 
 p_wfs0.set_pyr_npts(nbPtMod)
 

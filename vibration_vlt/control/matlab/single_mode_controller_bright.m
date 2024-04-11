@@ -9,22 +9,23 @@ if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
 end 
 %% Load data
-mode_train = 1;
-mode_test = 1;
+mode_train = 2;
+mode_test = 2;
 RTC_delai = 2;
 case_path = "../results/standalone/";
-slopes_cl = fitsread(case_path+'integrator_05/saxoplus_KL_res.fits');
-command_cl = fitsread(case_path+'integrator_05/saxoplus_KL_u.fits');
+slopes_cl = fitsread(case_path+'int/saxoplus_KL_res.fits');
+command_cl = fitsread(case_path+'int/saxoplus_KL_u.fits');
 
 slopes_cl = slopes_cl(:,mode_train);
 command_cl = command_cl(:,mode_train);
 dist_matrix = command_cl(1:end-RTC_delai)+slopes_cl(1+RTC_delai:end);
+dist_matrix = dist_matrix(100:end);
 figure()
 plot(dist_matrix)
 %%
 fs = 3000;
 bandwidth = 100;
-order = 5;
+order = 7;
 max_control_gain = 2;
 
 %%
@@ -35,7 +36,7 @@ max_control_gain = 2;
 fft_size = 500;
 
 % n_average = 15;
-[psd,f] = compute_psd_fft(dist_matrix,fft_size,fs);
+[psd,f] = compute_psd_welch(dist_matrix,fft_size,fs);
 
 % psd(20:end) = psd(20);
 
