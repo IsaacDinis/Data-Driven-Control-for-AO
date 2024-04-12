@@ -40,8 +40,8 @@ rad2um = 1.65/2/pi;
 tilt_ol = fitsread('tilt_ol.fits');
 tilt_s1_filt_sim = tilt_s1_filt_sim(1:length(tilt_ol));
 phase2nm = 2.873136150686732;
-factor = 4;
-full_tilt = tilt_ol+tilt_s1_filt_sim*factor;
+factor = 4.848E-9*8E6;
+full_tilt = tilt_ol+tilt_s1_filt_sim*factor*4;
 [full_tilt_psd, f] = compute_psd_welch(full_tilt,size_fft,fs_sim);
 [tilt_ol_psd, f] = compute_psd_welch(tilt_ol,size_fft,fs_sim);
 figure()
