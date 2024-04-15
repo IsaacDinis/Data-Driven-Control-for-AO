@@ -3,12 +3,12 @@ TT_vibr = load('data/TT_pol_SPHERE.mat');
 tilt_s1 = TT_vibr.TT_psol_s1(:,1);
 tilt_s1 = wdenoise(double(tilt_s1));
 tilt_s1 = detrend(tilt_s1);
-tilt_s1 = tilt_s1(1:5000);
+tilt_s1 = tilt_s1(1:10000);
 tilt_s1 = tilt_s1-mean(tilt_s1)
 mas2um = 4.84e-9*8e6;
 tilt_s1 = tilt_s1*mas2um;
 u = wgn(length(tilt_s1),1,0.5);
-m = 1000;
+m = 8000;
 N = length(tilt_s1);
 
 T = [0:1:N-1]/fs;

@@ -120,13 +120,29 @@ if __name__ == "__main__":
     # plt.imshow(phase)
     # plt.colorbar()
     amp = 50
-    n_modes_applied = 100
+    n_modes_applied = 400
     np.random.seed(2)
+
+    phase_res = pfits.getdata("saxoplus_ol_phase_B1_worst.fits")
+    m_size = 416 #saxo+
+    s_size = 400
+    pad_size = int((m_size-s_size)/2)
+    phase_res_pad = np.pad(phase_res,pad_size)
+    phase_res_pad = np.dstack([phase_res_pad])
+    if bool_DH:
+        phase_res_pad+= dark_hole_phase
+
+    mode_res = P2M@phase_res[pupil ==1]*phase2nm
     command = np.zeros(n_modes)
 
     # command[:n_modes_applied] = (np.random.rand(n_modes_applied))*amp
-    command[:n_modes_applied] = (np.random.rand(n_modes_applied)-0.5)*amp
-    supervisor.rtc.set_command(0,M2V@command/phase2nm)
+    # command[:n_modes_applied] = (np.random.rand(n_modes_applied)-0.5)*amp
+    command[:n_modes_applied] = mode_res[:n_modes_applied] 
+
+    supervisor.tel.set_input_phase(phase_res_pad)
+    supervisor.rtc.set_command(0,M2V@command*0)
+    # supervisor.rtc.set_command(0,M2V@command/phase2nm)
+    # supervisor.rtc.set_command(0,M2V@command)
     supervisor.next()
     supervisor.next()
     supervisor.next()
@@ -140,12 +156,13 @@ if __name__ == "__main__":
 
 
 
+
     plt.figure()
     plt.plot(x,M_p)
     plt.plot(x,M_s)
     plt.xlabel("tilt applied [nm]")
     plt.ylabel("tilt mesured [nm]")
-    plt.legend(['measured with phase','measured with slopes'])
+    plt.legend(['reconstructed with phase','reconstructed with slopes'])
     # plt.title("3 lambda modulation, 20 points")
     plt.grid()
     # plt.title("no modulation")
@@ -157,7 +174,7 @@ if __name__ == "__main__":
     plt.xlabel("mode")
     plt.ylabel("amplitude [nm]")
 
-    plt.legend(['applied','measured with phase','measured with slopes'])
+    plt.legend(['applied','reconstructed with phase','reconstructed with slopes'])
     plt.grid()
     # plt.title("no modulation")
 
