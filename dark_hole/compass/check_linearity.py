@@ -24,7 +24,7 @@ from shesha.util.slopesCovariance import KLmodes
 
 if __name__ == "__main__":
 
-    bool_DH = False
+    bool_DH = True
     bool_calib = True
     arguments = docopt(__doc__)
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     n_modes_applied = 400
     np.random.seed(2)
 
-    phase_res = pfits.getdata("saxoplus_ol_phase_B1_worst.fits")
+    phase_res = pfits.getdata("saxo_res_phase_B1_worst.fits")
     m_size = 416 #saxo+
     s_size = 400
     pad_size = int((m_size-s_size)/2)
@@ -168,17 +168,41 @@ if __name__ == "__main__":
     # plt.title("no modulation")
 
     plt.figure()
-    plt.plot(command[:n_modes_applied])
+    # plt.plot(command[:n_modes_applied])
     plt.plot(phase[:n_modes_applied])
     plt.plot(slopes[:n_modes_applied])
     plt.xlabel("mode")
     plt.ylabel("amplitude [nm]")
 
-    plt.legend(['applied','reconstructed with phase','reconstructed with slopes'])
+    # plt.legend(['applied','reconstructed with phase','reconstructed with slopes'])
+    plt.legend(['reconstructed with phase','reconstructed with slopes'])
     plt.grid()
     # plt.title("no modulation")
 
 
     plt.figure()
     plt.imshow(supervisor.target.get_tar_phase(0, pupil = True))
-    plt.colorbar()
+    cbar = plt.colorbar()
+    cbar.set_label(label="[um]", size=12)
+    plt.title('phase')
+
+    psf = supervisor.target.get_tar_image(0)
+    nPixel = supervisor.get_i_pupil().shape[0]# [pixel] imaging pup. support 
+    pixelSize = supervisor.config.p_geom._pixsize  # [m] pupil pixel size
+    diameter = supervisor.config.p_tel.diam
+    psfSampl = diameter/pixelSize/nPixel   # [pixel^{-1}]
+    psfNCenter = psf.shape[0]//2
+    psfNsampl = 30
+
+    plt.figure()
+    psfX = np.arange(-psfNsampl*psfSampl,
+                     psfNsampl*psfSampl, psfSampl)
+    im=plt.pcolormesh(psfX, psfX,
+                      np.log10(psf[psfNCenter-psfNsampl:psfNCenter+psfNsampl,
+                                         psfNCenter-psfNsampl:psfNCenter+psfNsampl]), vmin = -8, vmax = 0)
+    plt.xlabel(r'x [$\lambda$ / D]'+'\nAvg PSF before coronograph')
+    plt.ylabel(r'y [$\lambda$ / D]')
+
+    plt.title('PSF')
+    cbar = plt.colorbar()
+    cbar.set_label(label="contrast", size=12)

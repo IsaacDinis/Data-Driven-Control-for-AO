@@ -50,8 +50,8 @@ telescope_pupil = aperture(pupil_grid)
 imshow_field(telescope_pupil, cmap='gray')
 plt.show()
 
-contrast_level = 1e-6
-dark_zone = (make_circular_aperture(12)(focal_grid)).astype(bool)*(focal_grid.x>5)
+contrast_level = 1e-7
+dark_zone = (make_circular_aperture(12)(focal_grid)).astype(bool)*(focal_grid.x>4)
 contrast = focal_grid.ones()
 contrast[dark_zone] = contrast_level
 imshow_field(np.log10(contrast))

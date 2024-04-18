@@ -91,8 +91,8 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
 
     %%
     figure()
-    bodemag(S_dd,S_int,W1^-1,{w(2),w(end)})
-    legend('Datadriven', 'Integrator','disturbance^{-1}');
+    bodemag(S_dd,W1^-1,{w(2),w(end)})
+    legend('Datadriven','disturbance^{-1}');
     title('Sensitivity function S');
     grid on;
     sgtitle('Datadriven controller') 

@@ -49,6 +49,6 @@ semilogx(f,10*log10(full_tilt_psd))
 hold on;
 semilogx(f,10*log10(tilt_ol_psd))
 
-fitswrite(tilt_s1_filt_sim*factor,'tilt_vibration.fits')
+% fitswrite(tilt_s1_filt_sim*factor,'tilt_vibration.fits')
 
 % to rad (tanj) *8m 

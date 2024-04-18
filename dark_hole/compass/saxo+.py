@@ -47,8 +47,8 @@ p_tel.set_cobs(0.14)           # /!\  central obstruction
 p_tel.set_type_ap("VLT")       # /!\  VLT pupil
 # p_tel.set_type_ap("VLT-NoObs")       # /!\  VLT pupil
 # p_tel.set_cobs(0)
-# p_tel.set_t_spiders(0.0)   # /!\  spider width = 5 cm
-p_tel.set_t_spiders(0.00625)   # /!\  spider width = 5 cm
+p_tel.set_t_spiders(0.0)   # /!\  spider width = 5 cm
+# p_tel.set_t_spiders(0.00625)   # /!\  spider width = 5 cm
 
 # atmos
 p_atmos = conf.Param_atmos()  # /!\ Dummy atmosphere for setup of WFS ...

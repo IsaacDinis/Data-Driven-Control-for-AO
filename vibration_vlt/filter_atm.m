@@ -1,6 +1,6 @@
 %%
 % path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/10.1/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -31,7 +31,11 @@ figure()
 plot(x,y)
 hold on
 plot(x,y_fit)
-
+legend('raw SPHERE data','amtosphere fit')
+xlabel('freq (Hz)')
+ylabel('tilt mag (dB)')
+title('PSD')
+make_it_nicer()
 %%
 atm_fit = 10.^y_fit;
 atm_fit(1:8) = tilt_s1_psd(1:8);
@@ -42,7 +46,11 @@ figure()
 semilogx(f,20*log10(tilt_s1_psd))
 hold on
 semilogx(f, 20*log10(atm_fit))
-
+legend('raw SPHERE data','amtosphere fit')
+xlabel('freq (Hz)')
+ylabel('tilt mag (dB)')
+title('PSD')
+make_it_nicer()
 
 figure()
 semilogx(f,20*log10(tilt_s1_psd-atm_fit));
@@ -115,11 +123,8 @@ gain = mean(100-rms_dd*100./rms_int);
 
 figure()
 semilogx(f,10*log10(psd_dd))
-hold on;
-semilogx(f,10*log10(psd_int))
 
-legend('Data-driven','Integrator','Interpreter','latex','Location','southeast')
-title('Residual PSD')
+title('Tilt vibration PSD after filtering')
 xlabel('Frequency (Hz)')
 ylabel('Magnitude (dB)')
 

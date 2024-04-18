@@ -69,11 +69,12 @@ figure()
 semilogx(f,10*log10(tilt_s1_psd))
 hold on;
 semilogx(f,10*log10(yhat_psd))
-legend('raw tilt','filtered tilt')
+legend('initial tilt vibration','generated tilt vibration')
 xlabel('freq (Hz)')
-ylabel('tilt mag (dB)')
-
+ylabel('PSD mag (dB)')
+make_it_nicer()
 fitswrite(yhat2,'tilt_vibration_gen.fits')
+
 %%
 
 % x = log10(f);
