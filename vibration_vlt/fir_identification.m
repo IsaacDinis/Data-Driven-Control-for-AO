@@ -47,6 +47,7 @@ xlabel('freq (Hz)')
 ylabel('tilt mag (dB)')
 
 %%
+
 % u = wgn(length(tilt_s1),1,0.5);
 t = 0:1/fs:length(u)/fs-1/fs;
 % u_test = wgn(length(tilt_s1),1,0.5);
@@ -54,7 +55,6 @@ u_test = wgn(50000,1,0.5);
 yhat2 = conv(theta,u_test);
 % yhat2 = yhat2(m:length(tilt_s1));
 yhat2 = yhat2(m:length(yhat2)-m);
-
 figure()
 plot(tilt_s1)
 hold on
@@ -73,24 +73,21 @@ legend('initial tilt vibration','generated tilt vibration')
 xlabel('freq (Hz)')
 ylabel('PSD mag (dB)')
 make_it_nicer()
-fitswrite(yhat2,'tilt_vibration_gen.fits')
+% fitswrite(yhat2,'tilt_vibration_gen.fits')
 
-%%
+%% resample
+fs_sim = 3000;
+yhat_resample = resample(yhat2,fs_sim,fs,50);
 
-% x = log10(f);
-% y = 10*log10(tilt_s1_psd);
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% % curveFitter(x,y)
-% [fitresult, gof] = create_fit_pol4(x, y');
-% y_fit = feval(fitresult,x);
-% 
-% figure()
-% plot(x,y)
-% hold on
-% plot(x,y_fit)
+
+[yhat_resample_psd, f_resample] = compute_psd_welch(yhat_resample,size_fft*3,fs_sim);
+
+figure()
+semilogx(f,10*log10(yhat_psd))
+hold on;
+semilogx(f_resample,10*log10(yhat_resample_psd))
+legend('generated tilt vibration','generated tilt vibration resample')
+xlabel('freq (Hz)')
+ylabel('PSD mag (dB)')
+make_it_nicer()
+fitswrite(yhat_resample,'tilt_vibration_gen.fits')
