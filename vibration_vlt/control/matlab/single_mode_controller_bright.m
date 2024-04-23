@@ -2,8 +2,8 @@
 % clear all;
 % tbxmanager restorepath
 % addpath /home/isaac/mosek/9.3/toolbox/r2015a
-path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
-% path_to_fusion = "/home/isaac/mosek/10.0/tools/platform/linux64x86/bin/mosek.jar";
+% path_to_fusion = "/home/isaac/mosek/9.3/tools/platform/linux64x86/bin/mosek.jar";
+path_to_fusion = "/home/isaac/mosek/10.1/tools/platform/linux64x86/bin/mosek.jar";
 fusion_chk = contains(javaclasspath('-dynamic'), "mosek", 'IgnoreCase', true);
 if strlength(path_to_fusion) && ~sum(fusion_chk)
     javaaddpath(path_to_fusion);
@@ -12,7 +12,7 @@ end
 mode_train = 2;
 mode_test = 2;
 RTC_delai = 2;
-case_path = "../results/standalone/";
+case_path = "../results/";
 slopes_cl = fitsread(case_path+'int/saxoplus_KL_res.fits');
 command_cl = fitsread(case_path+'int/saxoplus_KL_u.fits');
 
@@ -25,7 +25,7 @@ plot(dist_matrix)
 %%
 fs = 3000;
 bandwidth = 100;
-order = 10;
+order = 50;
 max_control_gain = 2;
 
 %%
