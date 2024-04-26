@@ -7,13 +7,17 @@ import cvxpy as cp
 import numpy as np
 def H2_opt_1_freq():
     n = 2
-    G = 0.3090 - 0.9511j
-    X_c = np.array([0.5,0])
-    Y_c = np.array([1,-1])
+    G = 1.0000 - 0.0050j
+    X_c = np.array([0.5,0]).reshape(2, 1)
+    Y_c = np.array([1,-1]).reshape(2, 1)
+    # Y_c = np.array([0, 1])
     # X_c = 1.0000e+03 + 3.1416e+05j
     # Y_c = -1.0000e+03 + 6.2832e+05j
-    X = cp.Variable((1,n))
-    Y = cp.Variable((1,n))
+    X = cp.Variable((n,1))
+    Y = cp.Variable((n,1))
+    X_n = X+X_c
+    Y_n = Y+Y_c
+    XY_n = cp.vstack((X_n, Y_n))
     # Z = np.array([0.809016994374948 + 0.587785252292473j,1])
     # X_c *= Z
     # Y_c *= Z

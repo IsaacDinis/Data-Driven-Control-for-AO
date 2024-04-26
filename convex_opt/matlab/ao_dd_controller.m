@@ -13,12 +13,13 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
                                                   % < 1 --> Stable Closed-loop
     
     %% Controller order
-    Fy = [1,-1]; % fixed parts in denominator (integrator).
+    % Fy = [1,-1]; % fixed parts in denominator (integrator).
     Fx = 1;
+    Fy = 1;
     % Fx = [1,0];
     [num, den] = tfdata(K0, 'v');
-    den(order + 1) = 0; % zero padding
-    num(order + 1) = 0; % zero padding
+    % den(order + 1) = 0; % zero padding
+    % num(order + 1) = 0; % zero padding
     num_new = deconv(num, Fx);
     den_new = deconv(den, Fy);
     
@@ -32,8 +33,8 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     SYS.model = G; % Specify model(s)
     
     w_logspace = utils.logspace2(w(2),w(end),100);
-    % w_logspace = linspace(w(5),w(end),200);
-    % w_logspace = linspace(w(1),w(end),1000);
+
+    w_logspace = 15;
     SYS.W = w_logspace;  
     
     %% Objectives
