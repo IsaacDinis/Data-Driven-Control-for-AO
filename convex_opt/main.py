@@ -5,25 +5,41 @@
 
 import cvxpy as cp
 import numpy as np
+import control as ct
 def H2_opt_1_freq():
+    Fx = 1
+    Fy = 1
     n = 2
     G = 1.0000 - 0.0050j
-    X_c = np.array([0.5,0]).reshape(2, 1)
+    X_c = np.array([0.2,0]).reshape(2, 1)
     Y_c = np.array([1,-1]).reshape(2, 1)
-    # Y_c = np.array([0, 1])
-    # X_c = 1.0000e+03 + 3.1416e+05j
-    # Y_c = -1.0000e+03 + 6.2832e+05j
     X = cp.Variable((n,1))
     Y = cp.Variable((n,1))
     X_n = X+X_c
     Y_n = Y+Y_c
     XY_n = cp.vstack((X_n, Y_n))
-    # Z = np.array([0.809016994374948 + 0.587785252292473j,1])
-    # X_c *= Z
-    # Y_c *= Z
+    Ts = 1 / 3000
+    szy = 2
+    szx = 2
+    W = 15
+    z = ct.tf([1, 0], [0, 1], dt=Ts)
+    z_ = ct.freqresp(z, W).fresp.squeeze()
+    Zy = z_ ** np.arange(szy - 1, -1, -1)
+    Zx = z_ ** np.arange(szy - 1, -1, -1)
+    ZFx = Zx * Fx
+    ZFy = Zy * Fy
+    Xcs = Zx@(X_c)
+    Ycs = Zy @ (Y_c)
+    Xc = Xcs* Fx
+    Yc = Ycs * Fy
+
     W1 = 0.6
     P = Y+G*X
-    Pc = Y_c+G*X_c
+    Pc = Yc+G*Xc
+    Cp = np.concatenate([G*ZFx, ZFy],axis= 0)
+    x1_1 = -cp.multiply(cp.conj(Pc),Pc)
+    x1_2 = 2*cp.real(cp.multiply(Cp, cp.conj(Pc)))
+    x1 = x1_2@XY_n + x1_1
     gamma_2 = cp.Variable((1,1))
     # TODO augment dimension variable en dessous
     dummy = cp.real(cp.conj(P)@Pc)+cp.real(cp.conj(Pc)@P.T)-cp.real(cp.conj(Pc)@Pc)

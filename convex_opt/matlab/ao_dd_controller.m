@@ -18,8 +18,8 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     Fy = 1;
     % Fx = [1,0];
     [num, den] = tfdata(K0, 'v');
-    % den(order + 1) = 0; % zero padding
-    % num(order + 1) = 0; % zero padding
+    den(order + 1) = 0; % zero padding
+    num(order + 1) = 0; % zero padding
     num_new = deconv(num, Fx);
     den_new = deconv(den, Fy);
     
