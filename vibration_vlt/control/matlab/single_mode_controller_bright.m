@@ -24,7 +24,7 @@ figure()
 plot(dist_matrix)
 %%
 fs = 3000;
-bandwidth = 100;
+bandwidth = 180;
 order = 50;
 max_control_gain = 2;
 
@@ -51,7 +51,7 @@ fft_size = 500;
 
 % psd(1:13) = psd(1:13)/8;
 %%
-
+psd(90:end) = mean(psd(90:end));
 figure()
 semilogx(f,10*log10(psd))
 % psd(1:4) = psd(5);
@@ -154,3 +154,14 @@ S_int = feedback(1,G*K0);
 dummy = S_int*W1*val;
 figure()
 bodemag(dummy,S_int,W1)
+
+%%
+
+Kdd_simp = tf(reduce(ss(Kdd),10));
+
+S_dd_simp = feedback(1,G*Kdd_simp);
+
+figure()
+bodemag(S_dd_simp,S_dd);
+figure()
+pzmap(Kdd)

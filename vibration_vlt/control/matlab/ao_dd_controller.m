@@ -60,6 +60,7 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
                                                   % < 1 --> Stable Closed-loop
     
     %% Datadriven
+    Kdd = tf(reduce(ss(Kdd),10));
     U_dd = feedback(Kdd,G);
     U_int = feedback(K0,G);
     S_dd = feedback(1,G*Kdd);
