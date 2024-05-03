@@ -91,3 +91,21 @@ xlabel('freq (Hz)')
 ylabel('PSD mag (dB)')
 make_it_nicer()
 fitswrite(yhat_resample,'tilt_vibration_gen.fits')
+
+%%
+figure()
+norma = max(tilt_s1_psd);
+semilogx(f,20*log10(tilt_s1_psd/norma))
+hold on;
+semilogx(f_resample,20*log10(yhat_resample_psd/norma))
+title('')
+legend('initial tilt vibration','generated and upsampled tilt vibration')
+xlabel('freq (Hz)')
+ylabel('magnitude (dB)')
+title('PSD of generated tilt vibration')
+grid()
+make_it_nicer()
+
+set(gcf,'Position',[100 100 800 500])
+set(gcf,'PaperType','A4')
+
