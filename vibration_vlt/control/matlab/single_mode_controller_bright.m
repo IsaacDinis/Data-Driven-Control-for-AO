@@ -63,7 +63,7 @@ max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.2;
+g = 0.256;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 
@@ -93,8 +93,8 @@ Kdd_denominator = Kdd.Denominator{1};
 
 toc
 
-Kdd_matrix(:,1,:) = Kdd_numerator;
-Kdd_matrix(:,2,:) = Kdd_denominator;
+% Kdd_matrix(:,1,:) = Kdd_numerator;
+% Kdd_matrix(:,2,:) = Kdd_denominator;
 
 %% Simulation
 
@@ -141,7 +141,7 @@ set(gcf,'PaperType','A4')
 % export_fig ../plot/residual_npnoise.pdf -transparent
 
 %% Save controller coefficients
-Kdd_matrix = reshape(Kdd_matrix,(max_order+1)*2,n_modes);
+% Kdd_matrix = reshape(Kdd_matrix,(max_order+1)*2,n_modes);
 % % Kdd = circshift(Kdd,-2,2); % put tip tilt controllers at the end 
 % save('../Kdd_ProxCen','Kdd_matrix');
 %%
@@ -165,3 +165,44 @@ figure()
 bodemag(S_dd_simp,S_dd);
 figure()
 pzmap(Kdd)
+
+%%
+[mag_dd,phase,wout] = bode(S_dd,w);
+[mag_int,phase,wout] = bode(S_int,w);
+mag_dd = 20*log10(squeeze(mag_dd));
+mag_int = 20*log10(squeeze(mag_int));
+f_bode = wout/2/pi;
+
+[psd,f] = compute_psd_welch(dist_matrix,fft_size,fs);
+
+figure()
+semilogx(f,20*log10(val./psd),'color',[0.9290 0.6940 0.1250])
+hold on;
+semilogx(f_bode,mag_int,'color',[0 0.4470 0.7410])
+semilogx(f_bode,mag_dd,'color',[0.8500 0.3250 0.0980])
+xlabel('freq (Hz)')
+ylabel('magnitude (dB)')
+legend('inverse of dist. PSD','integrator','data-driven','Location','northwest')
+title('Bode magnitude plot of sensitivity functions')
+grid()
+make_it_nicer()
+
+set(gcf,'Position',[100 100 800 500])
+set(gcf,'PaperType','A4')
+
+
+
+figure()
+semilogx(f,20*log10(psd_int))
+hold on;
+semilogx(f,20*log10(psd_dd))
+xlabel('freq (Hz)')
+ylabel('magnitude (dB)')
+legend('integrator','data-driven','Location','northwest')
+title('Tilt residual PSD')
+grid()
+make_it_nicer()
+
+set(gcf,'Position',[100 100 800 500])
+set(gcf,'PaperType','A4')
+
