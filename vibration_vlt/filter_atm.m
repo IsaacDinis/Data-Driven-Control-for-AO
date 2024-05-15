@@ -151,3 +151,22 @@ figure()
 bodemag(dummy,S_int,W1)
 
 fitswrite(ydd(8:end),'tilt_vibration.fits')
+f = f(2:end);
+psd_dd = psd_dd(2:end);
+%%
+
+
+figure()
+semilogx(f,20*log10(psd_dd))
+hold on
+semilogx(f,20*log10(tilt_s1_psd))
+title('Tilt vibration identified PSD')
+xlabel('freq (Hz)')
+ylabel('magnitude (dB)')
+legend('with atmosphere','atmosphere filtered out')
+grid()
+make_it_nicer()
+
+set(gcf,'Position',[100 100 800 500])
+set(gcf,'PaperType','A4')
+
