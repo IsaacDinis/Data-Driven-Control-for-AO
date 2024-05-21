@@ -24,7 +24,7 @@ from shesha.util.slopesCovariance import KLmodes
 
 if __name__ == "__main__":
 
-    bool_DH = True
+    bool_DH = False
     bool_calib = True
     arguments = docopt(__doc__)
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     n_modes_applied = 400
     np.random.seed(2)
 
-    phase_res = pfits.getdata("saxo_res_phase_B1_worst.fits")
+    phase_res = pfits.getdata("saxoplus_res_phase_B1_worst.fits")
     m_size = 416 #saxo+
     s_size = 400
     pad_size = int((m_size-s_size)/2)
