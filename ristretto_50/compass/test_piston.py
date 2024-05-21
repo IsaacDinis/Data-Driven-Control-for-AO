@@ -37,12 +37,12 @@ if __name__ == "__main__":
 
     bool_flat = False
     bool_hump = False
-    bool_dead_act = True
-    bool_dead_act_compensation = True
-    bool_dead_act_2 = True
-    bool_dead_act_compensation_2 = True
-    bool_dead_act_3 = True
-    bool_dead_act_compensation_3 = True
+    bool_dead_act = False
+    bool_dead_act_compensation = False
+    bool_dead_act_2 = False
+    bool_dead_act_compensation_2 = False
+    bool_dead_act_3 = False
+    bool_dead_act_compensation_3 = False
 
     max_voltage = 2.20
     piston = -0.1
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     voltage_dead_act = max_voltage
 
     HODM_dead_act = 305
-    HODM_dead_act_2 = 1000
+    HODM_dead_act_2 = 1000 #302
     HODM_dead_act_3 = 500
 
     voltage = np.concatenate((voltage_DM0, voltage_DM1,voltage_bump), axis=0)

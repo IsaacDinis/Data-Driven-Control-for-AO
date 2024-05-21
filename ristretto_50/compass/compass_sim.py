@@ -51,15 +51,15 @@ if __name__ == "__main__":
     bool_dead_act = True
     bool_dead_act_compensation = True
     bool_dead_act_2 = True
-    bool_dead_act_compensation_2 = True
-    bool_dead_act_3 = True
-    bool_dead_act_compensation_3 = True
-    bool_atm = True
+    bool_dead_act_compensation_2 = False
+    bool_dead_act_3 = False
+    bool_dead_act_compensation_3 = False
+    bool_atm = False
     bool_datadriven = False
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 10
+    exp_time = 1
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     kd_tree_LODM = KDTree(pos_LODM)
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
     HODM_dead_act = 305
-    HODM_dead_act_2 = 1000
+    HODM_dead_act_2 = 302 # 302,1000
     HODM_dead_act_3 = 500
     ############################## 2nd dead act ######################################
     d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
@@ -530,7 +530,7 @@ if __name__ == "__main__":
     plt.ylabel(r'y [$\lambda$ / D]')
     plt.title('corono image')
     plt.savefig(save_path+'corono.png')
-
+    pfits.writeto(save_path+'coroX.fits', coroX, overwrite = True)
 
     psf = supervisor.target.get_tar_image(0, expo_type='le')
     plt.figure()
