@@ -11,7 +11,7 @@ tilt_s1 = fitsread('tilt_vibration.fits');
 tilt_s1 = tilt_s1(1:20000);
 tilt_s1 = wdenoise(double(tilt_s1));
 u = wgn(length(tilt_s1),1,0.5);
-m = 5000;
+m = 8000;
 N = length(tilt_s1);
 
 T = [0:1:N-1]/fs;

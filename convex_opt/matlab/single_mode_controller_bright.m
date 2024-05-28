@@ -88,7 +88,7 @@ W3 = tf(max_control_gain,1,1/fs);
 % bodemag(W1,W12,W13,W32)
 % legend()
 
-Kdd =  ao_dd_controller(fs,w,order,W1,W3,[],'fusion');
+Kdd =  ao_dd_controller(fs,w,order,W1,W3,[],'sedumi');
 Kdd_numerator = Kdd.Numerator{1};
 Kdd_denominator = Kdd.Denominator{1};
 
