@@ -19,7 +19,7 @@ mas2um = 4.84e-9*8e6;
 tilt_s1 = tilt_s1*mas2um;
 
 
-y = lowpass(y,80,fs);
+% y = lowpass(y,80,fs);
 dist_matrix = tilt_s1;
 
 
