@@ -1,4 +1,4 @@
-fs = 4000;
+fs = 1000;
 
 s = tf('s');    % continuous frequency
 z = tf('z',1/fs);
@@ -7,8 +7,8 @@ g = 0.3; % gain
 K = g/(1-z^-1); % integrator
 % K.InputDelay = 2;
 % K.OutputDelay = 1;
-K_c = d2c(K,'tustin')%*exp(-2*1/fs*s);
-T = 5e-3;
+K_c = d2c(K,'tustin')*exp(-2*1/fs*s);
+T = 10e-3;
 
 
 
@@ -42,7 +42,7 @@ DM_dyn_d = c2d(DM_dyn,1/fs,'foh'); % DM dynamics
 % DM_dyn = s/s; % DM dynamics
 sys_cl = feedback(1,DM_dyn_d*K*1/z*1/z);
 
-fs_sim = 4000;
+fs_sim = 1000;
 t = 0:1/fs_sim:T-1/fs_sim;
 
 ol_step = step(DM_dyn_d,t);
