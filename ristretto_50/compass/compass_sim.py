@@ -21,6 +21,7 @@ from hcipy.field import make_pupil_grid
 from hcipy.mode_basis import make_zernike_basis 
 from matplotlib import pyplot as plt
 import controller
+import DM_dyn
 import controller_dd
 import os
 from datetime import datetime
@@ -45,17 +46,18 @@ if __name__ == "__main__":
         ])
     supervisor = Supervisor(config)
 
-    bool_flat = True
+    bool_flat = False
     bool_DMO = True
-    bool_hump = True
-    bool_dead_act = True
-    bool_dead_act_compensation = True
-    bool_dead_act_2 = True
+    bool_hump = False
+    bool_dead_act = False
+    bool_dead_act_compensation = False
+    bool_dead_act_2 = False
     bool_dead_act_compensation_2 = False
     bool_dead_act_3 = False
     bool_dead_act_compensation_3 = False
-    bool_atm = False
+    bool_atm = True
     bool_datadriven = False
+    bool_dm_dyn = True
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
@@ -100,7 +102,7 @@ if __name__ == "__main__":
     n_modes_DM1 = 1200
 
     a = np.array([1,-0.99]) 
-    b = np.array([0.8,0])
+    b = np.array([0.5,0])
 
 
     # Load command and influence matrix
@@ -141,7 +143,8 @@ if __name__ == "__main__":
 
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
 
-
+    if bool_dm_dyn:
+        HODM_dyn = DM_dyn.DM_dyn(n_act_DM1)
 
     # res_array = np.empty((n_iter,S2M.shape[0]))
     # single_mode_res = np.empty(n_iter)
@@ -161,7 +164,7 @@ if __name__ == "__main__":
     hump_amp = np.zeros(n_hump)
 
     voltage_DM0_applied = np.zeros(M2V_DM0.shape[0])
-    refresh_rate = 4000
+    refresh_rate = 400
     DM1_plot = utils.phase_plot("tweeter phase", refresh_rate)
     DM0_plot = utils.phase_plot("woofer phase", refresh_rate)
     target_plot = utils.phase_plot("target phase",refresh_rate)
@@ -272,7 +275,8 @@ if __name__ == "__main__":
             voltage_DM1[HODM_dead_act_2] = voltage_dead_act
         if bool_dead_act_3 :
             voltage_DM1[HODM_dead_act_3] = voltage_dead_act
-
+        if bool_dm_dyn:
+            voltage_DM1 = HODM_dyn.update_command(voltage_DM1)
         # voltage_DM0 = DM0_K.update_command(slopes)
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
         # voltage_DM1[0] = 0
@@ -342,7 +346,8 @@ if __name__ == "__main__":
             voltage_DM1[HODM_dead_act_2] = voltage_dead_act
         if bool_dead_act_3 :
             voltage_DM1[HODM_dead_act_3] = voltage_dead_act
-
+        if bool_dm_dyn:
+            voltage_DM1 = HODM_dyn.update_command(voltage_DM1)
         # voltage_DM1[0] = 0
         # voltage_DM1[14] = 0
         # voltage_DM0 = V_DM1_2_V_DM0@voltage_DM1
