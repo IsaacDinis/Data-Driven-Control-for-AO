@@ -35,6 +35,7 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     w_logspace = utils.logspace2(w(2),w(end),100);
 
     w_logspace = 15;
+    w_logspace = utils.logspace2(w(2),w(end),10);
     SYS.W = w_logspace;  
     
     %% Objectives
