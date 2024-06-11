@@ -64,7 +64,9 @@ if __name__ == '__main__':
     plop = cp.hstack([PHI,gam,cp.real(F_a),cp.imag(F_a)])
     Z = T@plop
     # soc_constraints = [cp.SOC(Z[2], Z[0])]
-    soc_constraints = [Z[0]<=Z[2],Z[1]<=Z[3],gam>=0,Z[0]>=0,Z[1]>=0]
+    # soc_constraints = [Z[0]<=Z[2],Z[1]<=Z[3],gam>=0,Z[0]>=0,Z[1]>=0]
+    # soc_constraints = [cp.SOC(cp.real(F_a), cp.multiply(PHI, gam)), gam >= 0, PHI >= 0]
+    soc_constraints = [cp.SOC(PHI+gam,cp.vstack([2*F_a,PHI-gam]))]
     prob = cp.Problem(cp.Minimize(gam), soc_constraints)
 
     prob.solve()

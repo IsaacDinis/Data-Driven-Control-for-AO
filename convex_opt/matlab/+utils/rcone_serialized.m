@@ -17,8 +17,8 @@ if ~isempty(z)
     Z = T*[x.';y.';real(z).';imag(z).'];
     
     rcone = cone(Z);
-    rcone = [Z(1)<=Z(3),Z(2)<=Z(4),Z(1)>=0,Z(2)>=0];
-    % rcone1 = rcone(x,y,z);
+    % rcone = [Z(1)<=Z(3),Z(2)<=Z(4),Z(1)>=0,Z(2)>=0];
+    % rcone1 = rcone(z,x,y);
 else
     rcone = [];
 end
