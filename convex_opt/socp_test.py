@@ -61,12 +61,19 @@ if __name__ == '__main__':
     # T = np.insert(T,0,T[:,0],axis=1)
     # T = np.insert(T, 0, T[:, 0], axis=1)
     # T = np.insert(T, 0, T[:, 0], axis=1)
-    plop = cp.hstack([PHI,gam,cp.real(F_a),cp.imag(F_a)])
+    # plop = cp.hstack([PHI,gam,cp.real(F_a),cp.imag(F_a)])
+    # plop = cp.hstack([PHI, gam, np.sqrt(2) * cp.real(F_a), 0])
+    plop = cp.hstack([PHI/2, gam, cp.real(F_a), cp.imag(F_a)])
     Z = T@plop
     # soc_constraints = [cp.SOC(Z[2], Z[0])]
     # soc_constraints = [Z[0]<=Z[2],Z[1]<=Z[3],gam>=0,Z[0]>=0,Z[1]>=0]
     # soc_constraints = [cp.SOC(cp.real(F_a), cp.multiply(PHI, gam)), gam >= 0, PHI >= 0]
-    soc_constraints = [cp.SOC(PHI+gam,cp.vstack([2*F_a,PHI-gam]))]
+    # soc_constraints = [cp.SOC(PHI+gam,cp.vstack([2*F_a,PHI-gam])), gam >= 0, PHI >= 0]
+    # soc_constraints = [cp.SOC(PHI + gam, cp.vstack([2 * cp.real(F_a), PHI - gam])), gam >= 0, PHI >= 0]
+    soc_constraints = [cp.SOC(Z[0], Z[1:]),gam >= 0, PHI >= 0]
     prob = cp.Problem(cp.Minimize(gam), soc_constraints)
-
     prob.solve()
+    MAT = np.squeeze(np.array([[PHI.value,F_a.value],[np.conj(F_a.value),gam.value]]))
+    print(np.abs(np.linalg.eigvals(MAT)))
+    print(gam.value)
+    print(PHI.value-np.conj(F_a.value)*F_a.value/gam.value)

@@ -14,9 +14,11 @@ if ~isempty(z)
     v = 1/sqrt(2);
     T = blkdiag([v,v;v,-v], eye(2*size(z,2)));
     
-    Z = T*[x.';y.';real(z).';imag(z).'];
+    Z = T*[x.';y.';sqrt(2)*real(z).';sqrt(2)*imag(z).'];
     
     rcone = cone(Z);
+    % rcone = cone(Z(2:4),Z(1));
+    % rcone = cone(Z(1:3));
     % rcone = [Z(1)<=Z(3),Z(2)<=Z(4),Z(1)>=0,Z(2)>=0];
     % rcone1 = rcone(z,x,y);
 else
