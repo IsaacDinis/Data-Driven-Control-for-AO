@@ -157,9 +157,9 @@ psd_dd = psd_dd(2:end);
 
 
 figure()
-semilogx(f,20*log10(psd_dd))
-hold on
 semilogx(f,20*log10(tilt_s1_psd))
+hold on
+semilogx(f,20*log10(psd_dd))
 title('Tilt vibration identified PSD')
 xlabel('freq (Hz)')
 ylabel('magnitude (dB)')
