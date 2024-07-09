@@ -1,7 +1,5 @@
 
-gamma_2 = sdpvar;
 gam = sdpvar;
-obj_2 = sdpvar;
 W1 = 19;
 Y_n = sdpvar(2,1);
 X_n = sdpvar(2,1);
@@ -14,12 +12,12 @@ F_a = W1*ZFy*Y_n;
 Pc = 1.2000 + 0.0050i;
 % Pc = 1000;
 G = 10000.0000 - 100.0050i;
-integ = 0.0016;
+
 PHI = 2*real([G.*ZFx, ZFy].*conj(Pc))*XY_n-abs(Pc).^2;
 % gam = 0.5*gamma_2;
 % rcone = utils.rcone_serialized(abs(Pc)^2,gam,F_a);
-rcone = utils.rcone_serialized(PHI,gam,F_a);
-CON = [rcone,gam>=0];
+rcone = utils.rcone_serialized(PHI,gam, F_a);
+CON = [rcone,gam>=0, PHI>=0];
 
 % CON = [CON, integ.'*gamma_2 <= obj_2 ];
 OBJ = gam;
