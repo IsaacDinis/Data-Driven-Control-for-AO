@@ -3,11 +3,11 @@ fs = 4000;
 s = tf('s');    % continuous frequency
 z = tf('z',1/fs);
 delay = z^-2; 
-g = 0.5; % gain
+g = 0.3; % gain
 K = g/(1-z^-1); % integrator
 % K.InputDelay = 2;
 % K.OutputDelay = 1;
-K_c = d2c(K,'tustin')*exp(-2*1/fs*s);
+K_c = d2c(K,'tustin')*exp(-3*1/fs*s);
 T = 10e-3;
 
 

@@ -57,7 +57,7 @@ if __name__ == "__main__":
     bool_dead_act_compensation_3 = False
     bool_atm = True
     bool_datadriven = False
-    bool_dm_dyn = True
+    bool_dm_dyn = False
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
