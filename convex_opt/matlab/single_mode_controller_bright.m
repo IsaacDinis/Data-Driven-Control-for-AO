@@ -26,7 +26,7 @@ plot(dist_matrix)
 fs = 3000;
 bandwidth = 200;
 order = 3;
-max_control_gain = 0.1;
+max_control_gain = 2;
 
 %%
 

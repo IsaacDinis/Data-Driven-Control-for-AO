@@ -2,8 +2,8 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     %% SYS model
     Ts = 1/fs;
     
-    % G = tf([1],[1,0,0],Ts); % 2 samples delay
-    G = tf([1],[1,0],Ts); % 2 samples delay
+    G = tf([1],[1,0,0],Ts); % 2 samples delay
+    % G = tf([1],[1,0],Ts); % 2 samples delay
     %% Initial controller
     g = 0.2;
     K0 = tf([g,0],[1,-1],Ts);
@@ -14,7 +14,7 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     
     %% Controller order
     Fy = [1,-1]; % fixed parts in denominator (integrator).
-    Fx = 1;
+    Fx = [1,0];
     % Fy = 1;
     % Fx = [1,0];
     [num, den] = tfdata(K0, 'v');
@@ -32,9 +32,9 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     SYS.controller = ctrl;
     SYS.model = G; % Specify model(s)
     
-    w_logspace = utils.logspace2(w(2),w(end),100);
+    w_logspace = utils.logspace2(w(2),w(end),200);
 
-    w_logspace = 15;
+    % w_logspace = 15;
     % w_logspace = [15,30];
     SYS.W = w_logspace;  
     
