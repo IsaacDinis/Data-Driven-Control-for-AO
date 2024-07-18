@@ -47,7 +47,7 @@ if __name__ == "__main__":
     supervisor = Supervisor(config)
 
     bool_flat = False
-    bool_DMO = True
+    bool_DMO = False
     bool_hump = False
     bool_dead_act = False
     bool_dead_act_compensation = False
@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 1
+    exp_time = 5
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     n_modes_DM1 = 1200
 
     a = np.array([1,-0.99]) 
-    b = np.array([0.5,0])
+    b = np.array([0.7,0])
 
 
     # Load command and influence matrix

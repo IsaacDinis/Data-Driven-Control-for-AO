@@ -75,18 +75,29 @@ if __name__ == "__main__":
 
 
     
+    voltage = np.concatenate((voltage_DM0, voltage_DM1,voltage_bump), axis=0)
+    # voltage_DM1 = HODM_dyn.update_command(voltage_DM1)
+    supervisor.rtc.set_command(0,voltage)
+    supervisor.next()
+    # voltage_DM1 = HODM_dyn.update_command(voltage_DM1)
+    supervisor.rtc.set_command(0,voltage)
+    supervisor.next()
+    # voltage_DM1 = HODM_dyn.update_command(voltage_DM1)
+    supervisor.rtc.set_command(0,voltage)
+    supervisor.next()
 
 
-    n_iter = 5
+    n_iter = 20
     m = np.zeros(n_iter)
 
     mode = 0
 
     for i in range(n_iter):
         slopes = supervisor.rtc.get_slopes(0)
-        # if bool_dm_dyn:     
-            # voltage_DM1 = DM1_K.update_command(slopes)+M2V_DM1[:,mode]*1
+        if bool_dm_dyn:     
+            voltage_DM1 = DM1_K.update_command(slopes)+M2V_DM1[:,mode]*1
             # voltage_DM1 = HODM_dyn.update_command(M2V_DM1[:,0])
+            # voltage_DM1 = HODM_dyn.update_command(voltage_DM1)
         voltage = np.concatenate((voltage_DM0, voltage_DM1,voltage_bump), axis=0)
         supervisor.rtc.set_command(0,voltage)  
 
@@ -110,6 +121,8 @@ if __name__ == "__main__":
 
     plt.xlabel("iter")
     plt.ylabel("amplitude [nm]")
+
+    pfits.writeto('cl_no_dyn.fits', m, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
