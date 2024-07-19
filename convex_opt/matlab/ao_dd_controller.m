@@ -14,7 +14,7 @@ function Kdd =  ao_dd_controller(fs,w,order,W1,W3,W32,solver)
     
     %% Controller order
     Fy = [1,-1]; % fixed parts in denominator (integrator).
-    Fx = [1,0];
+    Fx = 1;
     % Fy = 1;
     % Fx = [1,0];
     [num, den] = tfdata(K0, 'v');
