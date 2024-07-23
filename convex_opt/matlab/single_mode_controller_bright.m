@@ -64,7 +64,7 @@ max_order =  max(order);
 n_modes = 1;
 Kdd_matrix = zeros(max_order+1,2,n_modes);
 
-g = 0.4;
+g = 0.2;
 K0 = tf([g,0],[1,-1],1/fs);
 S_int = feedback(1,G*K0);
 
