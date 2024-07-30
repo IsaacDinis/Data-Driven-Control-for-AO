@@ -46,22 +46,22 @@ if __name__ == "__main__":
         ])
     supervisor = Supervisor(config)
 
-    bool_flat = False
-    bool_DMO = False
-    bool_hump = False
-    bool_dead_act = False
-    bool_dead_act_compensation = False
-    bool_dead_act_2 = False
-    bool_dead_act_compensation_2 = False
-    bool_dead_act_3 = False
-    bool_dead_act_compensation_3 = False
-    bool_atm = True
+    bool_flat = True
+    bool_DMO = True
+    bool_hump = True
+    bool_dead_act = True
+    bool_dead_act_compensation = True
+    bool_dead_act_2 = True
+    bool_dead_act_compensation_2 = True
+    bool_dead_act_3 = True
+    bool_dead_act_compensation_3 = True
+    bool_atm = False
     bool_datadriven = False
     bool_dm_dyn = False
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 5
+    exp_time = 1
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     n_modes_DM1 = 1200
 
     a = np.array([1,-0.99]) 
-    b = np.array([0.7,0])
+    b = np.array([0.3,0])
 
 
     # Load command and influence matrix
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     kd_tree_LODM = KDTree(pos_LODM)
     V_DM0_2_V_DM1 = pfits.getdata('calib_mat/V_DM0_2_V_DM1.fits')
     HODM_dead_act = 305
-    HODM_dead_act_2 = 302 # 302,1000
+    HODM_dead_act_2 = 1000 # 302,1000
     HODM_dead_act_3 = 500
     ############################## 2nd dead act ######################################
     d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
