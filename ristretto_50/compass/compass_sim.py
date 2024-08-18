@@ -51,17 +51,17 @@ if __name__ == "__main__":
     bool_hump = True
     bool_dead_act = True
     bool_dead_act_compensation = True
-    bool_dead_act_2 = True
-    bool_dead_act_compensation_2 = True
-    bool_dead_act_3 = True
-    bool_dead_act_compensation_3 = True
-    bool_atm = False
+    bool_dead_act_2 = False
+    bool_dead_act_compensation_2 = False
+    bool_dead_act_3 = False
+    bool_dead_act_compensation_3 = False
+    bool_atm = True
     bool_datadriven = False
     bool_dm_dyn = False
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 1
+    exp_time = 10
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
