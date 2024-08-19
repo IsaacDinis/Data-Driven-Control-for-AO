@@ -20,6 +20,7 @@ class K:
         self.u_offload_HODM = 0
         self.u_offload_LODM = 0
         self.offload_ratio = offload_ratio 
+        
     def compute_modal_res(self,slopes):
         self.res = self.S2M @ slopes
 

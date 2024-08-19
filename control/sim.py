@@ -27,6 +27,7 @@ from datetime import datetime
 import utils
 from scipy.spatial import KDTree
 from rich.progress import track
+import eof
 #ipython -i shesha/widgets/widget_ao.py ~/Data-Driven-Control-for-AO/2DM_study/compass/compass_param.py
 
 
@@ -156,20 +157,25 @@ if __name__ == "__main__":
     DM0_phase_shape = DM0_phase.shape
     cube_phase_HODM = np.zeros((DM0_phase_shape[0],DM0_phase_shape[1],int(np.ceil(exp_time/cube_phase_framerate/Ts))))
     rms_stroke = 0
+    K_eof = eof.eof(2,S2M_DM0, M2V_DM0,100)
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
         voltage = DM0_K.update_command(slopes)
         supervisor.rtc.set_command(0,voltage)
+        K_eof.train(slopes,voltage)
         supervisor.next()
 
     supervisor.target.reset_strehl(0)
     supervisor.target.reset_tar_phase(0)
     supervisor.corono.reset()
     error_rms = 0
+
     for i in track(range(n_iter), description="long exposure"):
 
         slopes = supervisor.rtc.get_slopes(0)
-        voltage = DM0_K.update_command(slopes)
+
+        # voltage = DM0_K.update_command(slopes)
+        voltage = K_eof.update_command(slopes)
         DM0_phase = supervisor.dms.get_dm_shape(0)
 
         supervisor.rtc.set_command(0,voltage)
