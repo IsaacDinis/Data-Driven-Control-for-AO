@@ -101,7 +101,7 @@ if __name__ == "__main__":
     S2M_DM0 = pfits.getdata('calib_mat/S2M_DM0.fits')
 
     M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
-
+    V2M = np.linalg.pinv(M2V_DM0)
     if bool_datadriven:
         IIR_filter = pfits.getdata('calib_mat/Kdd_matrix.fits')
     # P2M_DM0 = pfits.getdata('calib_mat/P2M_DM0.fits')
@@ -157,12 +157,14 @@ if __name__ == "__main__":
     DM0_phase_shape = DM0_phase.shape
     cube_phase_HODM = np.zeros((DM0_phase_shape[0],DM0_phase_shape[1],int(np.ceil(exp_time/cube_phase_framerate/Ts))))
     rms_stroke = 0
-    K_eof = eof.eof(2,S2M_DM0, M2V_DM0,100)
+
+    K_eof = eof.eof(2,S2M_DM0, M2V_DM0,10000)
+
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
         voltage = DM0_K.update_command(slopes)
         supervisor.rtc.set_command(0,voltage)
-        K_eof.train(slopes,voltage)
+        
         supervisor.next()
 
     supervisor.target.reset_strehl(0)
@@ -173,9 +175,20 @@ if __name__ == "__main__":
     for i in track(range(n_iter), description="long exposure"):
 
         slopes = supervisor.rtc.get_slopes(0)
+        if K_eof.is_trained == 0:
+            voltage = DM0_K.update_command(slopes)
+            K_eof.train(slopes,voltage)
+        else: 
+            break
+            voltage_int = DM0_K.update_command(slopes)
+            voltage_eof = K_eof.update_command(slopes)
+            modal_command_int = V2M@voltage_int
+            modal_command_eof = V2M@voltage_eof
+            modal_command = np.copy(modal_command_int)
+            modal_command[:2] = modal_command_eof[:2]
+            voltage = M2V_DM0@modal_command
 
-        # voltage = DM0_K.update_command(slopes)
-        voltage = K_eof.update_command(slopes)
+
         DM0_phase = supervisor.dms.get_dm_shape(0)
 
         supervisor.rtc.set_command(0,voltage)
