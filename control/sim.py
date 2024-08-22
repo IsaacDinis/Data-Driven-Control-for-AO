@@ -172,22 +172,27 @@ if __name__ == "__main__":
     supervisor.corono.reset()
     error_rms = 0
 
+    tilt_res = np.zeros(n_iter)
+    tilt_applied = np.zeros(n_iter)
+
     for i in track(range(n_iter), description="long exposure"):
 
         slopes = supervisor.rtc.get_slopes(0)
-        if K_eof.is_trained == 0:
-            voltage = DM0_K.update_command(slopes)
-            K_eof.train(slopes,voltage)
-        else: 
-            break
-            voltage_int = DM0_K.update_command(slopes)
-            voltage_eof = K_eof.update_command(slopes)
-            modal_command_int = V2M@voltage_int
-            modal_command_eof = V2M@voltage_eof
-            modal_command = np.copy(modal_command_int)
-            modal_command[:2] = modal_command_eof[:2]
-            voltage = M2V_DM0@modal_command
-
+        voltage = DM0_K.update_command(slopes)
+        # if K_eof.is_trained == 0:
+        #     voltage = DM0_K.update_command(slopes)
+        #     K_eof.train(slopes,voltage)
+        # else: 
+        #     break
+        #     voltage_int = DM0_K.update_command(slopes)
+        #     voltage_eof = K_eof.update_command(slopes)
+        #     modal_command_int = V2M@voltage_int
+        #     modal_command_eof = V2M@voltage_eof
+        #     modal_command = np.copy(modal_command_int)
+        #     modal_command[:2] = modal_command_eof[:2]
+        #     voltage = M2V_DM0@modal_command
+        tilt_res[i] = (S2M_DM0@slopes)[0]
+        tilt_applied[i] = (V2M@voltage)[0]
 
         DM0_phase = supervisor.dms.get_dm_shape(0)
 
@@ -368,6 +373,8 @@ if __name__ == "__main__":
     cbar.set_label(label="[um]", size=12)
     plt.savefig(save_path+'mean_target_phase_res.png')
 
+    pfits.writeto(save_path+'tilt_res.fits', tilt_res, overwrite = True)
+    pfits.writeto(save_path+'tilt_applied.fits', tilt_applied, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed
