@@ -48,9 +48,9 @@ if __name__ == "__main__":
 
     bool_flat = True
     bool_DMO = True
-    bool_hump = True
-    bool_dead_act = True
-    bool_dead_act_compensation = True
+    bool_hump = False
+    bool_dead_act = False
+    bool_dead_act_compensation = False
     bool_dead_act_2 = False
     bool_dead_act_compensation_2 = False
     bool_dead_act_3 = False
@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 10
+    exp_time = 2.5
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -326,6 +326,10 @@ if __name__ == "__main__":
     supervisor.target.reset_tar_phase(0)
     supervisor.corono.reset()
     error_rms = 0
+
+    max_grad_value = -np.inf  # Initialize with a very low value
+    max_grad_time_index = -1 
+
     for i in track(range(n_iter), description="long exposure"):
     # for i in range(n_iter):
         
@@ -451,10 +455,21 @@ if __name__ == "__main__":
         # hump_deformation_plot.plot(DM1_phase[225+22,415+22],i)
         # hump2_deformation_plot.plot(DM2_phase[225+8,415+8],i)
         # hump_plot.plot(hump_amp,i)
+
         if i%cube_phase_framerate == 0:
             cube_phase_target[:,:,cube_phase_count] = target_phase
             cube_phase_HODM[:,:,cube_phase_count] = DM1_phase
             cube_phase_count += 1
+
+        grad_y, grad_x = np.gradient(DM1_phase)
+        magnitude = np.sqrt(grad_x**2 + grad_y**2)
+        current_max_grad = np.max(magnitude)
+        if current_max_grad > max_grad_value:
+            max_grad_value = current_max_grad
+            max_grad_time_index = i
+            max_magnitude = magnitude
+
+
         supervisor.next()
 
     modal_DM0_plot.compute_res_psd(fs)
@@ -556,6 +571,7 @@ if __name__ == "__main__":
     pfits.writeto(save_path+'upper_stroke_HODM.fits', max_stroke_HODM, overwrite = True)
     pfits.writeto(save_path+'lower_stroke_HODM.fits', min_stroke_HODM, overwrite = True)
     pfits.writeto(save_path+'mean_target_phase_res.fits', mean_phase_res, overwrite = True)
+    pfits.writeto(save_path+'HODM_max_deformation_grad.fits', max_magnitude, overwrite = True)
 
     plt.figure()
     plt.imshow(max_stroke_HODM)
@@ -580,9 +596,41 @@ if __name__ == "__main__":
 
     plt.figure()
     plt.imshow(mean_phase_res)
+    plt.title('mean target phase residual')
     cbar = plt.colorbar()
     cbar.set_label(label="[um]", size=12)
     plt.savefig(save_path+'mean_target_phase_res.png')
+
+    plt.figure()
+    plt.imshow(max_magnitude)
+    plt.title('max deformation gradient')
+    cbar = plt.colorbar()
+    cbar.set_label(label="[um/pix]", size=12)
+    plt.savefig(save_path+'HODM_max_deformation_grad.png')
+  
+    # max_grad_value = -np.inf  # Initialize with a very low value
+    # max_grad_time_index = -1  # To store the index of the time frame with the highest gradient
+
+    # # Compute the gradient magnitude for each time frame
+    # for t in range(cube_phase_HODM.shape[2]):  # Loop over time frames
+    #     # Compute the gradient for the current time frame
+    #     grad_y, grad_x = np.gradient(cube_phase_HODM[:, :, t])
+        
+    #     # Compute the magnitude of the gradient
+    #     magnitude = np.sqrt(grad_x**2 + grad_y**2)
+        
+    #     # Find the maximum gradient magnitude in the current time frame
+    #     current_max_grad = np.max(magnitude)
+        
+    #     # Check if this is the highest we've seen so far
+    #     if current_max_grad > max_grad_value:
+    #         max_grad_value = current_max_grad
+    #         max_grad_time_index = t
+
+    # grad_y, grad_x = np.gradient(cube_phase_HODM[:, :, max_grad_time_index])
+    # magnitude = np.sqrt(grad_x**2 + grad_y**2)
+    # plt.figure()
+    # plt.imshow(magnitude)
 
 
     if arguments["--interactive"]:
