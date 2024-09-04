@@ -32,8 +32,8 @@ end
 
 % x_pred2 = PHI*arcoef;
 figure()
-plot(x(53:70))
+plot(x(53:end))
 hold on;
-plot(x_pred2(51:70))
-plot(x(51:70))
+plot(x_pred2(51:end))
+plot(x(51:end))
 legend('true value','prediction','measurement')
