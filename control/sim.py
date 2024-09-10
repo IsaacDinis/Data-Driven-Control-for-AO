@@ -52,7 +52,7 @@ if __name__ == "__main__":
     
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
-    exp_time = 10
+    exp_time = 100
     n_iter = int(np.ceil(exp_time/Ts))
     exp_time_bootstrap = 0.3
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
 
 
-    n_modes_DM0 = 1200
+    n_modes_DM0 = 20
 
     a = np.array([1,-0.99]) 
     b = np.array([0.7,0])
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     cube_phase_HODM = np.zeros((DM0_phase_shape[0],DM0_phase_shape[1],int(np.ceil(exp_time/cube_phase_framerate/Ts))))
     rms_stroke = 0
 
-    K_eof = eof.eof(2,S2M_DM0, M2V_DM0,10000)
+    K_eof = eof.eof(4,S2M_DM0, M2V_DM0,20000)
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
@@ -179,18 +179,20 @@ if __name__ == "__main__":
 
         slopes = supervisor.rtc.get_slopes(0)
         voltage = DM0_K.update_command(slopes)
-        # if K_eof.is_trained == 0:
-        #     voltage = DM0_K.update_command(slopes)
-        #     K_eof.train(slopes,voltage)
-        # else: 
-        #     break
-        #     voltage_int = DM0_K.update_command(slopes)
-        #     voltage_eof = K_eof.update_command(slopes)
+        if K_eof.is_trained == 0:
+            voltage = DM0_K.update_command(slopes)
+            K_eof.train(slopes,voltage)
+        else: 
+            K_eof.save()
+            break
+            voltage_int = DM0_K.update_command(slopes)
+            voltage_eof = K_eof.update_command(slopes)
         #     modal_command_int = V2M@voltage_int
         #     modal_command_eof = V2M@voltage_eof
         #     modal_command = np.copy(modal_command_int)
         #     modal_command[:2] = modal_command_eof[:2]
-        #     voltage = M2V_DM0@modal_command
+            # voltage = M2V_DM0@voltage_eof
+            voltage = voltage_eof
         tilt_res[i] = (S2M_DM0@slopes)[0]
         tilt_applied[i] = (V2M@voltage)[0]
 

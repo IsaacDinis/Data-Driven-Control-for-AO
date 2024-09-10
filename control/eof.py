@@ -1,5 +1,5 @@
 import numpy as np
-
+import astropy.io.fits as pfits
 class eof:
     def __init__(self,order,S2M, M2V,l, sys_delay = 2):
         self.n_modes = S2M.shape[0]
@@ -28,7 +28,7 @@ class eof:
             self.train_count += 1
 
         elif self.train_count < self.l+self.sys_delay:
-            self.h = np.roll(self.D[:,0],self.n_modes)
+            self.h = np.roll(self.h,self.n_modes)
             self.D = np.roll(self.D,1,axis=1)
             self.h[:self.n_modes] = modes
             self.D[:,0] = self.h
@@ -48,6 +48,7 @@ class eof:
             for i in range(self.n_modes):
                 self.F[i,:] = (D_inv@self.P[i,:].T).T
             self.is_trained = 1
+            print("EOF trained")
 
     def update_command(self, slopes):
 
@@ -61,3 +62,9 @@ class eof:
             self.command_buf[:,0] = command
             return -self.M2V@command
 
+    def save(self):
+        pfits.writeto("F.fits", self.F, overwrite = True)
+
+        pfits.writeto("D.fits", self.D, overwrite = True)
+
+        pfits.writeto("P.fits", self.P, overwrite = True)

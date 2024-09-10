@@ -15,7 +15,7 @@ import os
 import numpy as np
 simul_name = "1dm_1wfs"
 
-Ts = 1./4000.
+Ts = 1./1000.
 # loop
 p_loop = conf.Param_loop()
 p_loop.set_niter(5000)         # /?\ number of loops

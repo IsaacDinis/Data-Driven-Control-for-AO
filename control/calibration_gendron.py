@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()
 
-    n_modes_DM0 = 1200
+    n_modes_DM0 = 20
 
     M2V_DM0 = M2V_DM0[:,:n_modes_DM0]
 
