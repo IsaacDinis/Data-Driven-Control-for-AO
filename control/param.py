@@ -97,9 +97,9 @@ p_dms = [p_dm0]        # /!\
 
 
 p_dm0.set_type("pzt")         # /!\
-p_dm0.set_nact(48)
-# p_dm0.set_thresh(0.485)        # /!\ to get the SAXO 1377 active actuators
-p_dm0.set_thresh(0.)  
+p_dm0.set_nact(40)
+p_dm0.set_thresh(0.485)        # /!\ to get the SAXO 1377 active actuators
+# p_dm0.set_thresh(0.)  
 p_dm0.set_alt(0.)             # /!\
 p_dm0.set_unitpervolt(1.)     # /!\
 p_dm0.set_push4imat(0.180)    #     to displace ~ half a pixel

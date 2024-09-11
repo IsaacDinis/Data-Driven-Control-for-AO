@@ -47,8 +47,7 @@ if __name__ == "__main__":
 
 
 
-    L0 = 25  # [m]
-    M2V_DM0, l = KLmodes(xpos0, ypos0, L0, True) #basis on saxo stage
+    M2V_DM0, _ = supervisor.basis.compute_modes_to_volts_basis("KL2V") 
 
 
     n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()

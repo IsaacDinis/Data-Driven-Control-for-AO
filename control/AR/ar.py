@@ -36,11 +36,24 @@ def compute_psd_welch(data, fft_size, fs):
     return psd, f, spectrogram
 
 
-dist = pfits.getdata('tilt_dist.fits').squeeze()
-fs = 4000
-order = 20
-train_size = 1000
+
+fs = 1000
+order = 3
+train_size = 100000
+
+
+
+t = np.arange(0,2*train_size/fs,1/fs)
+
+dist = np.sin(t*2*np.pi)
+plt.figure()
+plt.plot(dist)
+# dist = pfits.getdata('tilt_dist.fits').squeeze()
+# dist = pfits.getdata('P.fits').squeeze()
+
 PHI = np.zeros((train_size,order))
+
+
 for i in range(order):
     PHI[:,i] = np.roll(dist,-i)[:train_size]
 ar_coef = np.linalg.solve(PHI.T@PHI,PHI.T@dist[order:train_size+order])
@@ -55,6 +68,7 @@ for i in range(order, dist.shape[0]):
     x_pred_2step[i] = np.dot(ar_coef[1:], dist[i:i - order + 1:-1])+x_pred_1step[i]*ar_coef[0]
 
 end_plot = order+20
+plt.figure()
 plt.plot(x_pred_2step[order:end_plot])
 plt.plot(dist[order:end_plot])
 plt.plot(dist[order+2:end_plot+2])
@@ -64,12 +78,16 @@ plt.show()
 print(np.std(dist[order+2:]-x_pred_2step[order:-2]))
 print(np.std(dist[order+2:]-dist[order:-2]))
 
-psd_res,f,_ = compute_psd_welch(dist[order+2:]-x_pred_2step[order:-2], 300, fs)
+# psd_res,f,_ = compute_psd_welch(dist[order+2:]-x_pred_2step[order:-2], 300, fs)
+# psd_res,f,_ = compute_psd_welch(dist, 300, fs)
+# plt.figure()
+# plt.semilogx(f, 20 * np.log10(psd_res))
+# plt.title('residual PSD')
+# plt.xlabel("frequency [Hz]")
+# plt.ylabel("magnitude [dB]")
+# plt.grid()
+# plt.show()
 
 plt.figure()
-plt.semilogx(f, 20 * np.log10(psd_res))
-plt.title('residual PSD')
-plt.xlabel("frequency [Hz]")
-plt.ylabel("magnitude [dB]")
-plt.grid()
+plt.plot(ar_coef)
 plt.show()

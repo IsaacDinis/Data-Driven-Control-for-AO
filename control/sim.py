@@ -89,7 +89,7 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
 
 
-    n_modes_DM0 = 20
+    n_modes_DM0 = 1
 
     a = np.array([1,-0.99]) 
     b = np.array([0.7,0])
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     cube_phase_HODM = np.zeros((DM0_phase_shape[0],DM0_phase_shape[1],int(np.ceil(exp_time/cube_phase_framerate/Ts))))
     rms_stroke = 0
 
-    K_eof = eof.eof(4,S2M_DM0, M2V_DM0,20000)
+    K_eof = eof.eof(20,S2M_DM0, M2V_DM0,20000)
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
@@ -183,12 +183,12 @@ if __name__ == "__main__":
             voltage = DM0_K.update_command(slopes)
             K_eof.train(slopes,voltage)
         else: 
-            K_eof.save()
+            # K_eof.save()
             break
             voltage_int = DM0_K.update_command(slopes)
             voltage_eof = K_eof.update_command(slopes)
-        #     modal_command_int = V2M@voltage_int
-        #     modal_command_eof = V2M@voltage_eof
+            modal_command_int = V2M@voltage_int
+            modal_command_eof = V2M@voltage_eof
         #     modal_command = np.copy(modal_command_int)
         #     modal_command[:2] = modal_command_eof[:2]
             # voltage = M2V_DM0@voltage_eof

@@ -20,14 +20,14 @@ class eof:
 
     def train(self,slopes,command):
 
-        modes = self.S2M@slopes - self.command_buf[:,-1]
+        modes = -self.S2M@slopes + self.command_buf[:,-1]
         self.command_buf = np.roll(self.command_buf,1,axis=1)
-        self.command_buf[:,0] = self.V2M@command
+        self.command_buf[:,0] = - self.V2M@command
 
         if self.train_count < self.sys_delay:
             self.train_count += 1
 
-        elif self.train_count < self.l+self.sys_delay:
+        elif self.train_count < self.l+self.sys_delay+self.order:
             self.h = np.roll(self.h,self.n_modes)
             self.D = np.roll(self.D,1,axis=1)
             self.h[:self.n_modes] = modes
@@ -36,7 +36,7 @@ class eof:
             self.P[:,0] = modes
             self.train_count += 1
 
-        elif self.train_count < self.l + 2*self.sys_delay :
+        elif self.train_count < self.l + 2*self.sys_delay +self.order:
             self.h = np.roll(self.D[:,0],self.n_modes)
             self.h[:self.n_modes] = modes
             self.P = np.roll(self.P,1,axis = 1)
@@ -44,15 +44,17 @@ class eof:
             self.train_count += 1
 
         else:
+            self.D /= np.linalg.norm(self.D,axis = 1).reshape(-1,1)
+            self.P /= np.linalg.norm(self.P,axis = 1).reshape(-1,1)
             D_inv = np.linalg.pinv(self.D.T)
-            for i in range(self.n_modes):
-                self.F[i,:] = (D_inv@self.P[i,:].T).T
+            self.F = (D_inv @ self.P.T).T
             self.is_trained = 1
             print("EOF trained")
+            self.save()
 
     def update_command(self, slopes):
 
-            modes = self.S2M@slopes - self.command_buf[:,-1]
+            modes = -self.S2M@slopes + self.command_buf[:,-1]
             self.command_buf = np.roll(self.command_buf,1,axis=1)
 
             self.h = np.roll(self.h,self.n_modes)
