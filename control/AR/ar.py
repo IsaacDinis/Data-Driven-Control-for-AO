@@ -39,18 +39,18 @@ def compute_psd_welch(data, fft_size, fs):
 
 fs = 1000
 order = 3
-train_size = 100000
+train_size = 10000
 
 
 
 t = np.arange(0,2*train_size/fs,1/fs)
 
-dist = np.sin(t*2*np.pi)
+# dist = np.sin(t*2*np.pi)
+
+# dist = pfits.getdata('tilt_dist.fits').squeeze()
+dist = pfits.getdata('P.fits').squeeze()
 plt.figure()
 plt.plot(dist)
-# dist = pfits.getdata('tilt_dist.fits').squeeze()
-# dist = pfits.getdata('P.fits').squeeze()
-
 PHI = np.zeros((train_size,order))
 
 
@@ -67,7 +67,7 @@ for i in range(order, dist.shape[0]):
     x_pred_1step[i] = np.dot(ar_coef, dist[i:i - order:-1])
     x_pred_2step[i] = np.dot(ar_coef[1:], dist[i:i - order + 1:-1])+x_pred_1step[i]*ar_coef[0]
 
-end_plot = order+20
+end_plot = order+1000
 plt.figure()
 plt.plot(x_pred_2step[order:end_plot])
 plt.plot(dist[order:end_plot])

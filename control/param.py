@@ -59,35 +59,79 @@ p_target.set_ypos(0.)         # /!\ On axis
 p_target.set_Lambda(0.75)     # /!\ H Band
 p_target.set_mag(1.)          # /!\
 
-# wfs
-p_wfs0 = conf.Param_wfs(roket=False)
+# # wfs
+# p_wfs0 = conf.Param_wfs(roket=False)
+# p_wfss = [p_wfs0]
+# p_wfs0.set_type("pyrhr")        # /!\ pyramid
+# p_wfs0.set_nxsub(60)            #     number of pixels
+# p_wfs0.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
+# p_wfs0.set_Lambda(1.4)          #     wavelength
+# p_wfs0.set_gsmag(6.)
+# p_wfs0.set_zerop(1.e11)
+# p_wfs0.set_optthroughput(1)
+# p_wfs0.set_noise(-1)           #     readout noise
+# p_wfs0.set_xpos(0.)             # /!\ On axis
+# p_wfs0.set_ypos(0.)             # /!\ On axis
+
+# p_wfs0.set_pyr_ampl(0)
+# p_wfs0.set_pyr_npts(1) 
+# p_wfs0.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
+# p_wfs0.set_fstop("round")
+# # p_wfs0.set_fssize(1.5)          # Size of the field stop
+# p_wfs0.set_fssize(3)  
+# p_wfs0.set_atmos_seen(1)        # /!\
+
+
+
+
+p_wfs0 = conf.Param_wfs()
 p_wfss = [p_wfs0]
 
-p_wfs0.set_type("pyrhr")        # /!\ pyramid
-p_wfs0.set_nxsub(60)            #     number of pixels
-p_wfs0.set_fracsub(0.5)       #     threshold on illumination fraction for valid pixel
-p_wfs0.set_Lambda(1.4)          #     wavelength
-p_wfs0.set_gsmag(6.)
-p_wfs0.set_zerop(1.e11)
-p_wfs0.set_optthroughput(1)
-p_wfs0.set_noise(-1)           #     readout noise
-p_wfs0.set_xpos(0.)             # /!\ On axis
-p_wfs0.set_ypos(0.)             # /!\ On axis
+p_wfs0.set_type("sh")         # /!\ Shack-Hartmann
+p_wfs0.set_nxsub(40)          # /!\ nb of sub-apertures.
+p_wfs0.set_npix(6)            # /!\ nb of pixels / sub-aperture.
+p_wfs0.set_pixsize(0.36)      # /!\ Shannon at 700nm. No exact reference found
+p_wfs0.set_fracsub(0.5)       # /!\ Select 1240 subapertures.
+p_wfs0.set_xpos(0.)           # /!\ On axis
+p_wfs0.set_ypos(0.)           # /!\ On axis
+p_wfs0.set_Lambda(0.690)      # /!\ SAXO SH bandwidth : [475, 900] nm
 
-p_wfs0.set_pyr_ampl(0)
-p_wfs0.set_pyr_npts(1) 
-p_wfs0.set_pyr_pup_sep(p_wfs0.nxsub) # separation between the 4 images of the pyramid 
-p_wfs0.set_fstop("round")
-# p_wfs0.set_fssize(1.5)          # Size of the field stop
-p_wfs0.set_fssize(3)  
-p_wfs0.set_atmos_seen(1)        # /!\
+# gsmag, zerop, and optthroughput are not used. Photon flux is fixed, the 
+# corresponding magnitude is computed taking zerop and optthroughput into 
+# account and set, and compass will get the photons back from the magnitude 
+# taking the same zerop and optthroughput into account.
+p_wfs0.set_gsmag(6.)          # Not used
+p_wfs0.set_zerop(1e11)        # Not used (zero point for guide star magnitude)
+p_wfs0.set_optthroughput(1) # Not used
+
+# Standard deviation of electronic noise.
+# If <0, no noise, if =0 photon noise enabled, if >0 add electronic noise
+p_wfs0.set_noise(-1)         # EMCCD with < 0.1e- RON
+
+p_wfs0.set_atmos_seen(1)      # /!\
+p_wfs0.set_fstop("square")    # /!\
+
+# spatial filter
+# The size is computed in arcsec for lambda = 690 nm.
+# Real possible values are: "open", "small" (1.15*lambda/dSubap), "medium"
+# (1.25*lambda/dSubap), or large (1.5*lambda/dSubap).
+# Default value is medium.
+                              # Choose one spatial filter or none.
+#p_wfs0.set_fssize(0.8184)     # 1.15*lambda/dSubap, called SMALL in SAXO
+p_wfs0.set_fssize(0.8895)     # 1.25*lambda/dSubap, called MEDIUM in SAXO
+
 
 
 p_centroider0 = conf.Param_centroider()
 p_centroiders = [p_centroider0]
 
-p_centroider0.set_nwfs(0)           # /!\
-p_centroider0.set_type("maskedpix")
+# p_centroider0.set_nwfs(0)           # /!\
+# p_centroider0.set_type("maskedpix")
+
+p_centroider0.set_nwfs(0)     # /!\
+p_centroider0.set_type("wcog")
+p_centroider0.set_width(2) # size of the diffraction limit spot
+p_centroider0.set_thresh(0)
 
 # dm
 p_dm0 = conf.Param_dm()       # /!\

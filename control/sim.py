@@ -158,7 +158,7 @@ if __name__ == "__main__":
     cube_phase_HODM = np.zeros((DM0_phase_shape[0],DM0_phase_shape[1],int(np.ceil(exp_time/cube_phase_framerate/Ts))))
     rms_stroke = 0
 
-    K_eof = eof.eof(20,S2M_DM0, M2V_DM0,20000)
+    K_eof = eof.eof(10,S2M_DM0, M2V_DM0,20000)
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
@@ -178,13 +178,13 @@ if __name__ == "__main__":
     for i in track(range(n_iter), description="long exposure"):
 
         slopes = supervisor.rtc.get_slopes(0)
-        voltage = DM0_K.update_command(slopes)
+        # voltage = DM0_K.update_command(slopes)
         if K_eof.is_trained == 0:
             voltage = DM0_K.update_command(slopes)
             K_eof.train(slopes,voltage)
         else: 
             # K_eof.save()
-            break
+            # break
             voltage_int = DM0_K.update_command(slopes)
             voltage_eof = K_eof.update_command(slopes)
             modal_command_int = V2M@voltage_int

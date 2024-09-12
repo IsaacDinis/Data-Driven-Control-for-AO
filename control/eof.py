@@ -20,9 +20,10 @@ class eof:
 
     def train(self,slopes,command):
 
-        modes = -self.S2M@slopes + self.command_buf[:,-1]
+        modes = self.S2M@slopes + self.command_buf[:,-1]
+        # modes = self.S2M@slopes + self.V2M@command
         self.command_buf = np.roll(self.command_buf,1,axis=1)
-        self.command_buf[:,0] = - self.V2M@command
+        self.command_buf[:,0] =  self.V2M@command
 
         if self.train_count < self.sys_delay:
             self.train_count += 1
@@ -51,18 +52,22 @@ class eof:
             self.is_trained = 1
             print("EOF trained")
             self.save()
-
+            # self.F /= np.max(self.F)
+            self.h *= 0
+            self.command_buf *= 0
+            
     def update_command(self, slopes):
 
-            modes = -self.S2M@slopes + self.command_buf[:,-1]
-            self.command_buf = np.roll(self.command_buf,1,axis=1)
-
             self.h = np.roll(self.h,self.n_modes)
-            self.h[:self.n_modes] = modes
+            modes = self.S2M@slopes + self.command_buf[:,-1]
+            self.h[:self.n_modes] = self.command_buf[:,0]
+            self.h[self.n_modes:2*self.n_modes] = modes
+            self.command_buf = np.roll(self.command_buf,1,axis=1)
 
             command = self.F@self.h
             self.command_buf[:,0] = command
-            return -self.M2V@command
+
+            return self.M2V@command
 
     def save(self):
         pfits.writeto("F.fits", self.F, overwrite = True)
