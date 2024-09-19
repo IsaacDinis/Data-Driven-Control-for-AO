@@ -89,7 +89,7 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[0].get_xpos(),supervisor.config.p_dms[0].get_ypos()]).T
 
 
-    n_modes_DM0 = 1
+    n_modes_DM0 = 800
 
     a = np.array([1,-0.99]) 
     b = np.array([0.7,0])
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
 
     S2M_DM0 = pfits.getdata('calib_mat/S2M_DM0.fits')
-
+    P2M_DM0 = pfits.getdata('calib_mat/P2M_DM0.fits')
     M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
     V2M = np.linalg.pinv(M2V_DM0)
     if bool_datadriven:
@@ -157,27 +157,32 @@ if __name__ == "__main__":
     DM0_phase_shape = DM0_phase.shape
     cube_phase_HODM = np.zeros((DM0_phase_shape[0],DM0_phase_shape[1],int(np.ceil(exp_time/cube_phase_framerate/Ts))))
     rms_stroke = 0
-
-    K_eof = eof.eof(30,S2M_DM0, M2V_DM0,20000)
+    order = 2
+    l = 20000
+    K_eof = eof.eof(2,S2M_DM0, M2V_DM0,l)
 
     for i in range(n_bootstrap):
         slopes = supervisor.rtc.get_slopes(0)
         voltage = DM0_K.update_command(slopes)
         supervisor.rtc.set_command(0,voltage)
-        
         supervisor.next()
 
     supervisor.target.reset_strehl(0)
-    supervisor.target.reset_tar_phase(0)
     supervisor.corono.reset()
     error_rms = 0
 
     tilt_res = np.zeros(n_iter)
     tilt_applied = np.zeros(n_iter)
-
+    phase_array = np.zeros(n_iter)
+    slopes_array = np.zeros(n_iter)
+    command_array = np.zeros(n_iter)
     for i in track(range(n_iter), description="long exposure"):
 
         slopes = supervisor.rtc.get_slopes(0)
+        phase = supervisor.target.get_tar_phase(0)[pupil==1]
+        phase -= np.mean(phase) 
+        phase_array[i] = (P2M_DM0@phase)[0]
+        slopes_array[i]= (S2M_DM0@slopes)[0]
         # voltage = DM0_K.update_command(slopes)
         if K_eof.is_trained == 0:
             voltage = DM0_K.update_command(slopes)
@@ -195,7 +200,7 @@ if __name__ == "__main__":
             voltage = voltage_eof
         tilt_res[i] = (S2M_DM0@slopes)[0]
         tilt_applied[i] = (V2M@voltage)[0]
-
+        command_array[i] = (V2M@voltage)[0]
         DM0_phase = supervisor.dms.get_dm_shape(0)
 
         supervisor.rtc.set_command(0,voltage)
@@ -227,6 +232,7 @@ if __name__ == "__main__":
         atm_phase = supervisor.atmos.get_atmos_layer(0)
         target_phase = supervisor.target.get_tar_phase(0,pupil=True)
         target_phase[target_phase!=0] -= np.mean(target_phase[target_phase!=0])
+
         wfs_image = supervisor.wfs.get_wfs_image(0)
 
 
@@ -377,6 +383,9 @@ if __name__ == "__main__":
 
     pfits.writeto(save_path+'tilt_res.fits', tilt_res, overwrite = True)
     pfits.writeto(save_path+'tilt_applied.fits', tilt_applied, overwrite = True)
+    pfits.writeto(save_path+'phase_array.fits', phase_array, overwrite = True)
+    pfits.writeto(save_path+'command_array.fits', command_array, overwrite = True)
+    pfits.writeto(save_path+'slopes_array.fits', slopes_array, overwrite = True)
 
     if arguments["--interactive"]:
         from shesha.util.ipython_embed import embed

@@ -1,19 +1,19 @@
 import numpy as np
 import astropy.io.fits as pfits
 class eof:
-    def __init__(self,order,S2M, M2V,l, sys_delay = 2):
-        self.n_modes = S2M.shape[0]
+    def __init__(self,order,S2M, M2V,l,n_modes = 1, sys_delay = 2):
+        self.n_modes = n_modes
         self.order = order
         self.history_size = int(self.n_modes*order)
         self.l = l
-        self.S2M = S2M
+        self.S2M = S2M[:self.n_modes,:]
         self.F = np.zeros((self.n_modes,self.history_size))    
         self.D = np.zeros((self.history_size,l))
         self.P = np.zeros((self.n_modes,l))
         self.h = np.zeros(self.history_size)
         self.train_count = 0
         self.is_trained = 0
-        self.M2V = M2V
+        self.M2V = M2V[:,:self.n_modes]
         self.V2M = np.linalg.pinv(M2V)
         self.sys_delay = sys_delay
         self.command_buf = np.zeros((self.n_modes,sys_delay))

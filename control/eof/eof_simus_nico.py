@@ -9,7 +9,7 @@ delay = 2
 fs = 1000
 max_freq = 50
 freq = np.random.rand(n_modes,1)*max_freq*2*np.pi
-order = 50
+order = 2
 
 data = pfits.getdata('P.fits').reshape(1,-1)
 
@@ -38,7 +38,7 @@ noise =  1
 # Set threshold based on noise
 threshold = 1e-4 if noise == 0 else 1e-3
 
-threshold = 0
+# threshold = 0
 # Find nmax (index of minimum value close to threshold)
 nmax = np.argmin(np.abs(snorm - threshold))
 

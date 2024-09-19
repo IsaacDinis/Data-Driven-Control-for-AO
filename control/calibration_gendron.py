@@ -53,15 +53,18 @@ if __name__ == "__main__":
 
     n_actus_DM0 = supervisor.config.p_dms[0].get_ntotact()
 
-    n_modes_DM0 = 1
+    n_modes_DM0 = 800
 
     M2V_DM0 = M2V_DM0[:,:n_modes_DM0]
 
-    ampli = 0.01
+    ampli = 0.1
     # ampli = 0.01
     slopes = supervisor.rtc.get_slopes(0)
     M2S_DM0 = np.zeros((slopes.shape[0], n_modes_DM0))
 
+    pupil = supervisor.get_s_pupil()
+    Npixels = int(np.sum(pupil))
+    M2P_DM0 = np.zeros((Npixels, n_modes_DM0))
     # M2S = np.zeros((slopes.shape[0], n_modes+2))
     supervisor.atmos.enable_atmos(False)
 
@@ -77,12 +80,17 @@ if __name__ == "__main__":
         supervisor.next()
         slopes = supervisor.rtc.get_slopes(0)/ampli
         M2S_DM0[:,mode] = slopes.copy()
+        phase = supervisor.target.get_tar_phase(0)[pupil==1]/ampli
+        phase -= np.mean(phase) 
+        M2P_DM0[:, mode] = phase.copy()
+
 
     S2M_DM0 = np.linalg.pinv(M2S_DM0) # [n_modes , nslopes]
-
+    P2M_DM0 = np.linalg.pinv(M2P_DM0)
     pfits.writeto('calib_mat/S2M_DM0.fits', S2M_DM0, overwrite = True)
     pfits.writeto('calib_mat/M2V_DM0.fits', M2V_DM0, overwrite = True)
-
+    pfits.writeto('calib_mat/M2P_DM0.fits', M2P_DM0, overwrite = True)
+    pfits.writeto('calib_mat/P2M_DM0.fits', P2M_DM0, overwrite = True)
 
     # pfits.writeto('calib_mat/V_DM1_2_V_DM0.fits', V_DM1_2_V_DM0, overwrite = True)
 
