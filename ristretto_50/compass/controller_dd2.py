@@ -1,16 +1,13 @@
 import numpy as np
+from dd4compass import K_dd
 
-class K_dd:
-    def __init__(self,order,IIR_filter,S2M,M2V, offload_mat = np.empty(0), stroke = np.inf, offload_ratio = 0):
-        self.order = order
-        
-        self.IIR_filter = IIR_filter
-
+class K_dd_ris(K_dd):
+    def __init__(self,order,S2M,M2V,boostrap_n_iter,fs,offload_mat = np.empty(0),stroke = np.inf,offload_ratio = 0):
+        delay = 2
+        super().__init__(order, delay, S2M, M2V, boostrap_n_iter, fs) 
         self.S2M = S2M
         self.M2V = M2V
         self.res = np.zeros(self.S2M.shape[0])
-        
-        self.state_mat = np.zeros((self.order+1,2,M2V.shape[1]))
         self.V2M = np.linalg.pinv(M2V)
         self.stroke = stroke
         self.offload_mat = offload_mat
@@ -20,18 +17,13 @@ class K_dd:
         self.u_offload_HODM = 0
         self.u_offload_LODM = 0
         self.offload_ratio = offload_ratio 
-        
-    def compute_modal_res(self,slopes):
-        self.res = self.S2M @ slopes
 
     def update_command(self,slopes):
-        self.compute_modal_res(slopes)
-        self.state_mat[1:,:,:] = self.state_mat[0:-1,:,:]
-        self.state_mat[0,0,:] = self.res
-        self.state_mat[0,1,:] = 0
-        modal_u = np.multiply(np.concatenate((self.state_mat[:,0,:],-self.state_mat[:,1,:]),axis = 0),self.IIR_filter)
-        modal_u = np.sum(modal_u,axis=0)
-        u = -self.M2V @ modal_u
+        if self.status == "initialized":
+            u = self.bootstrap(slopes)
+        elif self.status == "trained":
+            u = self.compute_voltage(slopes)
+
         if (self.offload_mat.any()):
             if self.offload_count % self.offload_ratio == 0:
                 self.u_offload_LODM = self.offload_mat@u
@@ -46,9 +38,6 @@ class K_dd:
             u_tot = u+self.u_offload_HODM
         else:
             u_tot = u
-
-        self.state_mat[0,1,:] = -self.V2M@u_tot
-        # self.state_mat[0,1,:] = modal_u
         if (self.offload_mat.any()):
             return u,self.u_offload_LODM
         else:

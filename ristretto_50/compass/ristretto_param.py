@@ -57,7 +57,7 @@ p_targets = [p_target]
 p_target.set_xpos(0.)         # /!\ On axis
 p_target.set_ypos(0.)         # /!\ On axis
 p_target.set_Lambda(0.75)     # /!\ H Band
-p_target.set_mag(1.)          # /!\
+p_target.set_mag(7.)          # /!\
 
 # wfs
 p_wfs0 = conf.Param_wfs(roket=False)
@@ -70,7 +70,8 @@ p_wfs0.set_Lambda(1.4)          #     wavelength
 p_wfs0.set_gsmag(6.)
 p_wfs0.set_zerop(1.e11)
 p_wfs0.set_optthroughput(1)
-p_wfs0.set_noise(-1)           #     readout noise
+# p_wfs0.set_noise(-1)       
+p_wfs0.set_noise(0.3)     #     readout noise
 p_wfs0.set_xpos(0.)             # /!\ On axis
 p_wfs0.set_ypos(0.)             # /!\ On axis
 

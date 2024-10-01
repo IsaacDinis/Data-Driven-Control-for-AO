@@ -39,6 +39,7 @@ if __name__ == "__main__":
 
     supervisor = Supervisor(config)
     supervisor.rtc.open_loop(0) # disable implemented controller
+    supervisor.wfs.set_noise(0, -1)
     pupil = supervisor.get_s_pupil()
 
     xpos0 = supervisor.config.p_dms[0]._xpos # actus positions
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     n_actus_DM1 = supervisor.config.p_dms[1].get_ntotact()
     n_actus_bump = supervisor.config.p_dms[2].get_ntotact()
     n_modes_DM0 = 80
-    n_modes_DM1 = 1200
+    n_modes_DM1 = 100
     print(n_actus_DM1)
     M2V_DM1 = M2V_DM1[:,:n_modes_DM1]
     M2V_DM0 = M2V_DM0[:,:n_modes_DM0]
@@ -124,7 +125,7 @@ if __name__ == "__main__":
     plt.scatter(pos_HODM[376,0]-p_geom.get_p1(),pos_HODM[376,1]-p_geom.get_p1(), marker='.', color="red")
     # plt.scatter(pos_bump[:,0]-p_geom.get_p1(),pos_bump[:,1]-p_geom.get_p1(), marker='.', color="red")
 
-    
+    supervisor.wfs.set_noise(0, supervisor.config.p_wfss[0].get_noise())
     
 
     if arguments["--interactive"]:

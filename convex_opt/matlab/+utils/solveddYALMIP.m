@@ -188,7 +188,7 @@ for mod =  1: nMod
         CON = [CON, polygonalP2>=(1e-5)];
     end
     
-    %  ||W_n S_n||_inf< 1    W1, W2, W3, W4
+    % ||W_n S_n||_inf< 1    W1, W2, W3, W4
     % ||W1 S||_inf< 1   -> max(|W1|,|system.model*W4|)*||Y/P||_inf < 1
     % ||W2 T||_inf< 1
     % ||W3 U||_inf< 1   -> max(|system.model*W2|,|W3|)*||X/P||_inf < 1

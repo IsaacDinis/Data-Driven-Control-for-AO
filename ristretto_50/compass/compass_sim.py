@@ -22,6 +22,7 @@ from hcipy.mode_basis import make_zernike_basis
 from matplotlib import pyplot as plt
 import controller
 import DM_dyn
+import controller_dd2
 import controller_dd
 import os
 from datetime import datetime
@@ -45,8 +46,8 @@ if __name__ == "__main__":
                 int(device) for device in arguments["--devices"].split(",")
         ])
     supervisor = Supervisor(config)
-
-    bool_flat = True
+    datadriven_order = 5
+    bool_flat = False
     bool_DMO = True
     bool_hump = False
     bool_dead_act = False
@@ -56,14 +57,14 @@ if __name__ == "__main__":
     bool_dead_act_3 = False
     bool_dead_act_compensation_3 = False
     bool_atm = True
-    bool_datadriven = False
+    bool_datadriven = True
     bool_dm_dyn = False
 
     Ts = supervisor.config.p_loop.get_ittime()
     fs = 1/Ts
     exp_time = 2.5
     n_iter = int(np.ceil(exp_time/Ts))
-    exp_time_bootstrap = 0.3
+    exp_time_bootstrap = 0
     n_bootstrap = int(np.ceil(exp_time_bootstrap/Ts))
 
     now = datetime.now()
@@ -99,10 +100,10 @@ if __name__ == "__main__":
     pos_HODM = np.array([supervisor.config.p_dms[1].get_xpos(),supervisor.config.p_dms[1].get_ypos()]).T
 
     n_modes_DM0 = 80
-    n_modes_DM1 = 1200
+    n_modes_DM1 = 100
 
     a = np.array([1,-0.99]) 
-    b = np.array([0.3,0])
+    b = np.array([0.7,0])
 
 
     # Load command and influence matrix
@@ -111,8 +112,8 @@ if __name__ == "__main__":
     S2M_DM1 = pfits.getdata('calib_mat/S2M_DM1.fits')
     M2V_DM0 = pfits.getdata('calib_mat/M2V_DM0.fits')
     M2V_DM1 = pfits.getdata('calib_mat/M2V_DM1.fits')
-    if bool_datadriven:
-        IIR_filter = pfits.getdata('calib_mat/Kdd_matrix.fits')
+    # if bool_datadriven:
+    #     IIR_filter = pfits.getdata('calib_mat/Kdd_matrix.fits')
     # P2M_DM1 = pfits.getdata('calib_mat/P2M_DM1.fits')
     # P2M_DM0 = pfits.getdata('calib_mat/P2M_DM0.fits')
 
@@ -135,11 +136,17 @@ if __name__ == "__main__":
 
     if bool_DMO:
         if bool_datadriven:
-            DM1_K = controller_dd.K_dd(5,IIR_filter,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+            # DM1_K = controller_dd.K_dd(5,IIR_filter,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
+            DM1_K = controller_dd2.K_dd_ris(datadriven_order,S2M_DM1,M2V_DM1,4000,fs,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
         else:
             DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,V_DM1_2_V_DM0,stroke = np.inf, offload_ratio = 4)
     else:
-        DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
+        if bool_datadriven:
+            DM1_K = controller_dd2.K_dd_ris(datadriven_order,S2M_DM1,M2V_DM1,4000,fs,stroke = np.inf)
+        else:
+            DM1_K = controller.K(1,a,b,S2M_DM1,M2V_DM1,stroke = np.inf)
+
+        
 
     DM0_K = controller.K(1,a,b,S2M_DM0,M2V_DM0)
 
@@ -174,7 +181,7 @@ if __name__ == "__main__":
     zernike_saxo_plot = utils.zernike_plot("zernike res", refresh_rate, 200, pupil_diam,pupil, n_iter)
     modal_DM1_plot = utils.modal_plot("tweeter modal res", refresh_rate, n_modes_DM1, n_iter)
     modal_command_DM1_plot = utils.modal_plot("tweeter modal command", refresh_rate, n_modes_DM1, n_iter)
-    modal_DM0_plot = utils.modal_plot("woofer modal res", refresh_rate, 80, n_iter)
+    modal_DM0_plot = utils.modal_plot("woofer modal res", refresh_rate, n_modes_DM0, n_iter)
 
     DM0_stroke_plot = utils.DM_stroke_plot("woofer stroke", refresh_rate, n_act_DM0, n_iter,pos_LODM,cross_act_DM0)
     DM1_stroke_plot = utils.DM_stroke_plot("tweeter stroke", refresh_rate, n_act_DM1, n_iter,pos_HODM,cross_act_DM1)
@@ -199,7 +206,8 @@ if __name__ == "__main__":
     HODM_dead_act = 305
     HODM_dead_act_2 = 1000 # 302,1000
     HODM_dead_act_3 = 500
-    ############################## 2nd dead act ######################################
+
+    ############################## 3rd dead act ######################################
     d, i = kd_tree_LODM.query(pos_HODM[HODM_dead_act,:], k=4)
     w = 1/d
     w /= np.sum(w)
@@ -318,7 +326,7 @@ if __name__ == "__main__":
         if bool_dead_act_compensation_3:
             voltage += command_dead_act_3
 
-        voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+        # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
         supervisor.rtc.set_command(0,voltage)
         supervisor.next()
 
@@ -395,7 +403,7 @@ if __name__ == "__main__":
             voltage += command_dead_act_3
 
 
-        voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
+        # voltage[n_act_DM0:n_act_DM0+n_act_DM1] = np.clip(voltage[n_act_DM0:n_act_DM0+n_act_DM1],-max_voltage,max_voltage)
         supervisor.rtc.set_command(0,voltage)
 
         strehl = supervisor.target.get_strehl(0)
@@ -446,7 +454,7 @@ if __name__ == "__main__":
 
         modal_DM0_plot.plot(DM0_K.res,i)
         modal_DM1_plot.plot(DM1_K.res[:n_modes_DM1],i)
-        modal_command_DM1_plot.plot(DM1_K.state_mat[0,1,:],i)
+        # modal_command_DM1_plot.plot(DM1_K.state_mat[0,1,:],i) #TODO
 
         # DM0_stroke_plot.plot(voltage_DM0_applied,i)
         # DM1_stroke_plot.plot(voltage_DM1,i)
