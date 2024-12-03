@@ -54,7 +54,7 @@ for script in scripts:
         print(f"{script} started with PID {proc.pid}.")
     except FileNotFoundError:
         print(f"{script} not found. Ensure it is in the PATH or the current directory.")
-
+time.sleep(1) # wait for SHM to be created
 amp=10
 turb = pfits.getdata("tilt_traj.fits")
 dmTurb=dao.shm('/tmp/dmCmd03.im.shm')
@@ -63,12 +63,13 @@ M2V = dao.shm("/tmp/m2c.im.shm").get_data()
 try:
     print("Press Ctrl+C to terminate all jobs and tmux sessions...")
     while True:  
-        for k in range(turb.shape[0]):
-            dmTurb.set_data(M2V[:,0]*turb[k].astype(np.float32)*amp)
-            time.sleep(0.01)
-        for k in np.linspace(turb.shape[0]-1,0,turb.shape[0]):
-            dmTurb.set_data(M2V[:,0]*turb[int(k)].astype(np.float32)*amp)
-            time.sleep(0.01)
+        time.sleep(1)
+        # for k in range(turb.shape[0]):
+        #     dmTurb.set_data(M2V[:,0]*turb[k].astype(np.float32)*amp)
+        #     time.sleep(0.01)
+        # for k in np.linspace(turb.shape[0]-1,0,turb.shape[0]):
+        #     dmTurb.set_data(M2V[:,0]*turb[int(k)].astype(np.float32)*amp)
+        #     time.sleep(0.01)
 
 
 except KeyboardInterrupt:
