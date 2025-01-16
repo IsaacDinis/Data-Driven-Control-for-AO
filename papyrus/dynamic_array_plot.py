@@ -167,7 +167,7 @@ from matplotlib.animation import FuncAnimation
 
 class SingleArrayDynamicPlot:
     def __init__(self, data_source, title="Dynamic Data Plot", x_label="Index", y_label="Value", interval=500,
-                 x_range=10, mode_index=0):
+                 x_range=10, mode_index=0,x_scale=None, y_scale=None):
         """
         Initialize the dynamic plot for a single array or a single mode from multi-dimensional data.
 
@@ -193,6 +193,8 @@ class SingleArrayDynamicPlot:
         self.ax.set_xlim(0, x_range)  # Set initial x-axis limits
         self.init_ylim = (-1, 1)  # Default y-axis limits
         self.ax.set_ylim(*self.init_ylim)
+        self.x_scale = x_scale
+        self.y_scale = y_scale
 
     def init_plot(self):
         """Initialize the plot."""
@@ -217,6 +219,11 @@ class SingleArrayDynamicPlot:
 
             # Dynamically update the x-axis range if data grows
             self.ax.set_xlim(0, len(data_to_plot))
+            
+        if self.x_scale == "log":
+            self.ax.set_xscale("log")
+        if self.y_scale == "log":
+            self.ax.set_yscale("log")
 
         return self.line,
 
@@ -236,7 +243,7 @@ class SingleArrayDynamicPlot:
 
 class MultiArrayDynamicPlot:
     def __init__(self, data_sources, labels, sampling_frequencies, x_range=10, title="Dynamic Data Plot",
-                 x_label="Time (s)", y_label="Value", interval=500, mode_indices=None):
+                 x_label="Time (s)", y_label="Value", interval=500, mode_indices=None,x_scale=None, y_scale=None):
         """
         Initialize the dynamic plot for multiple arrays with different sampling frequencies.
 
@@ -267,7 +274,8 @@ class MultiArrayDynamicPlot:
         self.ax.set_xlim(0, x_range)  # Enforce the x-axis range
         self.init_ylim = (-1, 1)  # Default y-axis limits
         self.ax.set_ylim(*self.init_ylim)
-
+        self.x_scale = x_scale
+        self.y_scale = y_scale
     def resample_data(self, data, fs):
         """
         Resample the data to fit within the x_range.
@@ -318,6 +326,10 @@ class MultiArrayDynamicPlot:
             # Dynamically update the y-axis limits
             y_min, y_max = np.min(all_y_data), np.max(all_y_data)
             self.ax.set_ylim(y_min - 0.1, y_max + 0.1)  # Add a small buffer
+        if self.x_scale == "log":
+            self.ax.set_xscale("log", nonpositive='clip')
+        if self.y_scale == "log":
+            self.ax.set_yscale("log", nonpositive='clip')
 
         return self.lines
 

@@ -38,8 +38,8 @@ V2M = np.linalg.pinv(M2V)
 
 fs = 100
 
-new_time = time.time()
 latency = 1
+old_time = time.time()
 
 while True:
     dm_turb = dm_turb_shm.get_data(check = True, semNb = 6)
@@ -55,4 +55,6 @@ while True:
     turb_buf[-1, :] = turb
     pol_buf_shm.set_data(pol_buf.astype(np.float32))
     turb_buf_shm.set_data(turb_buf.astype(np.float32))
-    time.sleep(0.001)
+    if(time.time()-old_time > 30):
+        old_time = time.time()
+        print(np.std(res_buf)/np.std(pol_buf))

@@ -23,7 +23,8 @@ g = 0.2
 training_size = 3000
 fs = 100
 # K_dd = K_dd(5, 1, np.diag(np.ones(M2V.shape[1])), M2V, training_size, fs)
-new_time = time.time()
+old_time = time.time()
+# new_time = time.time()
 while True:
     # old_time = new_time
     # new_time = time.time()
@@ -48,3 +49,7 @@ while True:
     dm.set_data(voltage.astype(np.float32))
 
     old_command = command
+
+    if(time.time()-old_time > 30):
+        old_time = time.time()
+        print(np.std(res_buf)/np.std(command_buf))
