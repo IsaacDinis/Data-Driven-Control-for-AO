@@ -20,11 +20,11 @@ buf_size = 1024
 n_modes = 1
 n_fft = 300
 
-turb_buf_fft = np.zeros((n_fft,n_modes),np.float32)
-pol_buf_fft = np.zeros((n_fft,n_modes),np.float32)
-command_buf_fft = np.zeros((n_fft,n_modes),np.float32)
-res_buf_fft = np.zeros((n_fft,n_modes),np.float32)
-f_buff = np.zeros((n_fft,1),np.float32)
+turb_buf_fft = np.zeros((int(n_fft/2),n_modes),np.float32)
+pol_buf_fft = np.zeros((int(n_fft/2),n_modes),np.float32)
+command_buf_fft = np.zeros((int(n_fft/2),n_modes),np.float32)
+res_buf_fft = np.zeros((int(n_fft/2),n_modes),np.float32)
+f_buff = np.zeros((int(n_fft/2),1),np.float32)
 
 turb_buf_fft_shm = dao.shm('/tmp/turb_buf_fft.shm',turb_buf_fft.astype(np.float32))
 pol_buf_fft_shm = dao.shm('/tmp/pol_buf_fft.shm',pol_buf_fft.astype(np.float32))
@@ -55,11 +55,21 @@ while True:
     res_fft, f, _ = compute_fft_mag_welch(res_buf, n_fft, fs)
     command_fft, f, _ = compute_fft_mag_welch(command_buf, n_fft, fs)
 
+    if n_modes == 1:
+        pol_fft = pol_fft[:,np.newaxis]
+        turb_fft = turb_fft[:,np.newaxis]
+        res_fft = res_fft[:,np.newaxis]
+        command_fft = command_fft[:,np.newaxis]
+        f = f[:,np.newaxis]
+    # turb_fft = np.ones((int(n_fft/2)+1,n_modes))
+    # pol_buf_fft_shm.set_data(np.log10(pol_fft[:-1]).astype(np.float32))
+    # turb_buf_fft_shm.set_data(np.log10(turb_fft[:-1]).astype(np.float32))
+    # res_buf_fft_shm.set_data(np.log10(res_fft[:-1]).astype(np.float32))
+    # command_buf_fft_shm.set_data(np.log10(command_fft[:-1]).astype(np.float32))
+    # f_buff_shm.set_data(f[:-1].astype(np.float32))
 
-
-    pol_buf_fft_shm.set_data(pol_fft.astype(np.float32))
-    turb_buf_fft_shm.set_data(turb_fft.astype(np.float32))
-    res_buf_fft_shm.set_data(res_fft.astype(np.float32))
-    command_buf_fft_shm.set_data(command_fft.astype(np.float32))
-    f_buff_shm.set_data(f.astype(np.float32))
-
+    pol_buf_fft_shm.set_data((pol_fft[1:,:]).astype(np.float32))
+    turb_buf_fft_shm.set_data((turb_fft[1:,:]).astype(np.float32))
+    res_buf_fft_shm.set_data((res_fft[1:,:]).astype(np.float32))
+    command_buf_fft_shm.set_data((command_fft[1:,:]).astype(np.float32))
+    f_buff_shm.set_data(f[1:,:].astype(np.float32))

@@ -24,8 +24,8 @@ g = 0.6
 training_size = 3000
 fs = 100
 training_set_size = 3000
-delay = 1.3
-order = 10
+delay = 1
+order = 1
 
 K = K_dd(order, delay, np.array([[1]]), M2V, training_set_size, fs)
 
@@ -43,7 +43,7 @@ while True:
     command_buf = np.roll(command_buf, -1, axis=0)
     # time.sleep(0.001)
     # modes = modes_shm.get_data(check = True)[:n_modes]
-    modes = modes_shm.get_data(check = True, semNb = 5)[:n_modes].squeeze()
+    modes = modes_shm.get_data(check = True, semNb = 5)[:n_modes].squeeze()/2
     command = K.step(np.array([[modes]]))
     # command*= 0
     # voltage = -M2V@command

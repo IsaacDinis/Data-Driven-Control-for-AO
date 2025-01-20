@@ -13,9 +13,12 @@ buf_size = 1024
 n_modes = 1
 res_buf = np.zeros((buf_size,n_modes),np.float32)
 command_buf = np.zeros((buf_size,n_modes),np.float32)
+t_buf = np.arange(0,buf_size,dtype = np.float32)
+t_buf = t_buf[:,np.newaxis]
+
 res_buf_shm = dao.shm('/tmp/res_buf.shm',res_buf.astype(np.float32))
 command_buf_shm = dao.shm('/tmp/command_buf.shm',command_buf.astype(np.float32))
-
+t_buf_shm = dao.shm('/tmp/t.shm',t_buf.astype(np.float32))
 
 M2V = M2V[:,:n_modes]
 old_command = np.zeros((M2V.shape[1],1),np.float32)
@@ -36,7 +39,7 @@ while True:
     command_buf = np.roll(command_buf, -1, axis=0)
     # time.sleep(0.001)
     # modes = modes_shm.get_data(check = True)[:n_modes]
-    modes = modes_shm.get_data(check = True, semNb = 5)[:n_modes].squeeze()
+    modes = modes_shm.get_data(check = True, semNb = 5)[:n_modes].squeeze()/2
     command = g*modes + old_command
     # command*= 0
     voltage = -M2V@command
