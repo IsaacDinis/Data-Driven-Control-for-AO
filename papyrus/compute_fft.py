@@ -17,7 +17,7 @@ turb_buf_shm = dao.shm('/tmp/turb_buf.shm')
 
 M2V = dao.shm("/tmp/m2c.im.shm").get_data()
 buf_size = 1024
-n_modes = 1
+n_modes = 100
 n_fft = 300
 
 turb_buf_fft = np.zeros((int(n_fft/2),n_modes),np.float32)
@@ -60,7 +60,7 @@ while True:
         turb_fft = turb_fft[:,np.newaxis]
         res_fft = res_fft[:,np.newaxis]
         command_fft = command_fft[:,np.newaxis]
-        f = f[:,np.newaxis]
+    f = f[:,np.newaxis]
     # turb_fft = np.ones((int(n_fft/2)+1,n_modes))
     # pol_buf_fft_shm.set_data(np.log10(pol_fft[:-1]).astype(np.float32))
     # turb_buf_fft_shm.set_data(np.log10(turb_fft[:-1]).astype(np.float32))

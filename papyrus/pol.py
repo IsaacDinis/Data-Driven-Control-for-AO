@@ -26,7 +26,7 @@ command_buf_shm = dao.shm('/tmp/command_buf.shm')
 
 M2V = dao.shm("/tmp/m2c.im.shm").get_data()
 buf_size = 1024
-n_modes = 1
+n_modes = 100
 turb_buf = np.zeros((buf_size,n_modes),np.float32)
 pol_buf = np.zeros((buf_size,n_modes),np.float32)
 turb_buf_shm = dao.shm('/tmp/turb_buf.shm',turb_buf.astype(np.float32))
@@ -52,7 +52,7 @@ while True:
     turb = V2M@dm_turb
     pol = pol_reconstruct(command_buf, res_buf, latency)
     pol_buf[-1, :] = pol
-    turb_buf[-1, :] = turb
+    turb_buf[-1, :] = turb.squeeze()
     pol_buf_shm.set_data(pol_buf.astype(np.float32))
     turb_buf_shm.set_data(turb_buf.astype(np.float32))
     if(time.time()-old_time > 30):

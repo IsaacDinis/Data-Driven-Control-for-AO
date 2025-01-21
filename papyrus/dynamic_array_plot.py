@@ -438,7 +438,7 @@ class MultiArrayDynamicPlot:
         if self.y_scale == "log":
             
             self.ax.set_yscale("log")
-            print(np.min(all_y_data))
+            # print(np.min(all_y_data))
             # print(len(all_y_data))
             # print(len(all_x_data))
 
