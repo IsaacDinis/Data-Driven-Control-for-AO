@@ -17,7 +17,7 @@ turb_buf_shm = dao.shm('/tmp/turb_buf.shm')
 
 M2V = dao.shm("/tmp/m2c.im.shm").get_data()
 buf_size = 1024
-n_modes = 100
+n_modes = 20
 n_fft = 300
 
 turb_buf_fft = np.zeros((int(n_fft/2),n_modes),np.float32)

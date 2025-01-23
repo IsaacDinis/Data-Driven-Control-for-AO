@@ -12,7 +12,7 @@ slopes_shm = dao.shm('/tmp/papyrus_slopes.im.shm')
 S2M = dao.shm("/tmp/S2M.shm").get_data()
 
 buf_size = 1024
-n_modes = 100
+n_modes = 20
 res_buf = np.zeros((buf_size,n_modes),np.float32)
 command_buf = np.zeros((buf_size,n_modes),np.float32)
 res_buf_shm = dao.shm('/tmp/res_buf.shm',res_buf.astype(np.float32))
@@ -21,11 +21,12 @@ command_buf_shm = dao.shm('/tmp/command_buf.shm',command_buf.astype(np.float32))
 
 M2V = M2V[:,:n_modes]
 V2M = np.linalg.pinv(M2V)
+S2M = S2M[:n_modes,:]
 old_command = np.zeros((M2V.shape[1],1),np.float32)
 g = 0.6
 training_size = 3000
 fs = 100
-training_set_size = 3000
+training_set_size = 5000
 delay = 1
 order = 5
 
@@ -46,7 +47,7 @@ while True:
     # time.sleep(0.001)
     # modes = modes_shm.get_data(check = True)[:n_modes]
     # modes = modes_shm.get_data(check = True, semNb = 5)[:n_modes].squeeze()/2
-    slopes = slopes_shm.get_data(check = True, semNb = 5).squeeze()
+    slopes = slopes_shm.get_data(check = True, semNb = 5).squeeze()/1.2
     modes = S2M@slopes
     if n_modes == 1:
         command = K.step(np.array([[modes]]))
