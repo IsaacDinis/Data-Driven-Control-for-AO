@@ -38,7 +38,7 @@ V2M = np.linalg.pinv(M2V)
 
 fs = 100
 
-latency = 1
+latency = 1.0
 old_time = time.time()
 
 while True:

@@ -17,7 +17,9 @@ res_buf = np.zeros((buf_size,n_modes),np.float32)
 command_buf = np.zeros((buf_size,n_modes),np.float32)
 res_buf_shm = dao.shm('/tmp/res_buf.shm',res_buf.astype(np.float32))
 command_buf_shm = dao.shm('/tmp/command_buf.shm',command_buf.astype(np.float32))
-
+t_buf = np.arange(0,buf_size,dtype = np.float32)
+t_buf = t_buf[:,np.newaxis]
+t_buf_shm = dao.shm('/tmp/t.shm',t_buf.astype(np.float32))
 
 M2V = M2V[:,:n_modes]
 V2M = np.linalg.pinv(M2V)
@@ -27,7 +29,7 @@ g = 0.6
 training_size = 3000
 fs = 100
 training_set_size = 5000
-delay = 1
+delay = 1.2
 order = 5
 
 K = K_dd(order, delay, np.eye(n_modes), M2V, training_set_size, fs,Fx=np.array([1]), Fy=np.array([1,-0.99]))
@@ -47,7 +49,7 @@ while True:
     # time.sleep(0.001)
     # modes = modes_shm.get_data(check = True)[:n_modes]
     # modes = modes_shm.get_data(check = True, semNb = 5)[:n_modes].squeeze()/2
-    slopes = slopes_shm.get_data(check = True, semNb = 5).squeeze()/1.2
+    slopes = slopes_shm.get_data(check = True, semNb = 5).squeeze()
     modes = S2M@slopes
     if n_modes == 1:
         command = K.step(np.array([[modes]]))
