@@ -5,6 +5,7 @@ import time
 from scipy.io import loadmat
 import dao
 import numpy as np
+
 # List of script commands
 scripts = [
     "daoPapyrusCreateShm.py",
@@ -18,10 +19,8 @@ scripts = [
 # List to store process objects
 processes = []
 
-# Function to clean up all processes and tmux sessions
 def cleanup():
     print("\nCleaning up...")
-    # Terminate all the processes
     for proc in processes:
         try:
             print(f"Terminating {proc.pid}...")
@@ -46,7 +45,6 @@ def cleanup():
 for script in scripts:
     try:
         print(f"Running {script}...")
-        # Split the command into a list for Popen compatibility
         command = script.split()
         proc = subprocess.Popen(command)  # Start the script in the background
         processes.append(proc)  # Keep track of the process
@@ -54,25 +52,11 @@ for script in scripts:
     except FileNotFoundError:
         print(f"{script} not found. Ensure it is in the PATH or the current directory.")
 
-# amp=1
-# turb = loadmat("turbulence_r0_15cm_windSpeed_5_ms_frequency_1000_Hz_seed_1.mat")["phase_screen"]
-# dmTurb=dao.shm('/tmp/dmCmd03.im.shm')
-# # Infinite loop to wait for Ctrl+C
-# try:
-#     print("Press Ctrl+C to terminate all jobs and tmux sessions...")
-#     while True:  
-#         for k in range(turb.shape[1]):
-#             dmTurb.set_data(3.6e5*turb[:,k].astype(np.float32)*amp)
-#             time.sleep(5.01)
-#         for k in np.linspace(turb.shape[1]-1,0,turb.shape[1]):
-#             dmTurb.set_data(3.6e5*turb[:,int(k)].astype(np.float32)*amp)
-#             time.sleep(5.01)
 try:
     print("Press Ctrl+C to terminate all jobs and tmux sessions...")
     while True:  
         time.sleep(1)
 
 except KeyboardInterrupt:
-    # Handle Ctrl+C gracefully
     print("\nCtrl+C detected!")
     cleanup()

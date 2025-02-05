@@ -2,7 +2,7 @@ import numpy as np
 import astropy.io.fits as pfits
 from dd_utils import *
 
-amp=10
+amp=0.1
 
 turb = pfits.getdata("tilt_traj.fits")
 
