@@ -19,14 +19,14 @@ old_time = time.time()
 while True:  
     for k in range(turb.shape[1]):
         new_time = time.time()
-        print(1/(new_time-old_time))
+        # print(1/(new_time-old_time))
         old_time = new_time
 
         dmTurb.set_data(3.6e5*turb[:,k].astype(np.float32)*amp)
         slopes_shm.get_data(check=True, semNb=4)
     for k in np.linspace(turb.shape[1]-1,0,turb.shape[1]):
         new_time = time.time()
-        print(1/(new_time-old_time))
+        # print(1/(new_time-old_time))
         old_time = new_time
         dmTurb.set_data(3.6e5*turb[:,int(k)].astype(np.float32)*amp)
         slopes_shm.get_data(check=True, semNb=4)
