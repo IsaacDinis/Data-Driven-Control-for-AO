@@ -8,7 +8,7 @@ import numpy as np
 import astropy.io.fits as pfits
 
 time.sleep(1) # wait for SHM to be created
-amp=1
+amp=0.1
 turb = loadmat("turbulence_r0_15cm_windSpeed_5_ms_frequency_1000_Hz_seed_1.mat")["phase_screen"]
 dmTurb=dao.shm('/tmp/dmCmd03.im.shm')
 M2V = dao.shm("/tmp/m2c.im.shm").get_data()
